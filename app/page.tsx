@@ -7,6 +7,9 @@ import AboutSection from '@/components/AboutSection';
 import Footer from '@/components/Footer';
 import { supabase, Product } from '@/lib/supabase';
 
+// Revalidate every 60 seconds
+export const revalidate = 60;
+
 async function getFeaturedProducts(): Promise<any[]> {
   // Return empty array during build if Supabase is not configured
   if (!supabase) {

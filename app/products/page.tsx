@@ -4,6 +4,9 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { FaShoppingCart, FaEye } from 'react-icons/fa';
 
+// Revalidate every 60 seconds
+export const revalidate = 60;
+
 async function getProducts() {
   if (!supabase) {
     return [];
