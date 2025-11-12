@@ -66,3 +66,10 @@ export type Category = {
   created_at: string;
   updated_at: string;
 };
+
+export type ProductCategory = {
+  id: string;
+  product_id: string;
+  category_id: string;
+  created_at: string;
+};

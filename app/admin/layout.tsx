@@ -1,11 +1,20 @@
+'use client';
+
 import Link from 'next/link';
-import { FaHome, FaBox, FaTags, FaShoppingCart, FaImages, FaTicketAlt, FaEnvelope, FaSignOutAlt } from 'react-icons/fa';
+import { useSession, signOut } from 'next-auth/react';
+import { FaHome, FaBox, FaTags, FaShoppingCart, FaImages, FaTicketAlt, FaEnvelope, FaSignOutAlt, FaUser } from 'react-icons/fa';
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { data: session } = useSession();
+
+  const handleSignOut = async () => {
+    await signOut({ callbackUrl: '/admin/login' });
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 flex" dir="rtl">
       {/* Sidebar */}
@@ -14,6 +23,33 @@ export default function AdminLayout({
           <h1 className="text-2xl font-bold">לוח בקרה</h1>
           <p className="text-gray-400 text-sm mt-1">שטיחי בוטיק יוסף</p>
         </div>
+
+        {/* User Info */}
+        {session?.user && (
+          <div className="px-6 py-4 bg-gray-800 border-y border-gray-700">
+            <div className="flex items-center gap-3">
+              {session.user.image ? (
+                <img
+                  src={session.user.image}
+                  alt={session.user.name || 'User'}
+                  className="w-10 h-10 rounded-full"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center">
+                  <FaUser />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-white truncate">
+                  {session.user.name}
+                </p>
+                <p className="text-xs text-gray-400 truncate">
+                  {session.user.email}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         <nav className="mt-6">
           <Link
@@ -80,6 +116,14 @@ export default function AdminLayout({
               <FaHome className="ml-3" />
               חזרה לאתר
             </Link>
+
+            <button
+              onClick={handleSignOut}
+              className="w-full flex items-center px-6 py-3 text-gray-300 hover:bg-red-600 hover:text-white transition-colors"
+            >
+              <FaSignOutAlt className="ml-3" />
+              התנתק
+            </button>
           </div>
         </nav>
       </aside>

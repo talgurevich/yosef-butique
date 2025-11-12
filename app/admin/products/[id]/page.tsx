@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { FaSave, FaArrowRight, FaPlus, FaTrash } from 'react-icons/fa';
-import { supabase, Product, ProductVariant } from '@/lib/supabase';
+import { supabase, Product, ProductVariant, Category, ProductImage } from '@/lib/supabase';
+import ProductImageUpload from '@/components/ProductImageUpload';
 
 export default function EditProductPage() {
   const router = useRouter();
@@ -15,11 +16,13 @@ export default function EditProductPage() {
   const [saving, setSaving] = useState(false);
   const [product, setProduct] = useState<Product | null>(null);
   const [variants, setVariants] = useState<ProductVariant[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [productImages, setProductImages] = useState<ProductImage[]>([]);
 
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    sku: '',
     material: '',
     is_featured: false,
     is_active: true,
@@ -29,6 +32,9 @@ export default function EditProductPage() {
   useEffect(() => {
     fetchProduct();
     fetchVariants();
+    fetchCategories();
+    fetchProductCategories();
+    fetchProductImages();
   }, [productId]);
 
   const fetchProduct = async () => {
@@ -45,7 +51,6 @@ export default function EditProductPage() {
       setFormData({
         name: data.name,
         description: data.description || '',
-        sku: data.sku,
         material: data.material || '',
         is_featured: data.is_featured,
         is_active: data.is_active,
@@ -74,6 +79,58 @@ export default function EditProductPage() {
     }
   };
 
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order');
+
+      if (error) throw error;
+      setCategories(data || []);
+    } catch (error: any) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  const fetchProductCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('product_categories')
+        .select('category_id')
+        .eq('product_id', productId);
+
+      if (error) throw error;
+      setSelectedCategories(data?.map((pc) => pc.category_id) || []);
+    } catch (error: any) {
+      console.error('Error fetching product categories:', error);
+    }
+  };
+
+  const fetchProductImages = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('product_images')
+        .select('*')
+        .eq('product_id', productId)
+        .order('sort_order');
+
+      if (error) throw error;
+      setProductImages(data || []);
+    } catch (error: any) {
+      console.error('Error fetching product images:', error);
+    }
+  };
+
+  const toggleCategory = (categoryId: string) => {
+    setSelectedCategories((prev) =>
+      prev.includes(categoryId)
+        ? prev.filter((id) => id !== categoryId)
+        : [...prev, categoryId]
+    );
+  };
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -91,12 +148,12 @@ export default function EditProductPage() {
     setSaving(true);
 
     try {
+      // 1. Update product details
       const { error } = await supabase
         .from('products')
         .update({
           name: formData.name,
           description: formData.description,
-          sku: formData.sku,
           material: formData.material,
           is_featured: formData.is_featured,
           is_active: formData.is_active,
@@ -105,6 +162,29 @@ export default function EditProductPage() {
         .eq('id', productId);
 
       if (error) throw error;
+
+      // 2. Sync category relationships
+      // First, delete existing relationships
+      const { error: deleteError } = await supabase
+        .from('product_categories')
+        .delete()
+        .eq('product_id', productId);
+
+      if (deleteError) throw deleteError;
+
+      // Then, insert new relationships
+      if (selectedCategories.length > 0) {
+        const categoryRelations = selectedCategories.map((categoryId) => ({
+          product_id: productId,
+          category_id: categoryId,
+        }));
+
+        const { error: insertError } = await supabase
+          .from('product_categories')
+          .insert(categoryRelations);
+
+        if (insertError) throw insertError;
+      }
 
       alert('המוצר עודכן בהצלחה!');
       router.push('/admin/products');
@@ -121,7 +201,7 @@ export default function EditProductPage() {
       id: `temp-${Date.now()}`,
       product_id: productId,
       size: '',
-      sku: `${formData.sku}-`,
+      sku: `VAR-${Date.now()}`,
       price: 0,
       compare_at_price: 0,
       stock_quantity: 0,
@@ -169,9 +249,14 @@ export default function EditProductPage() {
   const saveVariant = async (index: number) => {
     const variant = variants[index];
 
-    if (!variant.size || !variant.sku || variant.price <= 0) {
+    if (!variant.size || variant.price <= 0) {
       alert('נא למלא את כל השדות הנדרשים');
       return;
+    }
+
+    // Auto-generate SKU if not present
+    if (!variant.sku || variant.sku.startsWith('VAR-')) {
+      variant.sku = `VAR-${Date.now()}-${index}`;
     }
 
     try {
@@ -290,21 +375,6 @@ export default function EditProductPage() {
               />
             </div>
 
-            {/* SKU */}
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">
-                מק״ט (SKU) <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                name="sku"
-                value={formData.sku}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-              />
-            </div>
-
             {/* Material */}
             <div>
               <label className="block text-gray-700 font-medium mb-2">
@@ -318,6 +388,55 @@ export default function EditProductPage() {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
             </div>
+          </div>
+        </div>
+
+        {/* Categories Section */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-xl font-semibold text-gray-800 mb-6">
+            קטגוריות
+          </h2>
+
+          {categories.length === 0 ? (
+            <div className="text-center py-4">
+              <p className="text-gray-600 mb-2">אין קטגוריות זמינות</p>
+              <Link
+                href="/admin/categories"
+                className="text-primary-600 hover:text-primary-700 underline"
+              >
+                צור קטגוריה חדשה
+              </Link>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {categories.map((category) => (
+                <label
+                  key={category.id}
+                  className={`flex items-center p-3 border-2 rounded-lg cursor-pointer transition-colors ${
+                    selectedCategories.includes(category.id)
+                      ? 'border-primary-600 bg-primary-50'
+                      : 'border-gray-200 hover:border-primary-300'
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedCategories.includes(category.id)}
+                    onChange={() => toggleCategory(category.id)}
+                    className="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                  />
+                  <span className="mr-3 text-gray-700 font-medium">
+                    {category.name}
+                  </span>
+                </label>
+              ))}
+            </div>
+          )}
+
+          <div className="mt-4 p-4 bg-sage-light bg-opacity-20 rounded-lg border border-sage">
+            <p className="text-sm text-gray-700">
+              <strong>💡 טיפ:</strong> ניתן לבחור מספר קטגוריות למוצר אחד.
+              המוצר יופיע בכל הקטגוריות שנבחרו.
+            </p>
           </div>
         </div>
 
@@ -354,31 +473,14 @@ export default function EditProductPage() {
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="flex justify-end gap-4">
-          <Link
-            href="/admin/products"
-            className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            ביטול
-          </Link>
-          <button
-            type="submit"
-            disabled={saving}
-            className="bg-primary-600 text-white px-8 py-3 rounded-lg hover:bg-primary-700 transition-colors flex items-center gap-2 font-semibold disabled:opacity-50"
-          >
-            {saving ? (
-              <>
-                <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
-                שומר...
-              </>
-            ) : (
-              <>
-                <FaSave />
-                שמור שינויים
-              </>
-            )}
-          </button>
+        {/* Product Images */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-xl font-semibold text-gray-800 mb-6">תמונות מוצר</h2>
+          <ProductImageUpload
+            productId={productId}
+            existingImages={productImages}
+            onImagesChange={(images) => setProductImages(images)}
+          />
         </div>
       </form>
 
@@ -414,7 +516,7 @@ export default function EditProductPage() {
                 key={variant.id}
                 className="border border-gray-200 rounded-lg p-4"
               >
-                <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                   {/* Size */}
                   <div>
                     <label className="block text-gray-700 text-sm font-medium mb-1">
@@ -427,22 +529,6 @@ export default function EditProductPage() {
                         updateVariant(index, 'size', e.target.value)
                       }
                       placeholder="160×230"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    />
-                  </div>
-
-                  {/* SKU */}
-                  <div>
-                    <label className="block text-gray-700 text-sm font-medium mb-1">
-                      מק״ט <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={variant.sku}
-                      onChange={(e) =>
-                        updateVariant(index, 'sku', e.target.value)
-                      }
-                      placeholder="RUG-001-M"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                     />
                   </div>
@@ -527,6 +613,36 @@ export default function EditProductPage() {
             ))}
           </div>
         )}
+      </div>
+
+      {/* Actions - At the Bottom */}
+      <div className="mt-8 flex justify-end gap-4">
+        <Link
+          href="/admin/products"
+          className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+        >
+          ביטול
+        </Link>
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            document.querySelector('form')?.requestSubmit();
+          }}
+          disabled={saving}
+          className="bg-primary-600 text-white px-8 py-3 rounded-lg hover:bg-primary-700 transition-colors flex items-center gap-2 font-semibold disabled:opacity-50"
+        >
+          {saving ? (
+            <>
+              <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
+              שומר...
+            </>
+          ) : (
+            <>
+              <FaSave />
+              שמור שינויים
+            </>
+          )}
+        </button>
       </div>
     </div>
   );

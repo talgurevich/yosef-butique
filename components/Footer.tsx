@@ -81,7 +81,7 @@ export default function Footer() {
                 <FaInstagram className="text-2xl" />
               </a>
               <a
-                href="https://wa.me/972500000000"
+                href="https://wa.me/972515092208"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-white transition-colors"
@@ -164,10 +164,10 @@ export default function Footer() {
                 <div>
                   <p className="text-sm">טלפון</p>
                   <a
-                    href="tel:+972500000000"
+                    href="tel:+972515092208"
                     className="hover:text-white transition-colors"
                   >
-                    050-000-0000
+                    051-509-2208
                   </a>
                 </div>
               </li>
@@ -187,10 +187,38 @@ export default function Footer() {
                 <FaMapMarkerAlt className="text-primary-400 mt-1" />
                 <div>
                   <p className="text-sm">כתובת</p>
-                  <p className="text-sm">רחוב דוגמה 123, תל אביב</p>
+                  <p className="text-sm">השקד משק 47</p>
+                  <p className="text-sm">מושב בית עזרא</p>
                 </div>
               </li>
             </ul>
+
+            {/* Google Map */}
+            <div className="mt-4">
+              <div className="rounded-lg overflow-hidden">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3383.5!2d34.82!3d31.77!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzHCsDQ2JzEyLjAiTiAzNMKwNDknMTIuMCJF!5e0!3m2!1siw!2sil!4v1234567890!5m2!1siw!2sil&q=השקד+משק+47+מושב+בית+עזרא"
+                  width="100%"
+                  height="200"
+                  style={{ border: 0 }}
+                  allowFullScreen={false}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="מפת מיקום - שטיחי בוטיק יוסף"
+                />
+              </div>
+              <a
+                href="https://waze.com/ul?q=השקד משק 47 מושב בית עזרא&navigate=yes"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 flex items-center justify-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 0C7.8 0 4 3.2 4 7.2c0 5.4 8 16.8 8 16.8s8-11.4 8-16.8C20 3.2 16.2 0 12 0zm0 11c-1.7 0-3-1.3-3-3s1.3-3 3-3 3 1.3 3 3-1.3 3-3 3z"/>
+                </svg>
+                נווט עם Waze
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -199,9 +227,22 @@ export default function Footer() {
       <div className="border-t border-gray-800">
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-sm text-gray-400">
-              © {new Date().getFullYear()} שטיחי בוטיק יוסף. כל הזכויות שמורות.
-            </p>
+            <div className="text-center md:text-right">
+              <p className="text-sm text-gray-400">
+                © {new Date().getFullYear()} שטיחי בוטיק יוסף. כל הזכויות שמורות.
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                פותח על ידי{' '}
+                <a
+                  href="https://www.errn.io"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-primary-400 transition-colors"
+                >
+                  www.errn.io
+                </a>
+              </p>
+            </div>
             <div className="flex items-center space-x-4 space-x-reverse text-sm text-gray-400">
               <span>תשלום מאובטח</span>
               <div className="flex space-x-2 space-x-reverse">

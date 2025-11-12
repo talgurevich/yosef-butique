@@ -45,7 +45,7 @@ export default function Header() {
           <div className="flex items-center space-x-4 space-x-reverse">
             {/* WhatsApp Button */}
             <a
-              href="https://wa.me/972500000000"
+              href="https://wa.me/972515092208"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center space-x-2 space-x-reverse bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
