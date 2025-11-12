@@ -21,9 +21,6 @@ const authOptions: NextAuthOptions = {
       return true;
     },
     async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.sub || '';
-      }
       return session;
     },
     async jwt({ token, user, account }) {
