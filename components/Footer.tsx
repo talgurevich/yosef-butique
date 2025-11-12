@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { FaFacebook, FaInstagram, FaWhatsapp, FaPhone, FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
 import { useState } from 'react';
 
@@ -281,9 +282,50 @@ export default function Footer() {
             </div>
             <div className="flex items-center space-x-4 space-x-reverse text-sm text-gray-400">
               <span>תשלום מאובטח</span>
-              <div className="flex space-x-2 space-x-reverse">
-                <div className="bg-gray-800 px-3 py-1 rounded">💳 Visa</div>
-                <div className="bg-gray-800 px-3 py-1 rounded">💳 Mastercard</div>
+              <div className="flex space-x-2 space-x-reverse items-center">
+                {/* Visa */}
+                <div className="bg-white px-3 py-2 rounded flex items-center justify-center h-10" title="Visa">
+                  <Image
+                    src="/payment-logos/visa.png"
+                    alt="Visa"
+                    width={50}
+                    height={30}
+                    className="object-contain"
+                  />
+                </div>
+
+                {/* Mastercard */}
+                <div className="bg-white px-3 py-2 rounded flex items-center justify-center h-10" title="Mastercard">
+                  <Image
+                    src="/payment-logos/mastercard.webp"
+                    alt="Mastercard"
+                    width={50}
+                    height={30}
+                    className="object-contain"
+                  />
+                </div>
+
+                {/* American Express */}
+                <div className="bg-white px-3 py-2 rounded flex items-center justify-center h-10" title="American Express">
+                  <Image
+                    src="/payment-logos/amex.png"
+                    alt="American Express"
+                    width={50}
+                    height={30}
+                    className="object-contain"
+                  />
+                </div>
+
+                {/* PayPal */}
+                <div className="bg-white px-3 py-2 rounded flex items-center justify-center h-10" title="PayPal">
+                  <Image
+                    src="/payment-logos/paypal.webp"
+                    alt="PayPal"
+                    width={50}
+                    height={30}
+                    className="object-contain"
+                  />
+                </div>
               </div>
             </div>
           </div>
