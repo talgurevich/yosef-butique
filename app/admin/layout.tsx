@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
-import { FaHome, FaBox, FaTags, FaShoppingCart, FaImages, FaTicketAlt, FaEnvelope, FaSignOutAlt, FaUser } from 'react-icons/fa';
+import { FaHome, FaBox, FaTags, FaShoppingCart, FaImages, FaTicketAlt, FaEnvelope, FaSignOutAlt, FaUser, FaPalette, FaShapes, FaDoorOpen, FaSeedling, FaRulerVertical, FaSun, FaHandHoldingHeart, FaPaw } from 'react-icons/fa';
 
 export default function AdminLayout({
   children,
@@ -68,45 +68,119 @@ export default function AdminLayout({
             מוצרים
           </Link>
 
-          <Link
-            href="/admin/categories"
-            className="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
-          >
-            <FaTags className="ml-3" />
-            קטגוריות
-          </Link>
+          <div className="mt-6 pt-6 border-t border-gray-800">
+            <p className="px-6 text-xs text-gray-500 uppercase mb-3">שטיחים</p>
 
-          <Link
-            href="/admin/orders"
-            className="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
-          >
-            <FaShoppingCart className="ml-3" />
-            הזמנות
-          </Link>
+            <Link
+              href="/admin/categories"
+              className="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+            >
+              <FaTags className="ml-3" />
+              סגנונות
+            </Link>
 
-          <Link
-            href="/admin/gallery"
-            className="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
-          >
-            <FaImages className="ml-3" />
-            גלריית לקוחות
-          </Link>
+            <Link
+              href="/admin/colors"
+              className="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+            >
+              <FaPalette className="ml-3" />
+              צבעים
+            </Link>
 
-          <Link
-            href="/admin/promo-codes"
-            className="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
-          >
-            <FaTicketAlt className="ml-3" />
-            קודי הנחה
-          </Link>
+            <Link
+              href="/admin/shapes"
+              className="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+            >
+              <FaShapes className="ml-3" />
+              צורות
+            </Link>
 
-          <Link
-            href="/admin/newsletter"
-            className="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
-          >
-            <FaEnvelope className="ml-3" />
-            ניוזלטר
-          </Link>
+            <Link
+              href="/admin/spaces"
+              className="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+            >
+              <FaDoorOpen className="ml-3" />
+              חללים
+            </Link>
+          </div>
+
+          <div className="mt-6 pt-6 border-t border-gray-800">
+            <p className="px-6 text-xs text-gray-500 uppercase mb-3">עציצים</p>
+
+            <Link
+              href="/admin/plant-types"
+              className="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+            >
+              <FaSeedling className="ml-3" />
+              סוגי צמחים
+            </Link>
+
+            <Link
+              href="/admin/plant-sizes"
+              className="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+            >
+              <FaRulerVertical className="ml-3" />
+              גדלים
+            </Link>
+
+            <Link
+              href="/admin/plant-light-requirements"
+              className="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+            >
+              <FaSun className="ml-3" />
+              דרישות אור
+            </Link>
+
+            <Link
+              href="/admin/plant-care-levels"
+              className="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+            >
+              <FaHandHoldingHeart className="ml-3" />
+              רמות טיפול
+            </Link>
+
+            <Link
+              href="/admin/plant-pet-safety"
+              className="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+            >
+              <FaPaw className="ml-3" />
+              בטיחות לחיות
+            </Link>
+          </div>
+
+          <div className="mt-6 pt-6 border-t border-gray-800">
+            <Link
+              href="/admin/orders"
+              className="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+            >
+              <FaShoppingCart className="ml-3" />
+              הזמנות
+            </Link>
+
+            <Link
+              href="/admin/gallery"
+              className="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+            >
+              <FaImages className="ml-3" />
+              גלריית לקוחות
+            </Link>
+
+            <Link
+              href="/admin/promo-codes"
+              className="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+            >
+              <FaTicketAlt className="ml-3" />
+              קודי הנחה
+            </Link>
+
+            <Link
+              href="/admin/newsletter"
+              className="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+            >
+              <FaEnvelope className="ml-3" />
+              ניוזלטר
+            </Link>
+          </div>
 
           <div className="border-t border-gray-800 mt-6 pt-6">
             <Link

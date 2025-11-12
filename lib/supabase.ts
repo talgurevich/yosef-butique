@@ -8,6 +8,16 @@ export const supabase = supabaseUrl && supabaseAnonKey
   : null as any;
 
 // Database types
+export type ProductType = {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Product = {
   id: string;
   name: string;
@@ -16,6 +26,7 @@ export type Product = {
   compare_at_price?: number;
   sku: string;
   category_id?: string;
+  product_type_id: string;
   style: string[];
   color: string[];
   size: string;
@@ -71,6 +82,150 @@ export type ProductCategory = {
   id: string;
   product_id: string;
   category_id: string;
+  created_at: string;
+};
+
+export type Color = {
+  id: string;
+  name: string;
+  slug: string;
+  hex_code?: string;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type Shape = {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ProductColor = {
+  id: string;
+  product_id: string;
+  color_id: string;
+  created_at: string;
+};
+
+export type ProductShape = {
+  id: string;
+  product_id: string;
+  shape_id: string;
+  created_at: string;
+};
+
+export type Space = {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ProductSpace = {
+  id: string;
+  product_id: string;
+  space_id: string;
+  created_at: string;
+};
+
+export type PlantType = {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type PlantSize = {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type PlantLightRequirement = {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type PlantCareLevel = {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type PlantPetSafety = {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ProductPlantType = {
+  id: string;
+  product_id: string;
+  plant_type_id: string;
+  created_at: string;
+};
+
+export type ProductPlantSize = {
+  id: string;
+  product_id: string;
+  plant_size_id: string;
+  created_at: string;
+};
+
+export type ProductPlantLightRequirement = {
+  id: string;
+  product_id: string;
+  plant_light_requirement_id: string;
+  created_at: string;
+};
+
+export type ProductPlantCareLevel = {
+  id: string;
+  product_id: string;
+  plant_care_level_id: string;
+  created_at: string;
+};
+
+export type ProductPlantPetSafety = {
+  id: string;
+  product_id: string;
+  plant_pet_safety_id: string;
   created_at: string;
 };
 

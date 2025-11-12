@@ -2,37 +2,36 @@
 
 import { useState, useEffect } from 'react';
 import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes } from 'react-icons/fa';
-import { supabase, Category } from '@/lib/supabase';
+import { supabase, Space } from '@/lib/supabase';
 
-export default function CategoriesPage() {
-  const [categories, setCategories] = useState<Category[]>([]);
+export default function SpacesPage() {
+  const [spaces, setSpaces] = useState<Space[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    parent_id: null as string | null,
     sort_order: 0,
     is_active: true,
   });
 
   useEffect(() => {
-    fetchCategories();
+    fetchSpaces();
   }, []);
 
-  const fetchCategories = async () => {
+  const fetchSpaces = async () => {
     try {
       const { data, error } = await supabase
-        .from('categories')
+        .from('spaces')
         .select('*')
         .order('sort_order');
 
       if (error) throw error;
-      setCategories(data || []);
+      setSpaces(data || []);
     } catch (error: any) {
-      console.error('Error fetching categories:', error);
-      alert(`שגיאה בטעינת סגנונות: ${error.message}`);
+      console.error('Error fetching spaces:', error);
+      alert(`שגיאה בטעינת חללים: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -57,17 +56,16 @@ export default function CategoriesPage() {
   const handleAdd = async () => {
     try {
       if (!formData.name.trim()) {
-        alert('נא למלא את שם הסגנון');
+        alert('נא למלא את שם החלל');
         return;
       }
 
       const slug = generateSlug(formData.name);
 
-      const { error } = await supabase.from('categories').insert([
+      const { error } = await supabase.from('spaces').insert([
         {
           name: formData.name,
           description: formData.description,
-          parent_id: formData.parent_id,
           slug,
           sort_order: formData.sort_order,
           is_active: formData.is_active,
@@ -76,66 +74,65 @@ export default function CategoriesPage() {
 
       if (error) throw error;
 
-      alert('הסגנון נוסף בהצלחה!');
-      setFormData({ name: '', description: '', parent_id: null, sort_order: 0, is_active: true });
+      alert('החלל נוסף בהצלחה!');
+      setFormData({ name: '', description: '', sort_order: 0, is_active: true });
       setIsAdding(false);
-      fetchCategories();
+      fetchSpaces();
     } catch (error: any) {
-      console.error('Error adding category:', error);
-      alert(`שגיאה בהוספת סגנון: ${error.message}`);
+      console.error('Error adding space:', error);
+      alert(`שגיאה בהוספת חלל: ${error.message}`);
     }
   };
 
   const handleUpdate = async (id: string) => {
     try {
-      const category = categories.find((c) => c.id === id);
-      if (!category) return;
+      const space = spaces.find((s) => s.id === id);
+      if (!space) return;
 
-      const slug = generateSlug(category.name, category.slug);
+      const slug = generateSlug(space.name, space.slug);
 
       const { error } = await supabase
-        .from('categories')
+        .from('spaces')
         .update({
-          name: category.name,
-          description: category.description,
-          parent_id: category.parent_id,
+          name: space.name,
+          description: space.description,
           slug,
-          sort_order: category.sort_order,
-          is_active: category.is_active,
+          sort_order: space.sort_order,
+          is_active: space.is_active,
         })
         .eq('id', id);
 
       if (error) throw error;
 
-      alert('הסגנון עודכן בהצלחה!');
+      alert('החלל עודכן בהצלחה!');
       setEditingId(null);
-      fetchCategories();
+      fetchSpaces();
     } catch (error: any) {
-      console.error('Error updating category:', error);
-      alert(`שגיאה בעדכון סגנון: ${error.message}`);
+      console.error('Error updating space:', error);
+      alert(`שגיאה בעדכון חלל: ${error.message}`);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('האם אתה בטוח שברצונך למחוק סגנון זה?')) return;
+    if (!confirm('האם אתה בטוח שברצונך למחוק חלל זה?')) return;
 
     try {
-      const { error } = await supabase.from('categories').delete().eq('id', id);
+      const { error } = await supabase.from('spaces').delete().eq('id', id);
 
       if (error) throw error;
 
-      alert('הסגנון נמחק בהצלחה!');
-      fetchCategories();
+      alert('החלל נמחק בהצלחה!');
+      fetchSpaces();
     } catch (error: any) {
-      console.error('Error deleting category:', error);
-      alert(`שגיאה במחיקת סגנון: ${error.message}`);
+      console.error('Error deleting space:', error);
+      alert(`שגיאה במחיקת חלל: ${error.message}`);
     }
   };
 
-  const updateCategory = (id: string, field: string, value: any) => {
-    setCategories(
-      categories.map((cat) =>
-        cat.id === id ? { ...cat, [field]: value } : cat
+  const updateSpace = (id: string, field: string, value: any) => {
+    setSpaces(
+      spaces.map((space) =>
+        space.id === id ? { ...space, [field]: value } : space
       )
     );
   };
@@ -153,29 +150,29 @@ export default function CategoriesPage() {
       {/* Header */}
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">ניהול סגנונות</h1>
-          <p className="text-gray-600 mt-2">נהל את הסגנונות של המוצרים</p>
+          <h1 className="text-3xl font-bold text-gray-800">ניהול חללים</h1>
+          <p className="text-gray-600 mt-2">נהל את סוגי החללים הזמינים למוצרים</p>
         </div>
         <button
           onClick={() => setIsAdding(true)}
           className="bg-terracotta text-white px-6 py-3 rounded-lg hover:bg-terracotta-dark transition-colors flex items-center gap-2 font-semibold"
         >
           <FaPlus />
-          הוסף סגנון חדש
+          הוסף חלל חדש
         </button>
       </div>
 
-      {/* Add New Category Form */}
+      {/* Add New Space Form */}
       {isAdding && (
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">
-            סגנון חדש
+            חלל חדש
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
               <label className="block text-gray-700 font-medium mb-2">
-                שם הסגנון <span className="text-red-500">*</span>
+                שם החלל <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -184,28 +181,8 @@ export default function CategoriesPage() {
                   setFormData({ ...formData, name: e.target.value })
                 }
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                placeholder="לדוגמה: מודרני"
+                placeholder="לדוגמה: סלון"
               />
-            </div>
-
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">
-                סגנון אב
-              </label>
-              <select
-                value={formData.parent_id || ''}
-                onChange={(e) =>
-                  setFormData({ ...formData, parent_id: e.target.value || null })
-                }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-              >
-                <option value="">אין (סגנון ראשי)</option>
-                {categories.filter(cat => !cat.parent_id).map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
             </div>
 
             <div>
@@ -233,7 +210,7 @@ export default function CategoriesPage() {
                 }
                 rows={3}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                placeholder="תיאור הסגנון (אופציונלי)"
+                placeholder="תיאור החלל (אופציונלי)"
               />
             </div>
 
@@ -247,7 +224,7 @@ export default function CategoriesPage() {
                   }
                   className="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
                 />
-                <span className="mr-3 text-gray-700">סגנון פעיל</span>
+                <span className="mr-3 text-gray-700">חלל פעיל</span>
               </label>
             </div>
           </div>
@@ -263,7 +240,7 @@ export default function CategoriesPage() {
             <button
               onClick={() => {
                 setIsAdding(false);
-                setFormData({ name: '', description: '', parent_id: null, sort_order: 0, is_active: true });
+                setFormData({ name: '', description: '', sort_order: 0, is_active: true });
               }}
               className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition-colors flex items-center gap-2"
             >
@@ -274,16 +251,13 @@ export default function CategoriesPage() {
         </div>
       )}
 
-      {/* Categories List */}
+      {/* Spaces List */}
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                 שם
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                סגנון אב
               </th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                 תיאור
@@ -300,82 +274,55 @@ export default function CategoriesPage() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {categories.length === 0 ? (
+            {spaces.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
-                  אין סגנונות עדיין. לחץ על "הוסף סגנון חדש" כדי להתחיל.
+                <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                  אין חללים עדיין. לחץ על "הוסף חלל חדש" כדי להתחיל.
                 </td>
               </tr>
             ) : (
-              categories.map((category) => (
-                <tr key={category.id} className={category.parent_id ? 'bg-gray-50' : ''}>
+              spaces.map((space) => (
+                <tr key={space.id}>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {editingId === category.id ? (
+                    {editingId === space.id ? (
                       <input
                         type="text"
-                        value={category.name}
+                        value={space.name}
                         onChange={(e) =>
-                          updateCategory(category.id, 'name', e.target.value)
+                          updateSpace(space.id, 'name', e.target.value)
                         }
                         className="w-full px-3 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500"
                       />
                     ) : (
                       <div className="text-sm font-medium text-gray-900">
-                        {category.parent_id && '↳ '}
-                        {category.name}
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {editingId === category.id ? (
-                      <select
-                        value={category.parent_id || ''}
-                        onChange={(e) =>
-                          updateCategory(category.id, 'parent_id', e.target.value || null)
-                        }
-                        className="w-full px-3 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500"
-                      >
-                        <option value="">אין (סגנון ראשי)</option>
-                        {categories
-                          .filter(cat => !cat.parent_id && cat.id !== category.id)
-                          .map((cat) => (
-                            <option key={cat.id} value={cat.id}>
-                              {cat.name}
-                            </option>
-                          ))}
-                      </select>
-                    ) : (
-                      <div className="text-sm text-gray-500">
-                        {category.parent_id
-                          ? categories.find(c => c.id === category.parent_id)?.name || '-'
-                          : '-'}
+                        {space.name}
                       </div>
                     )}
                   </td>
                   <td className="px-6 py-4">
-                    {editingId === category.id ? (
+                    {editingId === space.id ? (
                       <textarea
-                        value={category.description || ''}
+                        value={space.description || ''}
                         onChange={(e) =>
-                          updateCategory(category.id, 'description', e.target.value)
+                          updateSpace(space.id, 'description', e.target.value)
                         }
                         rows={2}
                         className="w-full px-3 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500"
                       />
                     ) : (
                       <div className="text-sm text-gray-500">
-                        {category.description || '-'}
+                        {space.description || '-'}
                       </div>
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {editingId === category.id ? (
+                    {editingId === space.id ? (
                       <input
                         type="number"
-                        value={category.sort_order}
+                        value={space.sort_order}
                         onChange={(e) =>
-                          updateCategory(
-                            category.id,
+                          updateSpace(
+                            space.id,
                             'sort_order',
                             parseInt(e.target.value) || 0
                           )
@@ -384,18 +331,18 @@ export default function CategoriesPage() {
                       />
                     ) : (
                       <div className="text-sm text-gray-900">
-                        {category.sort_order}
+                        {space.sort_order}
                       </div>
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {editingId === category.id ? (
+                    {editingId === space.id ? (
                       <label className="flex items-center">
                         <input
                           type="checkbox"
-                          checked={category.is_active}
+                          checked={space.is_active}
                           onChange={(e) =>
-                            updateCategory(category.id, 'is_active', e.target.checked)
+                            updateSpace(space.id, 'is_active', e.target.checked)
                           }
                           className="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
                         />
@@ -404,20 +351,20 @@ export default function CategoriesPage() {
                     ) : (
                       <span
                         className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          category.is_active
+                          space.is_active
                             ? 'bg-green-100 text-green-800'
                             : 'bg-red-100 text-red-800'
                         }`}
                       >
-                        {category.is_active ? 'פעיל' : 'לא פעיל'}
+                        {space.is_active ? 'פעיל' : 'לא פעיל'}
                       </span>
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    {editingId === category.id ? (
+                    {editingId === space.id ? (
                       <div className="flex gap-2">
                         <button
-                          onClick={() => handleUpdate(category.id)}
+                          onClick={() => handleUpdate(space.id)}
                           className="text-green-600 hover:text-green-900"
                           title="שמור"
                         >
@@ -426,7 +373,7 @@ export default function CategoriesPage() {
                         <button
                           onClick={() => {
                             setEditingId(null);
-                            fetchCategories();
+                            fetchSpaces();
                           }}
                           className="text-gray-600 hover:text-gray-900"
                           title="ביטול"
@@ -437,14 +384,14 @@ export default function CategoriesPage() {
                     ) : (
                       <div className="flex gap-2">
                         <button
-                          onClick={() => setEditingId(category.id)}
+                          onClick={() => setEditingId(space.id)}
                           className="text-primary-600 hover:text-primary-900"
                           title="ערוך"
                         >
                           <FaEdit />
                         </button>
                         <button
-                          onClick={() => handleDelete(category.id)}
+                          onClick={() => handleDelete(space.id)}
                           className="text-red-600 hover:text-red-900"
                           title="מחק"
                         >
