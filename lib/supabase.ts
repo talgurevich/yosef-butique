@@ -73,3 +73,26 @@ export type ProductCategory = {
   category_id: string;
   created_at: string;
 };
+
+export type GalleryImage = {
+  id: string;
+  image_url: string;
+  customer_name?: string;
+  testimonial?: string;
+  product_id?: string;
+  is_featured: boolean;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+};
+
+export type NewsletterSubscriber = {
+  id: string;
+  email: string;
+  full_name?: string;
+  status: 'active' | 'unsubscribed';
+  source?: string;
+  promo_code_sent: boolean;
+  subscribed_at: string;
+  unsubscribed_at?: string;
+};

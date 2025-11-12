@@ -8,6 +8,10 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        heading: ['var(--font-alef)', 'serif'],
+        body: ['var(--font-rubik)', 'sans-serif'],
+      },
       colors: {
         // Base colors for שטיחי בוטיק יוסף
         cream: '#F8F5F0', // צבע בסיס - שמנת/בז' בהיר

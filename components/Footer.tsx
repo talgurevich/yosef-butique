@@ -6,12 +6,44 @@ import { useState } from 'react';
 
 export default function Footer() {
   const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
 
-  const handleNewsletterSubmit = (e: React.FormEvent) => {
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement newsletter subscription
-    alert('תודה על ההרשמה לניוזלטר!');
-    setEmail('');
+    setLoading(true);
+    setMessage('');
+
+    try {
+      const response = await fetch('/api/newsletter/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, source: 'footer' }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'שגיאה בהרשמה');
+      }
+
+      setMessage(data.message);
+      setEmail('');
+
+      // Show promo code if available
+      if (data.promoCode) {
+        alert(`🎉 ${data.message}\n\nקוד ההנחה שלך: ${data.promoCode}\n\nהעתק אותו ושמור לרכישה הבאה!`);
+      } else {
+        alert(data.message);
+      }
+    } catch (error: any) {
+      setMessage(error.message);
+      alert('❌ ' + error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -42,9 +74,10 @@ export default function Footer() {
               />
               <button
                 type="submit"
-                className="bg-white text-primary-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors whitespace-nowrap"
+                disabled={loading}
+                className="bg-white text-primary-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                הרשמה
+                {loading ? 'נרשם...' : 'הרשמה'}
               </button>
             </form>
           </div>

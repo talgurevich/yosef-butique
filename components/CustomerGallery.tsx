@@ -1,7 +1,58 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { supabase, GalleryImage } from '@/lib/supabase';
+
 export default function CustomerGallery() {
-  const placeholderImages = Array(6).fill(null);
+  const [images, setImages] = useState<GalleryImage[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchGalleryImages();
+  }, []);
+
+  const fetchGalleryImages = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('customer_gallery')
+        .select('*')
+        .eq('is_active', true)
+        .order('is_featured', { ascending: false })
+        .order('sort_order', { ascending: true })
+        .limit(12);
+
+      if (error) throw error;
+      setImages(data || []);
+    } catch (error) {
+      console.error('Error fetching gallery images:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+              הלקוחות שלנו
+            </h2>
+            <p className="text-gray-600 text-lg">
+              תמונות אמיתיות מלקוחות מרוצים
+            </p>
+          </div>
+          <div className="text-center py-12">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (images.length === 0) {
+    return null; // Don't show the section if there are no images
+  }
 
   return (
     <section className="py-16 bg-white">
@@ -16,26 +67,30 @@ export default function CustomerGallery() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {placeholderImages.map((_, index) => (
+          {images.map((image) => (
             <div
-              key={index}
-              className="aspect-square bg-gray-200 rounded-lg overflow-hidden hover:scale-105 transition-transform cursor-pointer"
+              key={image.id}
+              className="aspect-square bg-gray-200 rounded-lg overflow-hidden hover:scale-105 transition-transform cursor-pointer group relative"
             >
-              <div className="w-full h-full flex items-center justify-center text-gray-400">
-                <svg
-                  className="w-12 h-12"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1}
-                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-              </div>
+              <img
+                src={image.image_url}
+                alt={image.customer_name || 'Customer photo'}
+                className="w-full h-full object-cover"
+              />
+
+              {/* Overlay with customer info on hover */}
+              {(image.customer_name || image.testimonial) && (
+                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-70 transition-all flex items-center justify-center p-4 opacity-0 group-hover:opacity-100">
+                  <div className="text-white text-center">
+                    {image.customer_name && (
+                      <p className="font-semibold text-sm mb-1">{image.customer_name}</p>
+                    )}
+                    {image.testimonial && (
+                      <p className="text-xs line-clamp-3">{image.testimonial}</p>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
