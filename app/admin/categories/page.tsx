@@ -12,6 +12,7 @@ export default function CategoriesPage() {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
+    parent_id: null as string | null,
     sort_order: 0,
     is_active: true,
   });
@@ -58,6 +59,7 @@ export default function CategoriesPage() {
         {
           name: formData.name,
           description: formData.description,
+          parent_id: formData.parent_id,
           slug,
           sort_order: formData.sort_order,
           is_active: formData.is_active,
@@ -67,7 +69,7 @@ export default function CategoriesPage() {
       if (error) throw error;
 
       alert('הקטגוריה נוספה בהצלחה!');
-      setFormData({ name: '', description: '', sort_order: 0, is_active: true });
+      setFormData({ name: '', description: '', parent_id: null, sort_order: 0, is_active: true });
       setIsAdding(false);
       fetchCategories();
     } catch (error: any) {
@@ -88,6 +90,7 @@ export default function CategoriesPage() {
         .update({
           name: category.name,
           description: category.description,
+          parent_id: category.parent_id,
           slug,
           sort_order: category.sort_order,
           is_active: category.is_active,
@@ -179,6 +182,26 @@ export default function CategoriesPage() {
 
             <div>
               <label className="block text-gray-700 font-medium mb-2">
+                קטגוריה אב
+              </label>
+              <select
+                value={formData.parent_id || ''}
+                onChange={(e) =>
+                  setFormData({ ...formData, parent_id: e.target.value || null })
+                }
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              >
+                <option value="">אין (קטגוריה ראשית)</option>
+                {categories.filter(cat => !cat.parent_id).map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">
                 סדר תצוגה
               </label>
               <input
@@ -232,7 +255,7 @@ export default function CategoriesPage() {
             <button
               onClick={() => {
                 setIsAdding(false);
-                setFormData({ name: '', description: '', sort_order: 0, is_active: true });
+                setFormData({ name: '', description: '', parent_id: null, sort_order: 0, is_active: true });
               }}
               className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition-colors flex items-center gap-2"
             >
@@ -252,6 +275,9 @@ export default function CategoriesPage() {
                 שם
               </th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                קטגוריה אב
+              </th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                 תיאור
               </th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -268,13 +294,13 @@ export default function CategoriesPage() {
           <tbody className="bg-white divide-y divide-gray-200">
             {categories.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
                   אין קטגוריות עדיין. לחץ על "הוסף קטגוריה חדשה" כדי להתחיל.
                 </td>
               </tr>
             ) : (
               categories.map((category) => (
-                <tr key={category.id}>
+                <tr key={category.id} className={category.parent_id ? 'bg-gray-50' : ''}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {editingId === category.id ? (
                       <input
@@ -287,7 +313,34 @@ export default function CategoriesPage() {
                       />
                     ) : (
                       <div className="text-sm font-medium text-gray-900">
+                        {category.parent_id && '↳ '}
                         {category.name}
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {editingId === category.id ? (
+                      <select
+                        value={category.parent_id || ''}
+                        onChange={(e) =>
+                          updateCategory(category.id, 'parent_id', e.target.value || null)
+                        }
+                        className="w-full px-3 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      >
+                        <option value="">אין (קטגוריה ראשית)</option>
+                        {categories
+                          .filter(cat => !cat.parent_id && cat.id !== category.id)
+                          .map((cat) => (
+                            <option key={cat.id} value={cat.id}>
+                              {cat.name}
+                            </option>
+                          ))}
+                      </select>
+                    ) : (
+                      <div className="text-sm text-gray-500">
+                        {category.parent_id
+                          ? categories.find(c => c.id === category.parent_id)?.name || '-'
+                          : '-'}
                       </div>
                     )}
                   </td>

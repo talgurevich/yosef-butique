@@ -86,25 +86,46 @@ export default async function ProductsPage() {
             <aside className="md:w-64 flex-shrink-0">
               <div className="bg-white rounded-lg shadow-md p-6 sticky top-4">
                 <h2 className="text-xl font-bold text-gray-800 mb-4">קטגוריות</h2>
-                <ul className="space-y-2">
+                <ul className="space-y-1">
                   <li>
                     <Link
                       href="/products"
-                      className="block px-4 py-2 rounded-lg hover:bg-primary-50 transition-colors text-gray-700 hover:text-primary-600"
+                      className="block px-4 py-2 rounded-lg hover:bg-primary-50 transition-colors text-gray-700 hover:text-primary-600 font-semibold"
                     >
                       כל המוצרים ({products.length})
                     </Link>
                   </li>
-                  {categories.map((category) => (
-                    <li key={category.id}>
-                      <Link
-                        href={`/products?category=${category.slug}`}
-                        className="block px-4 py-2 rounded-lg hover:bg-primary-50 transition-colors text-gray-700 hover:text-primary-600"
-                      >
-                        {category.name}
-                      </Link>
-                    </li>
-                  ))}
+                  {categories
+                    .filter(cat => !cat.parent_id)
+                    .map((category) => (
+                      <li key={category.id}>
+                        <Link
+                          href={`/products?category=${category.slug}`}
+                          className="block px-4 py-2 rounded-lg hover:bg-primary-50 transition-colors text-gray-700 hover:text-primary-600 font-semibold"
+                        >
+                          {category.name}
+                        </Link>
+                        {/* Subcategories */}
+                        {categories
+                          .filter(subcat => subcat.parent_id === category.id)
+                          .length > 0 && (
+                          <ul className="mr-4 mt-1 space-y-1">
+                            {categories
+                              .filter(subcat => subcat.parent_id === category.id)
+                              .map((subcategory) => (
+                                <li key={subcategory.id}>
+                                  <Link
+                                    href={`/products?category=${subcategory.slug}`}
+                                    className="block px-4 py-1.5 rounded-lg hover:bg-primary-50 transition-colors text-gray-600 hover:text-primary-600 text-sm"
+                                  >
+                                    ↳ {subcategory.name}
+                                  </Link>
+                                </li>
+                              ))}
+                          </ul>
+                        )}
+                      </li>
+                    ))}
                 </ul>
               </div>
             </aside>
