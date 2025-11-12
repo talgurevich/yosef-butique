@@ -18,11 +18,26 @@ export default function ProductsPage() {
     try {
       const { data, error } = await supabase
         .from('products')
-        .select('*')
+        .select(`
+          *,
+          product_images (
+            id,
+            image_url,
+            alt_text,
+            sort_order
+          )
+        `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setProducts(data || []);
+
+      // Sort images by sort_order
+      const productsWithSortedImages = data?.map(product => ({
+        ...product,
+        product_images: (product as any).product_images?.sort((a: any, b: any) => a.sort_order - b.sort_order) || []
+      }));
+
+      setProducts(productsWithSortedImages as any || []);
     } catch (error) {
       console.error('Error fetching products:', error);
       alert('שגיאה בטעינת המוצרים');
@@ -138,7 +153,19 @@ export default function ProductsPage() {
                   <tr key={product.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div className="flex items-center">
-                        <div className="h-12 w-12 bg-gray-200 rounded flex-shrink-0 ml-4"></div>
+                        <div className="h-12 w-12 bg-gray-200 rounded flex-shrink-0 ml-4 overflow-hidden">
+                          {(product as any).product_images && (product as any).product_images.length > 0 ? (
+                            <img
+                              src={(product as any).product_images[0].image_url}
+                              alt={(product as any).product_images[0].alt_text || product.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
+                              אין תמונה
+                            </div>
+                          )}
+                        </div>
                         <div>
                           <div className="font-medium text-gray-900">
                             {product.name}
