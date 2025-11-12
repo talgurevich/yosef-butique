@@ -2,17 +2,31 @@ import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import ProductFilters from '@/components/ProductFilters';
 import { FaShoppingCart, FaEye } from 'react-icons/fa';
 
 // Revalidate every 60 seconds
 export const revalidate = 60;
 
-async function getProducts() {
+type SearchParams = {
+  type?: string;
+  category?: string;
+  space?: string;
+  shape?: string;
+  color?: string;
+  plant_type?: string;
+  plant_size?: string;
+  light?: string;
+  care?: string;
+  pet_safe?: string;
+};
+
+async function getProducts(filters: SearchParams) {
   if (!supabase) {
     return [];
   }
 
-  const { data, error} = await supabase
+  let query = supabase
     .from('products')
     .select(`
       *,
@@ -21,10 +35,22 @@ async function getProducts() {
         image_url,
         alt_text,
         sort_order
+      ),
+      product_types!inner (
+        id,
+        name,
+        slug
       )
     `)
-    .eq('is_active', true)
-    .order('created_at', { ascending: false });
+    .eq('is_active', true);
+
+  // Filter by product type
+  if (filters.type) {
+    query = query.eq('product_types.slug', filters.type);
+  }
+
+  // Execute the query
+  const { data, error } = await query.order('created_at', { ascending: false });
 
   if (error) {
     console.error('Error fetching products:', error);
@@ -32,36 +58,93 @@ async function getProducts() {
   }
 
   // Sort images by sort_order
-  const productsWithSortedImages = data?.map(product => ({
+  let productsWithSortedImages = data?.map((product) => ({
     ...product,
-    product_images: product.product_images?.sort((a: any, b: any) => a.sort_order - b.sort_order) || []
+    product_images:
+      product.product_images?.sort((a: any, b: any) => a.sort_order - b.sort_order) || [],
   }));
+
+  // Client-side filtering for attributes (we'll need to join these tables in a real implementation)
+  // For now, this is a placeholder for the full implementation
+  if (filters.space || filters.shape || filters.color || filters.plant_type ||
+      filters.plant_size || filters.light || filters.care || filters.pet_safe) {
+    // TODO: Implement proper joins with attribute tables
+    // This requires querying the junction tables (product_spaces, product_shapes, etc.)
+  }
 
   return productsWithSortedImages || [];
 }
 
-async function getCategories() {
+async function getFilterOptions(productType: 'carpets' | 'plants' | null) {
   if (!supabase) {
-    return [];
+    return {};
   }
 
-  const { data, error } = await supabase
-    .from('categories')
-    .select('*')
-    .eq('is_active', true)
-    .order('sort_order');
+  const options: any = {};
 
-  if (error) {
-    console.error('Error fetching categories:', error);
-    return [];
+  if (productType === 'carpets') {
+    // Fetch rug-specific filters
+    const [spacesRes, shapesRes, colorsRes] = await Promise.all([
+      supabase.from('spaces').select('*').eq('is_active', true).order('sort_order'),
+      supabase.from('shapes').select('*').eq('is_active', true).order('sort_order'),
+      supabase.from('colors').select('*').eq('is_active', true).order('sort_order'),
+    ]);
+
+    options.spaces = spacesRes.data || [];
+    options.shapes = shapesRes.data || [];
+    options.colors = colorsRes.data || [];
+  } else if (productType === 'plants') {
+    // Fetch plant-specific filters
+    const [typesRes, sizesRes, lightRes, careRes, petSafetyRes] = await Promise.all([
+      supabase.from('plant_types').select('*').eq('is_active', true).order('sort_order'),
+      supabase.from('plant_sizes').select('*').eq('is_active', true).order('sort_order'),
+      supabase
+        .from('plant_light_requirements')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order'),
+      supabase
+        .from('plant_care_levels')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order'),
+      supabase
+        .from('plant_pet_safety')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order'),
+    ]);
+
+    options.plantTypes = typesRes.data || [];
+    options.plantSizes = sizesRes.data || [];
+    options.plantLightRequirements = lightRes.data || [];
+    options.plantCareLevels = careRes.data || [];
+    options.plantPetSafety = petSafetyRes.data || [];
   }
 
-  return data || [];
+  return options;
 }
 
-export default async function ProductsPage() {
-  const products = await getProducts();
-  const categories = await getCategories();
+export default async function ProductsPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const productType = (searchParams.type as 'carpets' | 'plants') || null;
+  const products = await getProducts(searchParams);
+  const filterOptions = await getFilterOptions(productType);
+
+  // Determine page title based on type
+  let pageTitle = 'הקולקציה שלנו';
+  let pageSubtitle = 'גלה את מגוון המוצרים האיכותיים שלנו';
+
+  if (productType === 'carpets') {
+    pageTitle = 'שטיחים';
+    pageSubtitle = 'גלה את מגוון השטיחים האיכותיים שלנו';
+  } else if (productType === 'plants') {
+    pageTitle = 'צמחים';
+    pageSubtitle = 'גלה את מגוון הצמחים והעציצים שלנו';
+  }
 
   return (
     <>
@@ -72,73 +155,45 @@ export default async function ProductsPage() {
         <div className="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-16">
           <div className="container mx-auto px-4">
             <h1 className="text-4xl md:text-5xl font-bold text-center mb-4">
-              הקולקציה שלנו
+              {pageTitle}
             </h1>
             <p className="text-xl text-center text-primary-100">
-              גלה את מגוון השטיחים האיכותיים שלנו
+              {pageSubtitle}
             </p>
           </div>
         </div>
 
         <div className="container mx-auto px-4 py-12">
           <div className="flex flex-col md:flex-row gap-8">
-            {/* Sidebar - Categories */}
-            <aside className="md:w-64 flex-shrink-0">
-              <div className="bg-white rounded-lg shadow-md p-6 sticky top-4">
-                <h2 className="text-xl font-bold text-gray-800 mb-4">קטגוריות</h2>
-                <ul className="space-y-1">
-                  <li>
-                    <Link
-                      href="/products"
-                      className="block px-4 py-2 rounded-lg hover:bg-primary-50 transition-colors text-gray-700 hover:text-primary-600 font-semibold"
-                    >
-                      כל המוצרים ({products.length})
-                    </Link>
-                  </li>
-                  {categories
-                    .filter(cat => !cat.parent_id)
-                    .map((category) => (
-                      <li key={category.id}>
-                        <Link
-                          href={`/products?category=${category.slug}`}
-                          className="block px-4 py-2 rounded-lg hover:bg-primary-50 transition-colors text-gray-700 hover:text-primary-600 font-semibold"
-                        >
-                          {category.name}
-                        </Link>
-                        {/* Subcategories */}
-                        {categories
-                          .filter(subcat => subcat.parent_id === category.id)
-                          .length > 0 && (
-                          <ul className="mr-4 mt-1 space-y-1">
-                            {categories
-                              .filter(subcat => subcat.parent_id === category.id)
-                              .map((subcategory) => (
-                                <li key={subcategory.id}>
-                                  <Link
-                                    href={`/products?category=${subcategory.slug}`}
-                                    className="block px-4 py-1.5 rounded-lg hover:bg-primary-50 transition-colors text-gray-600 hover:text-primary-600 text-sm"
-                                  >
-                                    ↳ {subcategory.name}
-                                  </Link>
-                                </li>
-                              ))}
-                          </ul>
-                        )}
-                      </li>
-                    ))}
-                </ul>
-              </div>
-            </aside>
+            {/* Filters Sidebar */}
+            <ProductFilters
+              productType={productType}
+              spaces={filterOptions.spaces}
+              shapes={filterOptions.shapes}
+              colors={filterOptions.colors}
+              plantTypes={filterOptions.plantTypes}
+              plantSizes={filterOptions.plantSizes}
+              plantLightRequirements={filterOptions.plantLightRequirements}
+              plantCareLevels={filterOptions.plantCareLevels}
+              plantPetSafety={filterOptions.plantPetSafety}
+            />
 
             {/* Products Grid */}
             <div className="flex-1">
+              {/* Results Count */}
+              <div className="mb-6">
+                <p className="text-gray-600">
+                  מציג <span className="font-semibold">{products.length}</span> מוצרים
+                </p>
+              </div>
+
               {products.length === 0 ? (
                 <div className="bg-white rounded-lg shadow-md p-12 text-center">
                   <p className="text-gray-600 text-lg mb-4">
                     אין מוצרים זמינים כרגע
                   </p>
                   <p className="text-gray-500">
-                    נא לחזור בקרוב לעדכונים חדשים!
+                    נסה לשנות את הסינונים או לחזור בקרוב לעדכונים חדשים!
                   </p>
                 </div>
               ) : (
@@ -157,7 +212,9 @@ export default async function ProductsPage() {
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                           />
                         ) : (
-                          <div className="text-gray-400 text-6xl">🏠</div>
+                          <div className="text-gray-400 text-6xl">
+                            {productType === 'plants' ? '🌱' : '🏠'}
+                          </div>
                         )}
                         {product.is_featured && (
                           <span className="absolute top-4 left-4 bg-terracotta text-white px-3 py-1 rounded-full text-sm font-semibold">
