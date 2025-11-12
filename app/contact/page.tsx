@@ -26,8 +26,21 @@ export default function ContactPage() {
     e.preventDefault();
     setLoading(true);
 
-    // Simulate form submission
-    setTimeout(() => {
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'שגיאה בשליחת ההודעה');
+      }
+
       setLoading(false);
       setSubmitted(true);
       setFormData({
@@ -37,7 +50,10 @@ export default function ContactPage() {
         subject: '',
         message: '',
       });
-    }, 1500);
+    } catch (error: any) {
+      setLoading(false);
+      alert('❌ ' + error.message);
+    }
   };
 
   return (
