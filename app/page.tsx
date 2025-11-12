@@ -4,6 +4,7 @@ import MostWanted from '@/components/MostWanted';
 import CategoriesPreview from '@/components/CategoriesPreview';
 import CustomerGallery from '@/components/CustomerGallery';
 import AboutSection from '@/components/AboutSection';
+import Reviews from '@/components/Reviews';
 import Footer from '@/components/Footer';
 import { supabase, Product } from '@/lib/supabase';
 
@@ -85,8 +86,9 @@ export default async function Home() {
       <Hero />
       <MostWanted products={featuredProducts} />
       <CategoriesPreview categories={categories} />
-      <CustomerGallery />
       <AboutSection />
+      <Reviews />
+      <CustomerGallery />
       <Footer />
     </main>
   );
