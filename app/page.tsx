@@ -7,6 +7,12 @@ import Footer from '@/components/Footer';
 import { supabase, Product } from '@/lib/supabase';
 
 async function getFeaturedProducts(): Promise<Product[]> {
+  // Return empty array during build if Supabase is not configured
+  if (!supabase) {
+    console.log('Supabase not configured, returning empty products');
+    return [];
+  }
+
   try {
     const { data, error } = await supabase
       .from('products')
