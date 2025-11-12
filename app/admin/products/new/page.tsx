@@ -68,6 +68,7 @@ export default function NewProductPage() {
             slug,
             style: [],
             color: [],
+            has_variants: false,
           },
         ])
         .select();

@@ -181,10 +181,11 @@ export default function ProductsPage() {
                       <div className="flex gap-2">
                         <Link
                           href={`/admin/products/${product.id}`}
-                          className="text-blue-600 hover:text-blue-800 p-2"
-                          title="ערוך"
+                          className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition-colors flex items-center gap-1 text-sm"
+                          title="ערוך וניהול מידות"
                         >
                           <FaEdit />
+                          ערוך
                         </Link>
                         <button
                           onClick={() => handleDelete(product.id)}

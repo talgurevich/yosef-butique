@@ -23,9 +23,24 @@ export type Product = {
   stock_quantity: number;
   is_featured: boolean;
   is_active: boolean;
+  has_variants: boolean;
   slug: string;
   meta_title?: string;
   meta_description?: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ProductVariant = {
+  id: string;
+  product_id: string;
+  size: string;
+  sku: string;
+  price: number;
+  compare_at_price?: number;
+  stock_quantity: number;
+  is_active: boolean;
+  sort_order: number;
   created_at: string;
   updated_at: string;
 };
