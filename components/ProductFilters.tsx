@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { FaChevronDown, FaChevronUp, FaTimes } from 'react-icons/fa';
 
 type FilterData = {
   categories: any[];
@@ -27,6 +27,8 @@ type FilterData = {
     plantPetSafety?: string;
   };
   productsCount: number;
+  isOpen: boolean;
+  onClose: () => void;
 };
 
 export default function ProductFilters({
@@ -41,6 +43,8 @@ export default function ProductFilters({
   plantPetSafety,
   filters,
   productsCount,
+  isOpen,
+  onClose,
 }: FilterData) {
   const [expandedSections, setExpandedSections] = useState<{
     carpets: boolean;
@@ -57,9 +61,59 @@ export default function ProductFilters({
     }));
   };
 
+  // Prevent body scroll when panel is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
+  // Close on escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onClose]);
+
   return (
-    <aside className="md:w-64 flex-shrink-0">
-      <div className="bg-white rounded-lg shadow-md p-6 sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto">
+    <>
+      {/* Backdrop */}
+      <div
+        className={`fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 ${
+          isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={onClose}
+      />
+
+      {/* Slide-in Panel */}
+      <aside
+        className={`fixed top-0 right-0 h-full w-80 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out ${
+          isOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-primary-50">
+          <h2 className="text-xl font-bold text-gray-800">סינון מוצרים</h2>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-primary-100 rounded-lg transition-colors"
+            aria-label="Close filters"
+          >
+            <FaTimes className="text-xl text-gray-600" />
+          </button>
+        </div>
+
+        {/* Scrollable Content */}
+        <div className="p-6 overflow-y-auto h-[calc(100%-80px)]">
         {/* All Products Link */}
         <Link
           href="/products"
@@ -329,7 +383,8 @@ export default function ProductFilters({
             </div>
           )}
         </div>
-      </div>
-    </aside>
+        </div>
+      </aside>
+    </>
   );
 }
