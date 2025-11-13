@@ -107,7 +107,7 @@ export default function Footer() {
                 <FaFacebook className="text-2xl" />
               </a>
               <a
-                href="https://instagram.com"
+                href="https://www.instagram.com/yossef_carpets?igsh=MWEydXA5ZDFkemE3Ng=="
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-white transition-colors"
