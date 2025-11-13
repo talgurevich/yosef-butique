@@ -254,7 +254,7 @@ export default function CartPage() {
                       </svg>
                     </div>
                     <h3 className="font-bold text-gray-800 mb-1">החזרות בחינם</h3>
-                    <Link href="/returns-policy" className="text-sm text-primary-600 hover:text-primary-700 underline">
+                    <Link href="/terms#returns" className="text-sm text-primary-600 hover:text-primary-700 underline">
                       קרא את מדיניות ההחזרות
                     </Link>
                   </div>

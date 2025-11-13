@@ -160,7 +160,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/privacy-policy"
+                  href="/privacy"
                   className="hover:text-white transition-colors text-sm"
                 >
                   מדיניות פרטיות
@@ -168,7 +168,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/terms-of-service"
+                  href="/terms"
                   className="hover:text-white transition-colors text-sm"
                 >
                   תנאי שימוש
@@ -176,7 +176,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/returns-policy"
+                  href="/terms#returns"
                   className="hover:text-white transition-colors text-sm"
                 >
                   מדיניות החזרות

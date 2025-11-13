@@ -61,7 +61,7 @@ export default function TermsPage() {
               </ul>
             </section>
 
-            <section className="mb-8">
+            <section className="mb-8" id="returns">
               <h2 className="text-2xl font-bold text-gray-800 mb-4">3. ביטול עסקה והחזרות</h2>
               <h3 className="text-xl font-semibold text-gray-800 mb-3">3.1 ביטול עסקה</h3>
               <p className="text-gray-600 mb-4">
