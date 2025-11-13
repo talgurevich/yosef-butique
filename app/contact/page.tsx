@@ -130,10 +130,10 @@ export default function ContactPage() {
                 <div>
                   <h3 className="font-bold text-gray-800 mb-2">אימייל</h3>
                   <a
-                    href="mailto:info@yossef-boutique.co.il"
+                    href="mailto:info@boutique-yossef.co.il"
                     className="text-gray-600 hover:text-blue-600 transition-colors break-all"
                   >
-                    info@yossef-boutique.co.il
+                    info@boutique-yossef.co.il
                   </a>
                   <p className="text-sm text-gray-500 mt-1">
                     מענה תוך 24 שעות

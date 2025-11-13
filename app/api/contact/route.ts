@@ -47,8 +47,8 @@ export async function POST(request: NextRequest) {
 
     // Email to business
     const businessMsg = {
-      to: 'info@yossef-boutique.co.il',
-      from: process.env.SENDGRID_FROM_EMAIL || 'noreply@carpets-topaz.vercel.app',
+      to: 'info@boutique-yossef.co.il',
+      from: process.env.SENDGRID_FROM_EMAIL || 'info@boutique-yossef.co.il',
       replyTo: email,
       subject: `פנייה חדשה מהאתר: ${subjectText}`,
       html: `
@@ -135,7 +135,7 @@ ${message}
     // Auto-reply to customer
     const customerMsg = {
       to: email,
-      from: process.env.SENDGRID_FROM_EMAIL || 'noreply@carpets-topaz.vercel.app',
+      from: process.env.SENDGRID_FROM_EMAIL || 'info@boutique-yossef.co.il',
       subject: 'קיבלנו את פניייתך - שטיחי בוטיק יוסף',
       html: `
         <!DOCTYPE html>
@@ -177,7 +177,7 @@ ${message}
               <ul>
                 <li>📞 טלפון: <a href="tel:0515092208">051-509-2208</a></li>
                 <li>💬 WhatsApp: <a href="https://wa.me/972515092208">שלח הודעה</a></li>
-                <li>📧 אימייל: <a href="mailto:info@yossef-boutique.co.il">info@yossef-boutique.co.il</a></li>
+                <li>📧 אימייל: <a href="mailto:info@boutique-yossef.co.il">info@boutique-yossef.co.il</a></li>
               </ul>
 
               <p>שעות פעילות:</p>
@@ -215,7 +215,7 @@ ${message}
 במידה ויש לך שאלות נוספות, אתה מוזמן ליצור קשר:
 📞 טלפון: 051-509-2208
 💬 WhatsApp: https://wa.me/972515092208
-📧 אימייל: info@yossef-boutique.co.il
+📧 אימייל: info@boutique-yossef.co.il
 
 שעות פעילות:
 ראשון - חמישי: 9:00 - 18:00
