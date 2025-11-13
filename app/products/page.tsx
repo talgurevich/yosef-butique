@@ -443,14 +443,52 @@ export default async function ProductsPage({
 
       <div className="min-h-screen bg-cream">
         {/* Page Header */}
-        <div className="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-16">
-          <div className="container mx-auto px-4">
-            <h1 className="text-4xl md:text-5xl font-bold text-center mb-4">
-              הקולקציה שלנו
-            </h1>
-            <p className="text-xl text-center text-primary-100">
-              גלה את מגוון השטיחים האיכותיים שלנו
-            </p>
+        <div className="relative bg-gradient-to-br from-primary-600 via-primary-700 to-terracotta text-white py-20 overflow-hidden">
+          {/* Decorative background elements */}
+          <div className="absolute top-0 left-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-terracotta/20 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-10">
+            <svg className="w-[600px] h-[600px]" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <path fill="currentColor" d="M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-45.8C87.4,-32.6,90,-16.3,88.5,-0.9C87,14.6,81.4,29.2,73.1,42.2C64.8,55.2,53.8,66.6,40.3,74.1C26.8,81.6,10.8,85.2,-4.9,83.9C-20.6,82.6,-36,76.4,-48.9,67.4C-61.8,58.4,-72.2,46.6,-78.1,33C-84,19.4,-85.4,3.9,-82.7,-10.3C-80,-24.5,-73.2,-37.4,-64.1,-48.6C-55,-59.8,-43.6,-69.3,-30.8,-77C-18,-84.7,-3.8,-90.6,9.2,-87.8C22.2,-85,30.6,-83.6,44.7,-76.4Z" transform="translate(100 100)" />
+            </svg>
+          </div>
+
+          <div className="container mx-auto px-4 relative z-10">
+            <div className="max-w-4xl mx-auto text-center">
+              <div className="inline-block mb-6">
+                <span className="inline-block px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-sm font-semibold border border-white/30">
+                  ✨ מוצרים איכותיים במחירים משתלמים
+                </span>
+              </div>
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 leading-tight">
+                הקולקציה שלנו
+              </h1>
+              <p className="text-xl md:text-2xl text-white/90 mb-8 leading-relaxed">
+                גלו את המוצרים שלנו
+              </p>
+              <div className="flex items-center justify-center gap-3 text-sm text-white/80">
+                <div className="flex items-center gap-2">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span>משלוח חינם</span>
+                </div>
+                <span className="text-white/40">•</span>
+                <div className="flex items-center gap-2">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span>החזרה בחינם</span>
+                </div>
+                <span className="text-white/40">•</span>
+                <div className="flex items-center gap-2">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span>אחריות מלאה</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
