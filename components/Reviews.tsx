@@ -1,6 +1,7 @@
 'use client';
 
-import { FaStar } from 'react-icons/fa';
+import { useState, useEffect } from 'react';
+import { FaStar, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
 const reviews = [
   {
@@ -60,6 +61,36 @@ const reviews = [
 ];
 
 export default function Reviews() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const reviewsPerView = 2;
+
+  // Auto-rotate reviews every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      nextSlide();
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [currentIndex]);
+
+  const nextSlide = () => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex + reviewsPerView >= reviews.length ? 0 : prevIndex + reviewsPerView
+    );
+  };
+
+  const prevSlide = () => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex === 0 ? reviews.length - reviewsPerView : prevIndex - reviewsPerView
+    );
+  };
+
+  const goToSlide = (index: number) => {
+    setCurrentIndex(index);
+  };
+
+  const visibleReviews = reviews.slice(currentIndex, currentIndex + reviewsPerView);
+  const totalSlides = Math.ceil(reviews.length / reviewsPerView);
+
   return (
     <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
       <div className="container mx-auto px-4">
@@ -97,55 +128,88 @@ export default function Reviews() {
           </div>
         </div>
 
-        {/* Reviews Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {reviews.map((review, index) => (
-            <div
-              key={review.id}
-              className="bg-white rounded-xl shadow-lg p-6 hover:shadow-2xl transition-shadow duration-300"
-              style={{
-                animationDelay: `${index * 100}ms`,
-              }}
-            >
-              {/* Rating */}
-              <div className="flex items-center gap-1 mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <FaStar
-                    key={i}
-                    className={`${
-                      i < review.rating ? 'text-yellow-400' : 'text-gray-300'
-                    } text-lg`}
-                  />
-                ))}
-              </div>
+        {/* Reviews Carousel */}
+        <div className="relative max-w-6xl mx-auto">
+          {/* Navigation Buttons */}
+          <button
+            onClick={prevSlide}
+            className="absolute right-0 top-1/2 -translate-y-1/2 -translate-x-16 z-10 bg-white hover:bg-primary-600 text-gray-800 hover:text-white p-4 rounded-full shadow-lg transition-all duration-300 group"
+            aria-label="Previous reviews"
+          >
+            <FaChevronRight className="text-xl" />
+          </button>
 
-              {/* Review Text */}
-              <p className="text-gray-700 mb-6 leading-relaxed">
-                "{review.review}"
-              </p>
+          <button
+            onClick={nextSlide}
+            className="absolute left-0 top-1/2 -translate-y-1/2 translate-x-16 z-10 bg-white hover:bg-primary-600 text-gray-800 hover:text-white p-4 rounded-full shadow-lg transition-all duration-300 group"
+            aria-label="Next reviews"
+          >
+            <FaChevronLeft className="text-xl" />
+          </button>
 
-              {/* Product */}
-              <p className="text-sm text-primary-600 font-semibold mb-4">
-                {review.product}
-              </p>
+          {/* Reviews Row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 px-4">
+            {visibleReviews.map((review) => (
+              <div
+                key={review.id}
+                className="bg-white rounded-xl shadow-lg p-6 hover:shadow-2xl transition-all duration-300"
+              >
+                {/* Rating */}
+                <div className="flex items-center gap-1 mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <FaStar
+                      key={i}
+                      className={`${
+                        i < review.rating ? 'text-yellow-400' : 'text-gray-300'
+                      } text-lg`}
+                    />
+                  ))}
+                </div>
 
-              {/* Reviewer Info */}
-              <div className="border-t border-gray-200 pt-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-bold text-gray-800">{review.name}</div>
-                    <div className="text-sm text-gray-500">{review.location}</div>
-                  </div>
-                  <div className="text-sm text-gray-400">
-                    {new Date(review.date).toLocaleDateString('he-IL', {
-                      year: 'numeric',
-                      month: 'long',
-                    })}
+                {/* Review Text */}
+                <p className="text-gray-700 mb-6 leading-relaxed">
+                  "{review.review}"
+                </p>
+
+                {/* Product */}
+                <p className="text-sm text-primary-600 font-semibold mb-4">
+                  {review.product}
+                </p>
+
+                {/* Reviewer Info */}
+                <div className="border-t border-gray-200 pt-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-bold text-gray-800">{review.name}</div>
+                      <div className="text-sm text-gray-500">{review.location}</div>
+                    </div>
+                    <div className="text-sm text-gray-400">
+                      {new Date(review.date).toLocaleDateString('he-IL', {
+                        year: 'numeric',
+                        month: 'long',
+                      })}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+
+          {/* Pagination Dots */}
+          <div className="flex items-center justify-center gap-2 mt-8">
+            {[...Array(totalSlides)].map((_, index) => (
+              <button
+                key={index}
+                onClick={() => goToSlide(index * reviewsPerView)}
+                className={`h-3 rounded-full transition-all duration-300 ${
+                  Math.floor(currentIndex / reviewsPerView) === index
+                    ? 'w-8 bg-primary-600'
+                    : 'w-3 bg-gray-300 hover:bg-gray-400'
+                }`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
+          </div>
         </div>
 
         {/* Trust Badges */}
