@@ -87,9 +87,9 @@ export default function Footer() {
 
       {/* Main Footer Content */}
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">
           {/* About */}
-          <div>
+          <div className="lg:col-span-2">
             <h4 className="text-white text-lg font-bold mb-4">
               שטיחי בוטיק יוסף
             </h4>
@@ -130,14 +130,14 @@ export default function Footer() {
             <h4 className="text-white text-lg font-bold mb-4">קישורים מהירים</h4>
             <ul className="space-y-2">
               <li>
-                <Link href="/" className="hover:text-white transition-colors">
+                <Link href="/" className="hover:text-white transition-colors text-sm">
                   בית
                 </Link>
               </li>
               <li>
                 <Link
                   href="/products"
-                  className="hover:text-white transition-colors"
+                  className="hover:text-white transition-colors text-sm"
                 >
                   מוצרים
                 </Link>
@@ -145,7 +145,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/about"
-                  className="hover:text-white transition-colors"
+                  className="hover:text-white transition-colors text-sm"
                 >
                   אודות
                 </Link>
@@ -153,7 +153,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/contact"
-                  className="hover:text-white transition-colors"
+                  className="hover:text-white transition-colors text-sm"
                 >
                   צור קשר
                 </Link>
@@ -161,29 +161,103 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Legal */}
+          {/* Carpet Attributes */}
           <div>
-            <h4 className="text-white text-lg font-bold mb-4">מידע משפטי</h4>
+            <h4 className="text-white text-lg font-bold mb-4">שטיחים</h4>
             <ul className="space-y-2">
               <li>
                 <Link
-                  href="/privacy"
-                  className="hover:text-white transition-colors"
+                  href="/products?type=carpets"
+                  className="hover:text-white transition-colors text-sm"
                 >
-                  מדיניות פרטיות
-                </Link>
-              </li>
-              <li>
-                <Link href="/terms" className="hover:text-white transition-colors">
-                  תנאי שימוש
+                  כל השטיחים
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/shipping"
-                  className="hover:text-white transition-colors"
+                  href="/products?category=modern&type=carpets"
+                  className="hover:text-white transition-colors text-sm"
                 >
-                  משלוחים והחזרות
+                  סגנונות
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/products?color=beige&type=carpets"
+                  className="hover:text-white transition-colors text-sm"
+                >
+                  צבעים
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/products?shape=rectangular&type=carpets"
+                  className="hover:text-white transition-colors text-sm"
+                >
+                  צורות
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/products?space=living-room&type=carpets"
+                  className="hover:text-white transition-colors text-sm"
+                >
+                  חללים
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Plant Attributes */}
+          <div>
+            <h4 className="text-white text-lg font-bold mb-4">עציצים</h4>
+            <ul className="space-y-2">
+              <li>
+                <Link
+                  href="/products?type=plants"
+                  className="hover:text-white transition-colors text-sm"
+                >
+                  כל העציצים
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/products?type=plants&plantType=indoor"
+                  className="hover:text-white transition-colors text-sm"
+                >
+                  סוגי צמחים
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/products?type=plants&plantSize=small"
+                  className="hover:text-white transition-colors text-sm"
+                >
+                  גדלים
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/products?type=plants&plantLight=low"
+                  className="hover:text-white transition-colors text-sm"
+                >
+                  דרישות אור
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/products?type=plants&plantCare=easy"
+                  className="hover:text-white transition-colors text-sm"
+                >
+                  רמות טיפול
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/products?type=plants&plantPetSafety=safe"
+                  className="hover:text-white transition-colors text-sm"
+                >
+                  בטיחות לחיות
                 </Link>
               </li>
             </ul>
