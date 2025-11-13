@@ -3,6 +3,7 @@ import "./globals.css";
 import AuthSessionProvider from "@/components/SessionProvider";
 import { CartProvider } from "@/contexts/CartContext";
 import StructuredData from "@/components/StructuredData";
+import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import { Alef, Rubik } from 'next/font/google';
 
 const alef = Alef({
@@ -80,6 +81,7 @@ export default function RootLayout({
         <AuthSessionProvider>
           <CartProvider>
             {children}
+            <FloatingWhatsApp />
           </CartProvider>
         </AuthSessionProvider>
       </body>
