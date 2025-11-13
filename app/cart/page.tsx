@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { FaTrash, FaShoppingCart, FaArrowRight, FaTimes, FaTicketAlt } from 'react-icons/fa';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import DeliveryCalculator from '@/components/DeliveryCalculator';
 
 export default function CartPage() {
   const {
@@ -17,10 +18,12 @@ export default function CartPage() {
     clearCart,
     getCartTotal,
     getDiscountAmount,
+    getDeliveryCost,
     getFinalTotal,
     getCartItemsCount,
     applyCoupon,
-    removeCoupon
+    removeCoupon,
+    setDelivery
   } = useCart();
 
   const [couponCode, setCouponCode] = useState('');
@@ -278,6 +281,14 @@ export default function CartPage() {
                   )}
                 </div>
 
+                {/* Delivery Calculator */}
+                <div className="mb-6 pb-6 border-b border-gray-200">
+                  <DeliveryCalculator
+                    cartTotal={getCartTotal()}
+                    onDeliveryChange={setDelivery}
+                  />
+                </div>
+
                 <div className="space-y-4 mb-6">
                   <div className="flex justify-between text-gray-600">
                     <span>סכום ביניים (לפני מע״מ)</span>
@@ -295,7 +306,9 @@ export default function CartPage() {
                   )}
                   <div className="flex justify-between text-gray-600">
                     <span>משלוח</span>
-                    <span>חישוב בקופה</span>
+                    <span className={getDeliveryCost() === 0 ? 'text-green-600 font-semibold' : ''}>
+                      {getDeliveryCost() === 0 ? 'חינם!' : formatPrice(getDeliveryCost())}
+                    </span>
                   </div>
                   <div className="border-t border-gray-200 pt-4">
                     <div className="flex justify-between text-xl font-bold text-gray-800">

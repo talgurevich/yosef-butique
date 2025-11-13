@@ -1,23 +1,77 @@
 # Promo Codes Table Migration
 
-The `promo_codes` table needs the `current_uses` column to track usage statistics.
+The `promo_codes` table needs several columns to work properly with the admin interface.
 
 ## Run this SQL in Supabase SQL Editor:
 
 ```sql
--- Add current_uses column if it doesn't exist
-ALTER TABLE promo_codes
-ADD COLUMN IF NOT EXISTS current_uses INTEGER DEFAULT 0 NOT NULL;
+-- Add all missing columns to promo_codes table
 
--- Add updated_at column if it doesn't exist (for tracking changes)
-ALTER TABLE promo_codes
-ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW());
+-- Add current_uses if missing
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'promo_codes' AND column_name = 'current_uses'
+  ) THEN
+    ALTER TABLE promo_codes ADD COLUMN current_uses INTEGER DEFAULT 0 NOT NULL;
+  END IF;
+END $$;
 
--- Create an index on the code column for faster lookups
+-- Add expires_at if missing
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'promo_codes' AND column_name = 'expires_at'
+  ) THEN
+    ALTER TABLE promo_codes ADD COLUMN expires_at TIMESTAMP WITH TIME ZONE;
+  END IF;
+END $$;
+
+-- Add updated_at if missing
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'promo_codes' AND column_name = 'updated_at'
+  ) THEN
+    ALTER TABLE promo_codes ADD COLUMN updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW());
+  END IF;
+END $$;
+
+-- Add min_purchase_amount if missing
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'promo_codes' AND column_name = 'min_purchase_amount'
+  ) THEN
+    ALTER TABLE promo_codes ADD COLUMN min_purchase_amount NUMERIC(10, 2) DEFAULT 0 NOT NULL;
+  END IF;
+END $$;
+
+-- Add uses_per_customer if missing
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'promo_codes' AND column_name = 'uses_per_customer'
+  ) THEN
+    ALTER TABLE promo_codes ADD COLUMN uses_per_customer INTEGER DEFAULT 1 NOT NULL;
+  END IF;
+END $$;
+
+-- Create indexes (will skip if they already exist)
 CREATE INDEX IF NOT EXISTS idx_promo_codes_code ON promo_codes(code);
-
--- Create an index on is_active for faster filtering
 CREATE INDEX IF NOT EXISTS idx_promo_codes_is_active ON promo_codes(is_active);
+CREATE INDEX IF NOT EXISTS idx_promo_codes_expires_at ON promo_codes(expires_at);
+
+-- Show the current structure to verify
+SELECT column_name, data_type, is_nullable, column_default
+FROM information_schema.columns
+WHERE table_name = 'promo_codes'
+ORDER BY ordinal_position;
 ```
 
 ## Alternatively, if the table doesn't exist at all, create it:

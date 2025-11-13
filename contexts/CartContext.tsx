@@ -24,14 +24,19 @@ export type AppliedCoupon = {
 type CartContextType = {
   cartItems: CartItem[];
   appliedCoupon: AppliedCoupon | null;
+  deliveryCost: number;
+  deliveryDistance: number | null;
+  deliveryAddress: string;
   addToCart: (item: Omit<CartItem, 'quantity'> & { quantity?: number }) => void;
   removeFromCart: (variantId: string) => void;
   updateQuantity: (variantId: string, quantity: number) => void;
   clearCart: () => void;
   applyCoupon: (coupon: AppliedCoupon) => void;
   removeCoupon: () => void;
+  setDelivery: (cost: number, distance: number | null, address: string) => void;
   getCartTotal: () => number;
   getDiscountAmount: () => number;
+  getDeliveryCost: () => number;
   getFinalTotal: () => number;
   getCartItemsCount: () => number;
 };
@@ -41,12 +46,16 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
+  const [deliveryCost, setDeliveryCostState] = useState(0);
+  const [deliveryDistance, setDeliveryDistance] = useState<number | null>(null);
+  const [deliveryAddress, setDeliveryAddress] = useState('');
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Load cart and coupon from localStorage on mount
+  // Load cart, coupon, and delivery from localStorage on mount
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
     const savedCoupon = localStorage.getItem('appliedCoupon');
+    const savedDelivery = localStorage.getItem('deliveryData');
 
     if (savedCart) {
       try {
@@ -61,6 +70,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setAppliedCoupon(JSON.parse(savedCoupon));
       } catch (error) {
         console.error('Error loading coupon from localStorage:', error);
+      }
+    }
+
+    if (savedDelivery) {
+      try {
+        const delivery = JSON.parse(savedDelivery);
+        setDeliveryCostState(delivery.cost || 0);
+        setDeliveryDistance(delivery.distance || null);
+        setDeliveryAddress(delivery.address || '');
+      } catch (error) {
+        console.error('Error loading delivery from localStorage:', error);
       }
     }
 
@@ -84,6 +104,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
     }
   }, [appliedCoupon, isLoaded]);
+
+  // Save delivery data to localStorage whenever it changes
+  useEffect(() => {
+    if (isLoaded) {
+      const deliveryData = {
+        cost: deliveryCost,
+        distance: deliveryDistance,
+        address: deliveryAddress,
+      };
+      localStorage.setItem('deliveryData', JSON.stringify(deliveryData));
+    }
+  }, [deliveryCost, deliveryDistance, deliveryAddress, isLoaded]);
 
   const addToCart = (item: Omit<CartItem, 'quantity'> & { quantity?: number }) => {
     setCartItems((prevItems) => {
@@ -124,6 +156,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const clearCart = () => {
     setCartItems([]);
     setAppliedCoupon(null);
+    setDeliveryCostState(0);
+    setDeliveryDistance(null);
+    setDeliveryAddress('');
   };
 
   const applyCoupon = (coupon: AppliedCoupon) => {
@@ -132,6 +167,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const removeCoupon = () => {
     setAppliedCoupon(null);
+  };
+
+  const setDelivery = (cost: number, distance: number | null, address: string) => {
+    setDeliveryCostState(cost);
+    setDeliveryDistance(distance);
+    setDeliveryAddress(address);
   };
 
   const getCartTotal = () => {
@@ -143,10 +184,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return appliedCoupon.discountAmount;
   };
 
+  const getDeliveryCost = () => {
+    return deliveryCost;
+  };
+
   const getFinalTotal = () => {
     const total = getCartTotal();
     const discount = getDiscountAmount();
-    return Math.max(0, total - discount);
+    const delivery = getDeliveryCost();
+    return Math.max(0, total - discount + delivery);
   };
 
   const getCartItemsCount = () => {
@@ -158,14 +204,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
       value={{
         cartItems,
         appliedCoupon,
+        deliveryCost,
+        deliveryDistance,
+        deliveryAddress,
         addToCart,
         removeFromCart,
         updateQuantity,
         clearCart,
         applyCoupon,
         removeCoupon,
+        setDelivery,
         getCartTotal,
         getDiscountAmount,
+        getDeliveryCost,
         getFinalTotal,
         getCartItemsCount,
       }}
