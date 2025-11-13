@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
-import { FaHome, FaBox, FaTags, FaShoppingCart, FaImages, FaTicketAlt, FaEnvelope, FaSignOutAlt, FaUser, FaPalette, FaShapes, FaDoorOpen, FaSeedling, FaRulerVertical, FaSun, FaHandHoldingHeart, FaPaw } from 'react-icons/fa';
+import { FaHome, FaBox, FaTags, FaShoppingCart, FaImages, FaTicketAlt, FaEnvelope, FaSignOutAlt, FaUser, FaPalette, FaShapes, FaDoorOpen, FaSeedling, FaRulerVertical, FaSun, FaHandHoldingHeart, FaPaw, FaBullhorn } from 'react-icons/fa';
 
 export default function AdminLayout({
   children,
@@ -149,6 +149,14 @@ export default function AdminLayout({
           </div>
 
           <div className="mt-6 pt-6 border-t border-gray-800">
+            <Link
+              href="/admin/banner"
+              className="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+            >
+              <FaBullhorn className="ml-3" />
+              באנר
+            </Link>
+
             <Link
               href="/admin/orders"
               className="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"

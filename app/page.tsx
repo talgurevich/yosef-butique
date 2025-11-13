@@ -1,3 +1,4 @@
+import Banner from '@/components/Banner';
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
 import TrustBar from '@/components/TrustBar';
@@ -98,6 +99,7 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen">
+      <Banner />
       <Header />
       <Hero />
       <TrustBar />
