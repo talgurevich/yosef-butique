@@ -186,35 +186,38 @@ export default function Header() {
             </Link>
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Button - Animated Hamburger */}
           <button
             onClick={toggleMobileMenu}
-            className="md:hidden p-2 text-gray-700 hover:text-primary-600 transition-colors"
+            className="md:hidden p-2 text-gray-700 hover:text-primary-600 transition-colors relative w-10 h-10 flex items-center justify-center"
             aria-label="Toggle menu"
           >
-            {mobileMenuOpen ? (
-              <FaTimes className="w-6 h-6" />
-            ) : (
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            )}
+            <div className="w-6 h-5 relative flex flex-col justify-between">
+              {/* Top Line */}
+              <span
+                className={`block h-0.5 w-full bg-current transform transition-all duration-300 ease-in-out ${
+                  mobileMenuOpen ? 'rotate-45 translate-y-2' : ''
+                }`}
+              />
+              {/* Middle Line */}
+              <span
+                className={`block h-0.5 w-full bg-current transition-all duration-300 ease-in-out ${
+                  mobileMenuOpen ? 'opacity-0' : 'opacity-100'
+                }`}
+              />
+              {/* Bottom Line */}
+              <span
+                className={`block h-0.5 w-full bg-current transform transition-all duration-300 ease-in-out ${
+                  mobileMenuOpen ? '-rotate-45 -translate-y-2' : ''
+                }`}
+              />
+            </div>
           </button>
         </div>
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden mt-4 pb-4 border-t border-gray-200 pt-4">
+          <div className="md:hidden mt-4 pb-4 border-t border-gray-200 pt-4 animate-fade-in">
             <nav className="flex flex-col space-y-4">
               <Link
                 href="/"
@@ -278,15 +281,6 @@ export default function Header() {
                 >
                   <FaShoppingCart className="text-xl" />
                   <span>עגלת קניות ({getCartItemsCount()})</span>
-                </Link>
-
-                <Link
-                  href="/admin"
-                  onClick={closeMobileMenu}
-                  className="flex items-center justify-center space-x-2 space-x-reverse bg-gray-600 text-white px-4 py-3 rounded-lg hover:bg-gray-700 transition-colors"
-                >
-                  <FaUser className="text-xl" />
-                  <span>ניהול</span>
                 </Link>
               </div>
             </nav>
