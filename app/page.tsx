@@ -1,5 +1,6 @@
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
+import TrustBar from '@/components/TrustBar';
 import MostWanted from '@/components/MostWanted';
 import AttributesPreview from '@/components/AttributesPreview';
 import CustomerGallery from '@/components/CustomerGallery';
@@ -99,6 +100,7 @@ export default async function Home() {
     <main className="min-h-screen">
       <Header />
       <Hero />
+      <TrustBar />
       <MostWanted products={featuredProducts} />
       <AttributesPreview
         categories={categories}
