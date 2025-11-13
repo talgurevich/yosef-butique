@@ -220,6 +220,46 @@ export default function CartPage() {
                   רוקן עגלה
                 </button>
               </div>
+
+              {/* Trust Badges - Prominent Row */}
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* Secure Payment */}
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-3">
+                      <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                    </div>
+                    <h3 className="font-bold text-gray-800 mb-1">תשלום מאובטח</h3>
+                    <p className="text-sm text-gray-600">הגנה מלאה על פרטי התשלום</p>
+                  </div>
+
+                  {/* Fast Shipping */}
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-3">
+                      <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                    </div>
+                    <h3 className="font-bold text-gray-800 mb-1">משלוח מהיר</h3>
+                    <p className="text-sm text-gray-600">עד 10 ימי עסקים</p>
+                  </div>
+
+                  {/* Free Returns */}
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mb-3">
+                      <svg className="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                      </svg>
+                    </div>
+                    <h3 className="font-bold text-gray-800 mb-1">החזרות בחינם</h3>
+                    <Link href="/returns-policy" className="text-sm text-primary-600 hover:text-primary-700 underline">
+                      קרא את מדיניות ההחזרות
+                    </Link>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Order Summary */}
@@ -334,38 +374,6 @@ export default function CartPage() {
                 >
                   המשך קניות
                 </Link>
-
-                {/* Trust Badges */}
-                <div className="mt-6 pt-6 border-t border-gray-200">
-                  <div className="space-y-3 text-sm text-gray-600">
-                    <div className="flex items-center gap-2">
-                      <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      תשלום מאובטח
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <svg className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      <div>
-                        <p>משלוח מהיר</p>
-                        <p className="text-xs text-gray-500">עד 10 ימי עסקים</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <svg className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      <div>
-                        <p>החזרות בחינם</p>
-                        <Link href="/returns-policy" className="text-xs text-primary-600 hover:text-primary-700 underline">
-                          קרא את מדיניות ההחזרות
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
