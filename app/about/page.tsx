@@ -6,7 +6,18 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-cream">
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-primary-600 via-primary-700 to-sage text-white py-20 overflow-hidden">
+      <div className="relative text-white py-20 overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <img
+            src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=1920&q=80"
+            alt="Family carpet business"
+            className="w-full h-full object-cover"
+          />
+          {/* Dark gradient overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-br from-primary-900/90 via-primary-800/85 to-sage/90"></div>
+        </div>
+
         {/* Decorative elements */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 left-0 w-72 h-72 bg-terracotta/20 rounded-full blur-3xl"></div>
