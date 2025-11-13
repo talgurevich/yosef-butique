@@ -1,11 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { FaShoppingCart, FaWhatsapp, FaUser, FaTimes } from 'react-icons/fa';
+import { FaShoppingCart, FaWhatsapp, FaUser, FaTimes, FaChevronDown } from 'react-icons/fa';
+import CarpetsDropdown from './CarpetsDropdown';
+import PlantsDropdown from './PlantsDropdown';
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [carpetsDropdownOpen, setCarpetsDropdownOpen] = useState(false);
+  const [plantsDropdownOpen, setPlantsDropdownOpen] = useState(false);
+  const carpetsDropdownRef = useRef<HTMLDivElement>(null);
+  const plantsDropdownRef = useRef<HTMLDivElement>(null);
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -13,7 +19,42 @@ export default function Header() {
 
   const closeMobileMenu = () => {
     setMobileMenuOpen(false);
+    setCarpetsDropdownOpen(false);
+    setPlantsDropdownOpen(false);
   };
+
+  const toggleCarpetsDropdown = () => {
+    setCarpetsDropdownOpen(!carpetsDropdownOpen);
+    setPlantsDropdownOpen(false);
+  };
+
+  const togglePlantsDropdown = () => {
+    setPlantsDropdownOpen(!plantsDropdownOpen);
+    setCarpetsDropdownOpen(false);
+  };
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        carpetsDropdownRef.current &&
+        !carpetsDropdownRef.current.contains(event.target as Node)
+      ) {
+        setCarpetsDropdownOpen(false);
+      }
+      if (
+        plantsDropdownRef.current &&
+        !plantsDropdownRef.current.contains(event.target as Node)
+      ) {
+        setPlantsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
@@ -25,19 +66,59 @@ export default function Header() {
           </Link>
 
           {/* Navigation */}
-          <nav className="hidden md:flex space-x-8 space-x-reverse">
+          <nav className="hidden md:flex space-x-6 space-x-reverse">
             <Link
               href="/"
               className="text-gray-700 hover:text-primary-600 transition-colors"
             >
               בית
             </Link>
+
             <Link
               href="/products"
               className="text-gray-700 hover:text-primary-600 transition-colors"
             >
-              מוצרים
+              כל המוצרים
             </Link>
+
+            {/* Carpets Dropdown */}
+            <div
+              ref={carpetsDropdownRef}
+              className="relative"
+              onMouseEnter={() => setCarpetsDropdownOpen(true)}
+              onMouseLeave={() => setCarpetsDropdownOpen(false)}
+            >
+              <button
+                onClick={toggleCarpetsDropdown}
+                className="flex items-center space-x-1 space-x-reverse text-gray-700 hover:text-primary-600 transition-colors"
+              >
+                <span>שטיחים</span>
+                <FaChevronDown className={`text-xs transition-transform ${carpetsDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {carpetsDropdownOpen && (
+                <CarpetsDropdown onClose={() => setCarpetsDropdownOpen(false)} />
+              )}
+            </div>
+
+            {/* Plants Dropdown */}
+            <div
+              ref={plantsDropdownRef}
+              className="relative"
+              onMouseEnter={() => setPlantsDropdownOpen(true)}
+              onMouseLeave={() => setPlantsDropdownOpen(false)}
+            >
+              <button
+                onClick={togglePlantsDropdown}
+                className="flex items-center space-x-1 space-x-reverse text-gray-700 hover:text-primary-600 transition-colors"
+              >
+                <span>עציצים</span>
+                <FaChevronDown className={`text-xs transition-transform ${plantsDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {plantsDropdownOpen && (
+                <PlantsDropdown onClose={() => setPlantsDropdownOpen(false)} />
+              )}
+            </div>
+
             <Link
               href="/about"
               className="text-gray-700 hover:text-primary-600 transition-colors"
@@ -127,7 +208,21 @@ export default function Header() {
                 onClick={closeMobileMenu}
                 className="text-gray-700 hover:text-primary-600 transition-colors py-2 px-4 hover:bg-gray-50 rounded-lg"
               >
-                מוצרים
+                כל המוצרים
+              </Link>
+              <Link
+                href="/products?type=carpets"
+                onClick={closeMobileMenu}
+                className="text-gray-700 hover:text-primary-600 transition-colors py-2 px-4 hover:bg-gray-50 rounded-lg"
+              >
+                שטיחים
+              </Link>
+              <Link
+                href="/products?type=plants"
+                onClick={closeMobileMenu}
+                className="text-gray-700 hover:text-primary-600 transition-colors py-2 px-4 hover:bg-gray-50 rounded-lg"
+              >
+                עציצים
               </Link>
               <Link
                 href="/about"
