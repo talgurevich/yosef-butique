@@ -41,9 +41,24 @@ export default function ProductPage() {
     fetchProduct();
   }, [slug]);
 
+  // Refetch data when page becomes visible (handles tab switching)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchProduct();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [slug]);
+
   const fetchProduct = async () => {
+    setLoading(true);
     try {
-      // Fetch product
+      // Fetch product (add cache-busting timestamp)
       const { data: productData, error: productError } = await supabase
         .from('products')
         .select(`
@@ -59,6 +74,10 @@ export default function ProductPage() {
         .single();
 
       if (productError) throw productError;
+
+      console.log('Product data:', productData);
+      console.log('has_variants:', productData.has_variants);
+
       setProduct(productData);
       setProductType(productData.product_types);
 
@@ -75,6 +94,7 @@ export default function ProductPage() {
 
       // Fetch variants if product has them
       if (productData.has_variants) {
+        console.log('Fetching variants for product:', productData.id);
         const { data: variantsData, error: variantsError } = await supabase
           .from('product_variants')
           .select('*')
@@ -82,13 +102,20 @@ export default function ProductPage() {
           .eq('is_active', true)
           .order('sort_order');
 
-        if (variantsError) throw variantsError;
+        if (variantsError) {
+          console.error('Error fetching variants:', variantsError);
+          throw variantsError;
+        }
+
+        console.log('Variants data:', variantsData);
         setVariants(variantsData || []);
 
         // Select first variant by default
         if (variantsData && variantsData.length > 0) {
           setSelectedVariant(variantsData[0]);
         }
+      } else {
+        console.log('Product does not have variants (has_variants is false)');
       }
 
       // Fetch product attributes based on type

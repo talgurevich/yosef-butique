@@ -765,12 +765,22 @@ export default function EditProductPage() {
       }
 
       // Update has_variants flag on product
-      await supabase
+      const { error: hasVariantsError } = await supabase
         .from('products')
         .update({ has_variants: true })
         .eq('id', productId);
 
-      alert('הגודל נשמר בהצלחה!');
+      if (hasVariantsError) {
+        console.error('Error updating has_variants:', hasVariantsError);
+      }
+
+      // Update local state to reflect has_variants
+      setFormData(prev => ({ ...prev, has_variants: true }));
+
+      alert('הגודל נשמר בהצלחה! רענן את דף המוצר כדי לראות את השינויים.');
+
+      // Refetch to ensure we have the latest data
+      await fetchProduct();
       fetchVariants();
     } catch (error: any) {
       console.error('Error saving variant:', error);
