@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Breadcrumbs from '@/components/Breadcrumbs';
 
 export default function PrivacyPage() {
   return (
@@ -12,6 +13,9 @@ export default function PrivacyPage() {
           </p>
         </div>
       </div>
+
+      {/* Breadcrumbs */}
+      <Breadcrumbs items={[{ label: 'מדיניות פרטיות' }]} />
 
       {/* Content */}
       <div className="container mx-auto px-4 py-12 max-w-4xl">

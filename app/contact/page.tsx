@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaWhatsapp, FaClock, FaPaperPlane } from 'react-icons/fa';
+import Breadcrumbs from '@/components/Breadcrumbs';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -67,6 +68,9 @@ export default function ContactPage() {
           </p>
         </div>
       </div>
+
+      {/* Breadcrumbs */}
+      <Breadcrumbs items={[{ label: 'צור קשר' }]} />
 
       {/* Content */}
       <div className="container mx-auto px-4 py-12">

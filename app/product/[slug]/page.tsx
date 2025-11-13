@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import Breadcrumbs from '@/components/Breadcrumbs';
 import { supabase, Product, ProductVariant } from '@/lib/supabase';
 import { FaShoppingCart, FaArrowRight, FaCheck, FaTruck, FaShieldAlt } from 'react-icons/fa';
 
@@ -252,16 +253,14 @@ export default function ProductPage() {
     <>
       <Header />
 
+      {/* Breadcrumbs */}
+      <Breadcrumbs items={[
+        { label: 'מוצרים', href: '/products' },
+        { label: product.name }
+      ]} />
+
       <div className="min-h-screen bg-cream">
         <div className="container mx-auto px-4 py-8">
-          {/* Breadcrumb */}
-          <div className="mb-6 flex items-center gap-2 text-sm text-gray-600">
-            <Link href="/" className="hover:text-primary-600">בית</Link>
-            <span>/</span>
-            <Link href="/products" className="hover:text-primary-600">מוצרים</Link>
-            <span>/</span>
-            <span className="text-gray-800">{product.name}</span>
-          </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Product Image */}

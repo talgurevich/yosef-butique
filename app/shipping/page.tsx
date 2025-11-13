@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { FaTruck, FaUndo, FaBoxOpen, FaPhone } from 'react-icons/fa';
+import Breadcrumbs from '@/components/Breadcrumbs';
 
 export default function ShippingPage() {
   return (
@@ -13,6 +14,9 @@ export default function ShippingPage() {
           </p>
         </div>
       </div>
+
+      {/* Breadcrumbs */}
+      <Breadcrumbs items={[{ label: 'משלוחים והחזרות' }]} />
 
       {/* Content */}
       <div className="container mx-auto px-4 py-12 max-w-4xl">

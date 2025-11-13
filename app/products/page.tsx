@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabase';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ProductsPageClient from '@/components/ProductsPageClient';
+import Breadcrumbs from '@/components/Breadcrumbs';
 
 // Revalidate every 60 seconds
 export const revalidate = 60;
@@ -498,6 +499,9 @@ export default async function ProductsPage({
             </svg>
           </div>
         </div>
+
+        {/* Breadcrumbs */}
+        <Breadcrumbs items={[{ label: 'מוצרים' }]} />
 
         {/* Products Grid with Client Interaction */}
         <ProductsPageClient
