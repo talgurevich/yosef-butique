@@ -64,9 +64,6 @@ export const metadata: Metadata = {
     description: 'שטיחים איכותיים לכל בית - מבחר רחב של שטיחים מודרניים, קלאסיים ומעוצבים',
     images: ['/og-image.jpg'],
   },
-  verification: {
-    google: 'google-site-verification-code', // Add your Google Search Console verification code
-  },
 };
 
 export default function RootLayout({
