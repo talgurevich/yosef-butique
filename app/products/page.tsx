@@ -444,7 +444,18 @@ export default async function ProductsPage({
 
       <div className="min-h-screen bg-cream">
         {/* Page Header */}
-        <div className="relative bg-gradient-to-br from-primary-600 via-primary-700 to-terracotta text-white py-20 overflow-hidden">
+        <div className="relative text-white py-20 overflow-hidden">
+          {/* Background Image */}
+          <div className="absolute inset-0">
+            <img
+              src="https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?w=1920&q=80"
+              alt="Beautiful rug store"
+              className="w-full h-full object-cover"
+            />
+            {/* Dark gradient overlay for text readability */}
+            <div className="absolute inset-0 bg-gradient-to-br from-primary-900/90 via-primary-800/85 to-terracotta/90"></div>
+          </div>
+
           {/* Decorative background elements */}
           <div className="absolute top-0 left-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
           <div className="absolute bottom-0 right-0 w-96 h-96 bg-terracotta/20 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
