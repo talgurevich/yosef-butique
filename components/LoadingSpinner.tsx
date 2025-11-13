@@ -5,7 +5,7 @@ export default function LoadingSpinner() {
     <div className="fixed inset-0 bg-white/95 backdrop-blur-sm z-50 flex items-center justify-center">
       <div className="text-center">
         {/* Custom Loader */}
-        <div className="loader mb-6"></div>
+        <div className="loader mb-6 mx-auto"></div>
 
         {/* Loading text */}
         <p className="text-lg font-semibold text-gray-700">
@@ -14,23 +14,47 @@ export default function LoadingSpinner() {
 
         <style jsx>{`
           .loader {
-            width: 70px;
-            aspect-ratio: 1;
-            background:
-              radial-gradient(farthest-side, #667eea 90%, #0000) 0 0/8px 8px no-repeat,
-              conic-gradient(from -90deg at 30px 30px, #0000 90deg, #C1784D 0) 0 0/40px 40px,
-              conic-gradient(from 90deg at 10px 10px, #0000 90deg, #C1784D 0) 0 0/40px 40px no-repeat,
-              conic-gradient(from -90deg at 30px 30px, #0000 90deg, #C1784D 0) 100% 100%/40px 40px no-repeat;
-            animation: l5 2s infinite;
+            width: 32px;
+            height: 84px;
+            border-radius: 0 0 20px 20px;
+            position: relative;
+            background: #A3B18A radial-gradient(circle 5px at 50% 85%, #C1784D 100%, transparent 0);
           }
-          @keyframes l5 {
-            0%     { background-position: left 1px top 1px, 0 0, 0 0, 100% 100%; }
-            16.67% { background-position: left 50% top 1px, 0 0, 0 0, 100% 100%; }
-            33.33% { background-position: left 50% bottom 1px, 0 0, 0 0, 100% 100%; }
-            50%    { background-position: right 1px bottom 1px, 0 0, 0 0, 100% 100%; }
-            66.67% { background-position: right 1px bottom 50%, 0 0, 0 0, 100% 100%; }
-            83.33% { background-position: left 1px bottom 50%, 0 0, 0 0, 100% 100%; }
-            100%   { background-position: left 1px top 1px, 0 0, 0 0, 100% 100%; }
+          .loader:before,
+          .loader:after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 32px;
+            height: 84px;
+            border-radius: 0 0 20px 20px;
+            background: #A3B18A;
+            opacity: 0.8;
+            transform: rotate(60deg);
+            transform-origin: 50% 85%;
+            z-index: -2;
+            animation: rotate 1s infinite linear alternate;
+          }
+          .loader:after {
+            animation: rotate2 1s infinite linear alternate;
+            opacity: 0.5;
+          }
+          @keyframes rotate {
+            0%, 20% {
+              transform: rotate(0deg);
+            }
+            80%, 100% {
+              transform: rotate(30deg);
+            }
+          }
+          @keyframes rotate2 {
+            0%, 20% {
+              transform: rotate(0deg);
+            }
+            80%, 100% {
+              transform: rotate(60deg);
+            }
           }
         `}</style>
       </div>
