@@ -30,6 +30,30 @@ async function getFeaturedProducts(): Promise<any[]> {
           image_url,
           alt_text,
           sort_order
+        ),
+        product_categories (
+          categories (
+            id,
+            name
+          )
+        ),
+        product_colors (
+          colors (
+            id,
+            name
+          )
+        ),
+        product_shapes (
+          shapes (
+            id,
+            name
+          )
+        ),
+        product_spaces (
+          spaces (
+            id,
+            name
+          )
         )
       `)
       .eq('is_featured', true)

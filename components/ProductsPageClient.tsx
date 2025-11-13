@@ -118,166 +118,141 @@ export default function ProductsPageClient({
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {products.map((product: any) => (
-              <div
-                key={product.id}
-                className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow group"
-              >
-                {/* Product Image */}
-                <div className="relative h-64 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center overflow-hidden">
-                  {product.product_images && product.product_images.length > 0 ? (
-                    <img
-                      src={product.product_images[0].image_url}
-                      alt={product.product_images[0].alt_text || product.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                    />
-                  ) : (
-                    <div className="text-gray-400 text-6xl">🏠</div>
-                  )}
+            {products.map((product: any) => {
+              // Gather product attributes for tags
+              const attributes = [];
+              if (product.product_categories && product.product_categories.length > 0) {
+                attributes.push(...product.product_categories.slice(0, 2).map((pc: any) => ({
+                  label: pc.categories.name,
+                  color: 'primary'
+                })));
+              }
+              if (product.product_colors && product.product_colors.length > 0) {
+                attributes.push(...product.product_colors.slice(0, 2).map((pc: any) => ({
+                  label: pc.colors.name,
+                  color: 'gray'
+                })));
+              }
+              if (product.product_shapes && product.product_shapes.length > 0) {
+                attributes.push({
+                  label: product.product_shapes[0].shapes.name,
+                  color: 'blue'
+                });
+              }
+              if (product.product_spaces && product.product_spaces.length > 0) {
+                attributes.push({
+                  label: product.product_spaces[0].spaces.name,
+                  color: 'purple'
+                });
+              }
+              if (product.product_plant_types && product.product_plant_types.length > 0) {
+                attributes.push(...product.product_plant_types.slice(0, 2).map((pt: any) => ({
+                  label: pt.plant_types.name,
+                  color: 'green'
+                })));
+              }
+
+              return (
+                <Link
+                  key={product.id}
+                  href={`/product/${product.slug}`}
+                  className="group relative rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 h-[450px]"
+                >
+                  {/* Full Image Background */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200">
+                    {product.product_images && product.product_images.length > 0 ? (
+                      <img
+                        src={product.product_images[0].image_url}
+                        alt={product.product_images[0].alt_text || product.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center text-gray-400">
+                        <svg className="w-20 h-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Top Badges */}
                   {product.is_featured && (
-                    <span className="absolute top-4 left-4 bg-terracotta text-white px-3 py-1 rounded-full text-sm font-semibold">
+                    <div className="absolute top-4 right-4 bg-gradient-to-r from-terracotta to-red-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg backdrop-blur-sm">
                       מומלץ
-                    </span>
+                    </div>
                   )}
                   {product.compare_at_price && product.compare_at_price > product.price && (
-                    <span className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                    <div className="absolute top-4 left-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg backdrop-blur-sm">
                       מבצע!
-                    </span>
-                  )}
-                </div>
-
-                {/* Product Info */}
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-primary-600 transition-colors">
-                    {product.name}
-                  </h3>
-
-                  {product.description && (
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                      {product.description}
-                    </p>
+                    </div>
                   )}
 
-                  {/* Material */}
-                  {product.material && (
-                    <p className="text-gray-500 text-sm mb-2">
-                      <strong>חומר:</strong> {product.material}
-                    </p>
-                  )}
+                  {/* Glassmorphism Info Overlay */}
+                  <div className="absolute inset-x-0 bottom-0 bg-white/10 backdrop-blur-xl border-t border-white/20 p-6 transform translate-y-0 transition-all duration-300">
+                    {/* Product Name */}
+                    <h3 className="font-bold text-xl text-white mb-3 line-clamp-2 drop-shadow-lg">
+                      {product.name}
+                    </h3>
 
-                  {/* Size */}
-                  {product.size && (
-                    <p className="text-gray-500 text-sm mb-2">
-                      <strong>מידה:</strong> {product.size}
-                    </p>
-                  )}
-
-                  {/* Product Attributes */}
-                  <div className="mb-3 space-y-1">
-                    {/* Categories */}
-                    {product.product_categories && product.product_categories.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {product.product_categories.slice(0, 2).map((pc: any) => (
+                    {/* Attribute Tags */}
+                    {attributes.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {attributes.slice(0, 4).map((attr, i) => (
                           <span
-                            key={pc.categories.id}
-                            className="inline-block px-2 py-1 bg-primary-100 text-primary-700 text-xs rounded-full"
+                            key={i}
+                            className={`inline-block px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md shadow-md
+                              ${attr.color === 'primary' ? 'bg-primary-500/80 text-white' : ''}
+                              ${attr.color === 'gray' ? 'bg-gray-600/80 text-white' : ''}
+                              ${attr.color === 'blue' ? 'bg-blue-500/80 text-white' : ''}
+                              ${attr.color === 'purple' ? 'bg-purple-500/80 text-white' : ''}
+                              ${attr.color === 'green' ? 'bg-green-500/80 text-white' : ''}
+                            `}
                           >
-                            {pc.categories.name}
+                            {attr.label}
                           </span>
                         ))}
                       </div>
                     )}
 
-                    {/* Colors */}
-                    {product.product_colors && product.product_colors.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {product.product_colors.slice(0, 3).map((pc: any) => (
-                          <span
-                            key={pc.colors.id}
-                            className="inline-block px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"
-                          >
-                            {pc.colors.name}
+                    {/* Price and Stock */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        {product.compare_at_price && product.compare_at_price > product.price ? (
+                          <>
+                            <span className="text-2xl font-bold text-white drop-shadow-lg">
+                              ₪{product.price.toLocaleString()}
+                            </span>
+                            <span className="text-sm text-white/70 line-through">
+                              ₪{product.compare_at_price.toLocaleString()}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="text-2xl font-bold text-white drop-shadow-lg">
+                            ₪{product.price.toLocaleString()}
                           </span>
-                        ))}
+                        )}
                       </div>
-                    )}
-
-                    {/* Plant Types */}
-                    {product.product_plant_types && product.product_plant_types.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {product.product_plant_types.slice(0, 2).map((pt: any) => (
-                          <span
-                            key={pt.plant_types.id}
-                            className="inline-block px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full"
-                          >
-                            {pt.plant_types.name}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Plant Sizes */}
-                    {product.product_plant_sizes && product.product_plant_sizes.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {product.product_plant_sizes.slice(0, 2).map((ps: any) => (
-                          <span
-                            key={ps.plant_sizes.id}
-                            className="inline-block px-2 py-1 bg-green-50 text-green-600 text-xs rounded-full"
-                          >
-                            {ps.plant_sizes.name}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Price */}
-                  <div className="mb-4">
-                    <div className="flex items-center gap-3">
-                      {product.compare_at_price && product.compare_at_price > product.price ? (
-                        <>
-                          <span className="text-2xl font-bold text-terracotta">
-                            ₪{product.price.toFixed(2)}
-                          </span>
-                          <span className="text-lg text-gray-400 line-through">
-                            ₪{product.compare_at_price.toFixed(2)}
-                          </span>
-                        </>
-                      ) : (
-                        <span className="text-2xl font-bold text-gray-800">
-                          ₪{product.price.toFixed(2)}
+                      {product.stock_quantity > 0 ? (
+                        <span className="flex items-center gap-1 text-sm text-green-300 font-semibold bg-green-500/30 backdrop-blur-sm px-3 py-1 rounded-full">
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                          במלאי
                         </span>
+                      ) : (
+                        <span className="text-sm text-red-300 font-semibold bg-red-500/30 backdrop-blur-sm px-3 py-1 rounded-full">אזל</span>
                       )}
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">כולל מע״מ</p>
-                  </div>
 
-                  {/* Has Variants Indicator */}
-                  {product.has_variants && (
-                    <p className="text-sm text-primary-600 mb-4">
-                      ✓ זמין במספר מידות
-                    </p>
-                  )}
-
-                  {/* Actions */}
-                  <div className="flex gap-2">
-                    <Link
-                      href={`/product/${product.slug}`}
-                      className="flex-1 bg-primary-600 text-white px-4 py-3 rounded-lg hover:bg-primary-700 transition-colors text-center font-semibold flex items-center justify-center gap-2"
-                    >
+                    {/* View Product Button */}
+                    <button className="w-full bg-white/20 backdrop-blur-md text-white py-3 rounded-xl font-bold hover:bg-white/30 transition-all border border-white/30 shadow-lg flex items-center justify-center gap-2">
                       <FaEye />
                       צפה במוצר
-                    </Link>
-                    <button
-                      className="bg-terracotta text-white p-3 rounded-lg hover:bg-terracotta-dark transition-colors"
-                      title="הוסף לסל"
-                    >
-                      <FaShoppingCart />
                     </button>
                   </div>
-                </div>
-              </div>
-            ))}
+                </Link>
+              );
+            })}
           </div>
         )}
       </div>
