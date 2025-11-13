@@ -344,24 +344,27 @@ export default function ProductPage() {
               </h1>
 
               {/* Price */}
-              <div className="flex items-center gap-4 mb-6">
-                {hasDiscount ? (
-                  <>
-                    <span className="text-4xl font-bold text-terracotta">
+              <div className="mb-2">
+                <div className="flex items-center gap-4">
+                  {hasDiscount ? (
+                    <>
+                      <span className="text-4xl font-bold text-terracotta">
+                        ₪{currentPrice.toFixed(2)}
+                      </span>
+                      <span className="text-2xl text-gray-400 line-through">
+                        ₪{comparePrice.toFixed(2)}
+                      </span>
+                      <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                        חסכון {((comparePrice - currentPrice) / comparePrice * 100).toFixed(0)}%
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-4xl font-bold text-gray-800">
                       ₪{currentPrice.toFixed(2)}
                     </span>
-                    <span className="text-2xl text-gray-400 line-through">
-                      ₪{comparePrice.toFixed(2)}
-                    </span>
-                    <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                      חסכון {((comparePrice - currentPrice) / comparePrice * 100).toFixed(0)}%
-                    </span>
-                  </>
-                ) : (
-                  <span className="text-4xl font-bold text-gray-800">
-                    ₪{currentPrice.toFixed(2)}
-                  </span>
-                )}
+                  )}
+                </div>
+                <p className="text-sm text-gray-500 mt-1">כולל מע״מ</p>
               </div>
 
               {/* Stock Status */}

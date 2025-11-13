@@ -232,21 +232,24 @@ export default function ProductsPageClient({
                   </div>
 
                   {/* Price */}
-                  <div className="flex items-center gap-3 mb-4">
-                    {product.compare_at_price && product.compare_at_price > product.price ? (
-                      <>
-                        <span className="text-2xl font-bold text-terracotta">
+                  <div className="mb-4">
+                    <div className="flex items-center gap-3">
+                      {product.compare_at_price && product.compare_at_price > product.price ? (
+                        <>
+                          <span className="text-2xl font-bold text-terracotta">
+                            ₪{product.price.toFixed(2)}
+                          </span>
+                          <span className="text-lg text-gray-400 line-through">
+                            ₪{product.compare_at_price.toFixed(2)}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-2xl font-bold text-gray-800">
                           ₪{product.price.toFixed(2)}
                         </span>
-                        <span className="text-lg text-gray-400 line-through">
-                          ₪{product.compare_at_price.toFixed(2)}
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-2xl font-bold text-gray-800">
-                        ₪{product.price.toFixed(2)}
-                      </span>
-                    )}
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">כולל מע״מ</p>
                   </div>
 
                   {/* Has Variants Indicator */}

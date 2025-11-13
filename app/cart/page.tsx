@@ -168,8 +168,12 @@ export default function CartPage() {
 
                 <div className="space-y-4 mb-6">
                   <div className="flex justify-between text-gray-600">
-                    <span>סכום ביניים</span>
-                    <span>{formatPrice(getCartTotal())}</span>
+                    <span>סכום ביניים (לפני מע״מ)</span>
+                    <span>{formatPrice(getCartTotal() / 1.18)}</span>
+                  </div>
+                  <div className="flex justify-between text-gray-600">
+                    <span>מע״מ (18%)</span>
+                    <span>{formatPrice(getCartTotal() - (getCartTotal() / 1.18))}</span>
                   </div>
                   <div className="flex justify-between text-gray-600">
                     <span>משלוח</span>
@@ -177,9 +181,12 @@ export default function CartPage() {
                   </div>
                   <div className="border-t border-gray-200 pt-4">
                     <div className="flex justify-between text-xl font-bold text-gray-800">
-                      <span>סה"כ</span>
+                      <span>סה"כ לתשלום</span>
                       <span className="text-primary-600">{formatPrice(getCartTotal())}</span>
                     </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                      המחירים כולל מע״מ
+                    </p>
                   </div>
                 </div>
 
