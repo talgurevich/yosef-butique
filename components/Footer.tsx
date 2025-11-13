@@ -374,7 +374,7 @@ export default function Footer() {
                 © {new Date().getFullYear()} שטיחי בוטיק יוסף. כל הזכויות שמורות.
               </p>
               <p className="text-xs text-gray-500 mt-1">
-                יוסף בוטיק בע״מ
+                בוטיק יוסף בע״מ
               </p>
               <p className="text-xs text-gray-500 mt-1">
                 פותח על ידי{' '}
