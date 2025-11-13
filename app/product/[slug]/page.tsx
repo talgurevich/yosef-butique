@@ -7,6 +7,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import ProductFAQ from '@/components/ProductFAQ';
 import { supabase, Product, ProductVariant } from '@/lib/supabase';
 import { FaShoppingCart, FaArrowRight, FaCheck, FaTruck, FaShieldAlt } from 'react-icons/fa';
 import { useCart } from '@/contexts/CartContext';
@@ -579,6 +580,11 @@ export default function ProductPage() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* FAQ Section */}
+      <div className="container mx-auto px-4 py-16">
+        <ProductFAQ />
       </div>
 
       <Footer />
