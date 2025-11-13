@@ -65,26 +65,34 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Generate unique promo code (10% off)
-    const promoCode = `WELCOME${Date.now().toString().slice(-6)}`;
+    // Use fixed promo code for all subscribers
+    const promoCode = 'WELCOME123456';
 
-    // Create promo code in database
-    const { error: promoError } = await supabaseAdmin
+    // Ensure the promo code exists in database (create if doesn't exist)
+    const { data: existingPromo } = await supabaseAdmin
       .from('promo_codes')
-      .insert([{
-        code: promoCode,
-        discount_type: 'percentage',
-        discount_value: 10,
-        min_purchase_amount: 0,
-        max_uses: 1,
-        uses_per_customer: 1,
-        is_active: true,
-        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days
-      }]);
+      .select('id')
+      .eq('code', promoCode)
+      .single();
 
-    if (promoError) {
-      console.error('Error creating promo code:', promoError);
-      // Continue even if promo code creation fails
+    if (!existingPromo) {
+      const { error: promoError } = await supabaseAdmin
+        .from('promo_codes')
+        .insert([{
+          code: promoCode,
+          discount_type: 'percentage',
+          discount_value: 10,
+          min_purchase_amount: 0,
+          max_uses: null, // Unlimited uses
+          uses_per_customer: 1, // Each customer can use once
+          is_active: true,
+          expires_at: null, // Never expires
+        }]);
+
+      if (promoError) {
+        console.error('Error creating promo code:', promoError);
+        // Continue even if promo code creation fails
+      }
     }
 
     // Add subscriber to database
@@ -110,7 +118,7 @@ export async function POST(request: NextRequest) {
         // Send welcome email with promo code
         const msg = {
           to: email,
-          from: process.env.SENDGRID_FROM_EMAIL || 'noreply@carpets-topaz.vercel.app',
+          from: process.env.SENDGRID_FROM_EMAIL || 'info@boutique-yossef.co.il',
           subject: 'ברוכים הבאים לשטיחי בוטיק יוסף - קוד הנחה בפנים! 🎁',
           html: `
             <!DOCTYPE html>
@@ -142,7 +150,6 @@ export async function POST(request: NextRequest) {
                     <p>קבל <strong>10% הנחה</strong> על הרכישה הראשונה שלך</p>
                     <div class="promo-code">${promoCode}</div>
                     <p style="font-size: 14px; color: #666;">העתק את הקוד והשתמש בו בקופה</p>
-                    <p style="font-size: 12px; color: #999;">הקוד תקף ל-30 יום</p>
                   </div>
 
                   <p>בניוזלטר שלנו תקבל:</p>
@@ -154,7 +161,7 @@ export async function POST(request: NextRequest) {
                   </ul>
 
                   <div style="text-align: center;">
-                    <a href="${process.env.NEXTAUTH_URL || 'https://carpets-topaz.vercel.app'}/products" class="button">התחל לקנות עכשיו</a>
+                    <a href="https://yossef-boutique.co.il/products" class="button">התחל לקנות עכשיו</a>
                   </div>
 
                   <p>נשמח לעמוד לשירותך בכל שאלה!</p>
@@ -166,7 +173,7 @@ export async function POST(request: NextRequest) {
                 </div>
                 <div class="footer">
                   <p>קיבלת מייל זה כי נרשמת לניוזלטר שלנו</p>
-                  <p><a href="${process.env.NEXTAUTH_URL || 'https://carpets-topaz.vercel.app'}/newsletter/unsubscribe?email=${encodeURIComponent(email)}">בטל הירשמות</a></p>
+                  <p><a href="https://yossef-boutique.co.il/newsletter/unsubscribe?email=${encodeURIComponent(email)}">בטל הירשמות</a></p>
                   <p>© ${new Date().getFullYear()} שטיחי בוטיק יוסף. כל הזכויות שמורות.</p>
                 </div>
               </div>
@@ -181,7 +188,7 @@ export async function POST(request: NextRequest) {
 תודה שהצטרפת לניוזלטר שלנו!
 
 קוד הנחה מיוחד בשבילך: ${promoCode}
-קבל 10% הנחה על הרכישה הראשונה שלך (תקף ל-30 יום)
+קבל 10% הנחה על הרכישה הראשונה שלך
 
 בניוזלטר שלנו תקבל:
 - עדכונים על מוצרים חדשים
@@ -189,13 +196,13 @@ export async function POST(request: NextRequest) {
 - טיפים לעיצוב הבית
 - מבצעים מיוחדים רק למנויים
 
-התחל לקנות: ${process.env.NEXTAUTH_URL || 'https://carpets-topaz.vercel.app'}/products
+התחל לקנות: https://yossef-boutique.co.il/products
 
 שטיחי בוטיק יוסף
 📞 051-509-2208
 📍 השקד משק 47, מושב בית עזרא
 
-לביטול הירשמות: ${process.env.NEXTAUTH_URL || 'https://carpets-topaz.vercel.app'}/newsletter/unsubscribe?email=${encodeURIComponent(email)}
+לביטול הירשמות: https://yossef-boutique.co.il/newsletter/unsubscribe?email=${encodeURIComponent(email)}
           `,
         };
 
