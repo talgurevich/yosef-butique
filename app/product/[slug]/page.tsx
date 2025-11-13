@@ -19,6 +19,16 @@ export default function ProductPage() {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [colors, setColors] = useState<any[]>([]);
+  const [shapes, setShapes] = useState<any[]>([]);
+  const [spaces, setSpaces] = useState<any[]>([]);
+  const [plantTypes, setPlantTypes] = useState<any[]>([]);
+  const [plantSizes, setPlantSizes] = useState<any[]>([]);
+  const [plantLightRequirements, setPlantLightRequirements] = useState<any[]>([]);
+  const [plantCareLevels, setPlantCareLevels] = useState<any[]>([]);
+  const [plantPetSafety, setPlantPetSafety] = useState<any[]>([]);
+  const [productType, setProductType] = useState<any>(null);
 
   useEffect(() => {
     fetchProduct();
@@ -29,13 +39,21 @@ export default function ProductPage() {
       // Fetch product
       const { data: productData, error: productError } = await supabase
         .from('products')
-        .select('*')
+        .select(`
+          *,
+          product_types (
+            id,
+            name,
+            slug
+          )
+        `)
         .eq('slug', slug)
         .eq('is_active', true)
         .single();
 
       if (productError) throw productError;
       setProduct(productData);
+      setProductType(productData.product_types);
 
       // Fetch product images
       const { data: imagesData, error: imagesError } = await supabase
@@ -65,10 +83,100 @@ export default function ProductPage() {
           setSelectedVariant(variantsData[0]);
         }
       }
+
+      // Fetch product attributes based on type
+      await fetchProductAttributes(productData.id);
     } catch (error) {
       console.error('Error fetching product:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchProductAttributes = async (productId: string) => {
+    try {
+      // Fetch categories
+      const { data: productCategories } = await supabase
+        .from('product_categories')
+        .select('categories (*)')
+        .eq('product_id', productId);
+      if (productCategories) {
+        setCategories(productCategories.map((pc: any) => pc.categories));
+      }
+
+      // Fetch colors
+      const { data: productColors } = await supabase
+        .from('product_colors')
+        .select('colors (*)')
+        .eq('product_id', productId);
+      if (productColors) {
+        setColors(productColors.map((pc: any) => pc.colors));
+      }
+
+      // Fetch shapes
+      const { data: productShapes } = await supabase
+        .from('product_shapes')
+        .select('shapes (*)')
+        .eq('product_id', productId);
+      if (productShapes) {
+        setShapes(productShapes.map((ps: any) => ps.shapes));
+      }
+
+      // Fetch spaces
+      const { data: productSpaces } = await supabase
+        .from('product_spaces')
+        .select('spaces (*)')
+        .eq('product_id', productId);
+      if (productSpaces) {
+        setSpaces(productSpaces.map((ps: any) => ps.spaces));
+      }
+
+      // Fetch plant types
+      const { data: productPlantTypes } = await supabase
+        .from('product_plant_types')
+        .select('plant_types (*)')
+        .eq('product_id', productId);
+      if (productPlantTypes) {
+        setPlantTypes(productPlantTypes.map((pt: any) => pt.plant_types));
+      }
+
+      // Fetch plant sizes
+      const { data: productPlantSizes } = await supabase
+        .from('product_plant_sizes')
+        .select('plant_sizes (*)')
+        .eq('product_id', productId);
+      if (productPlantSizes) {
+        setPlantSizes(productPlantSizes.map((ps: any) => ps.plant_sizes));
+      }
+
+      // Fetch plant light requirements
+      const { data: productPlantLights } = await supabase
+        .from('product_plant_light_requirements')
+        .select('plant_light_requirements (*)')
+        .eq('product_id', productId);
+      if (productPlantLights) {
+        setPlantLightRequirements(productPlantLights.map((pl: any) => pl.plant_light_requirements));
+      }
+
+      // Fetch plant care levels
+      const { data: productPlantCares } = await supabase
+        .from('product_plant_care_levels')
+        .select('plant_care_levels (*)')
+        .eq('product_id', productId);
+      if (productPlantCares) {
+        setPlantCareLevels(productPlantCares.map((pc: any) => pc.plant_care_levels));
+      }
+
+      // Fetch plant pet safety
+      const { data: productPlantPetSafety } = await supabase
+        .from('product_plant_pet_safety')
+        .select('plant_pet_safety (*)')
+        .eq('product_id', productId);
+      if (productPlantPetSafety) {
+        setPlantPetSafety(productPlantPetSafety.map((ps: any) => ps.plant_pet_safety));
+      }
+    } catch (error) {
+      console.error('Error fetching product attributes:', error);
     }
   };
 
@@ -250,6 +358,12 @@ export default function ProductPage() {
               <div className="bg-gray-50 rounded-lg p-6 mb-6">
                 <h3 className="text-lg font-bold text-gray-800 mb-4">פרטי מוצר</h3>
                 <div className="space-y-3">
+                  {productType && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">סוג מוצר:</span>
+                      <span className="font-semibold text-gray-800">{productType.name}</span>
+                    </div>
+                  )}
                   {product.material && (
                     <div className="flex justify-between">
                       <span className="text-gray-600">חומר:</span>
@@ -260,6 +374,64 @@ export default function ProductPage() {
                     <div className="flex justify-between">
                       <span className="text-gray-600">מידה:</span>
                       <span className="font-semibold text-gray-800">{product.size}</span>
+                    </div>
+                  )}
+
+                  {/* Carpet Attributes */}
+                  {categories.length > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">סגנון:</span>
+                      <span className="font-semibold text-gray-800">{categories.map(c => c.name).join(', ')}</span>
+                    </div>
+                  )}
+                  {colors.length > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">צבעים:</span>
+                      <span className="font-semibold text-gray-800">{colors.map(c => c.name).join(', ')}</span>
+                    </div>
+                  )}
+                  {shapes.length > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">צורה:</span>
+                      <span className="font-semibold text-gray-800">{shapes.map(s => s.name).join(', ')}</span>
+                    </div>
+                  )}
+                  {spaces.length > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">מתאים ל:</span>
+                      <span className="font-semibold text-gray-800">{spaces.map(s => s.name).join(', ')}</span>
+                    </div>
+                  )}
+
+                  {/* Plant Attributes */}
+                  {plantTypes.length > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">סוג צמח:</span>
+                      <span className="font-semibold text-gray-800">{plantTypes.map(pt => pt.name).join(', ')}</span>
+                    </div>
+                  )}
+                  {plantSizes.length > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">גודל:</span>
+                      <span className="font-semibold text-gray-800">{plantSizes.map(ps => ps.name).join(', ')}</span>
+                    </div>
+                  )}
+                  {plantLightRequirements.length > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">דרישות אור:</span>
+                      <span className="font-semibold text-gray-800">{plantLightRequirements.map(pl => pl.name).join(', ')}</span>
+                    </div>
+                  )}
+                  {plantCareLevels.length > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">רמת טיפול:</span>
+                      <span className="font-semibold text-gray-800">{plantCareLevels.map(pc => pc.name).join(', ')}</span>
+                    </div>
+                  )}
+                  {plantPetSafety.length > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">בטיחות לחיות:</span>
+                      <span className="font-semibold text-gray-800">{plantPetSafety.map(ps => ps.name).join(', ')}</span>
                     </div>
                   )}
                 </div>

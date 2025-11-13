@@ -40,6 +40,48 @@ async function getProducts(filters: FilterParams = {}) {
         id,
         name,
         slug
+      ),
+      product_categories (
+        categories (
+          id,
+          name,
+          slug
+        )
+      ),
+      product_colors (
+        colors (
+          id,
+          name,
+          slug
+        )
+      ),
+      product_shapes (
+        shapes (
+          id,
+          name,
+          slug
+        )
+      ),
+      product_spaces (
+        spaces (
+          id,
+          name,
+          slug
+        )
+      ),
+      product_plant_types (
+        plant_types (
+          id,
+          name,
+          slug
+        )
+      ),
+      product_plant_sizes (
+        plant_sizes (
+          id,
+          name,
+          slug
+        )
       )
     `)
     .eq('is_active', true);
@@ -488,6 +530,65 @@ export default async function ProductsPage({
                             <strong>מידה:</strong> {product.size}
                           </p>
                         )}
+
+                        {/* Product Attributes */}
+                        <div className="mb-3 space-y-1">
+                          {/* Categories */}
+                          {product.product_categories && product.product_categories.length > 0 && (
+                            <div className="flex flex-wrap gap-1">
+                              {product.product_categories.slice(0, 2).map((pc: any) => (
+                                <span
+                                  key={pc.categories.id}
+                                  className="inline-block px-2 py-1 bg-primary-100 text-primary-700 text-xs rounded-full"
+                                >
+                                  {pc.categories.name}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Colors */}
+                          {product.product_colors && product.product_colors.length > 0 && (
+                            <div className="flex flex-wrap gap-1">
+                              {product.product_colors.slice(0, 3).map((pc: any) => (
+                                <span
+                                  key={pc.colors.id}
+                                  className="inline-block px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"
+                                >
+                                  {pc.colors.name}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Plant Types */}
+                          {product.product_plant_types && product.product_plant_types.length > 0 && (
+                            <div className="flex flex-wrap gap-1">
+                              {product.product_plant_types.slice(0, 2).map((pt: any) => (
+                                <span
+                                  key={pt.plant_types.id}
+                                  className="inline-block px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full"
+                                >
+                                  {pt.plant_types.name}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Plant Sizes */}
+                          {product.product_plant_sizes && product.product_plant_sizes.length > 0 && (
+                            <div className="flex flex-wrap gap-1">
+                              {product.product_plant_sizes.slice(0, 2).map((ps: any) => (
+                                <span
+                                  key={ps.plant_sizes.id}
+                                  className="inline-block px-2 py-1 bg-green-50 text-green-600 text-xs rounded-full"
+                                >
+                                  {ps.plant_sizes.name}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
 
                         {/* Price */}
                         <div className="flex items-center gap-3 mb-4">
