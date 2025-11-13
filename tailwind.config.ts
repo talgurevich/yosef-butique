@@ -8,6 +8,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      animation: {
+        'spin-slow': 'spin 2s linear infinite reverse',
+      },
       fontFamily: {
         heading: ['var(--font-alef)', 'serif'],
         body: ['var(--font-rubik)', 'sans-serif'],

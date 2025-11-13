@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Breadcrumbs from '@/components/Breadcrumbs';
+import LoadingSpinner from '@/components/LoadingSpinner';
 import { supabase, Product, ProductVariant } from '@/lib/supabase';
 import { FaShoppingCart, FaArrowRight, FaCheck, FaTruck, FaShieldAlt } from 'react-icons/fa';
 import { useCart } from '@/contexts/CartContext';
@@ -247,15 +248,7 @@ export default function ProductPage() {
   };
 
   if (loading) {
-    return (
-      <>
-        <Header />
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
-        </div>
-        <Footer />
-      </>
-    );
+    return <LoadingSpinner />;
   }
 
   if (!product) {

@@ -1,0 +1,39 @@
+'use client';
+
+export default function LoadingSpinner() {
+  return (
+    <div className="fixed inset-0 bg-white/95 backdrop-blur-sm z-50 flex items-center justify-center">
+      <div className="text-center">
+        {/* Custom Loader */}
+        <div className="loader mb-6"></div>
+
+        {/* Loading text */}
+        <p className="text-lg font-semibold text-gray-700">
+          טוען...
+        </p>
+
+        <style jsx>{`
+          .loader {
+            width: 70px;
+            aspect-ratio: 1;
+            background:
+              radial-gradient(farthest-side, #667eea 90%, #0000) 0 0/8px 8px no-repeat,
+              conic-gradient(from -90deg at 30px 30px, #0000 90deg, #C1784D 0) 0 0/40px 40px,
+              conic-gradient(from 90deg at 10px 10px, #0000 90deg, #C1784D 0) 0 0/40px 40px no-repeat,
+              conic-gradient(from -90deg at 30px 30px, #0000 90deg, #C1784D 0) 100% 100%/40px 40px no-repeat;
+            animation: l5 2s infinite;
+          }
+          @keyframes l5 {
+            0%     { background-position: left 1px top 1px, 0 0, 0 0, 100% 100%; }
+            16.67% { background-position: left 50% top 1px, 0 0, 0 0, 100% 100%; }
+            33.33% { background-position: left 50% bottom 1px, 0 0, 0 0, 100% 100%; }
+            50%    { background-position: right 1px bottom 1px, 0 0, 0 0, 100% 100%; }
+            66.67% { background-position: right 1px bottom 50%, 0 0, 0 0, 100% 100%; }
+            83.33% { background-position: left 1px bottom 50%, 0 0, 0 0, 100% 100%; }
+            100%   { background-position: left 1px top 1px, 0 0, 0 0, 100% 100%; }
+          }
+        `}</style>
+      </div>
+    </div>
+  );
+}
