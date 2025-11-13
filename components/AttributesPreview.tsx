@@ -28,7 +28,7 @@ export default function AttributesPreview({ categories, spaces }: AttributesPrev
     // Spaces (חללים)
     'living-room': 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&q=80', // Living room with carpet
     'bedroom': 'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?w=800&q=80', // Bedroom with rug
-    'kids-room': 'https://images.unsplash.com/photo-1611967164521-abae8665c0e3?w=800&q=80', // Kids room colorful
+    'kids-room': 'https://images.unsplash.com/photo-1628744448840-55bdb2497bd4?w=800&q=80', // Kids room colorful
     'dining-room': 'https://images.unsplash.com/photo-1600210491369-e753d80a41f3?w=800&q=80', // Dining room with rug
     'hallway': 'https://images.unsplash.com/photo-1600607687644-aac4c3eac7f4?w=800&q=80', // Hallway runner
     'office': 'https://images.unsplash.com/photo-1600210492493-0946911123ea?w=800&q=80', // Office with carpet
