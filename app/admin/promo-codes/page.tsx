@@ -78,10 +78,10 @@ export default function PromoCodesPage() {
         if (error) throw error;
         alert('קוד ההנחה עודכן בהצלחה!');
       } else {
-        // Create new code
+        // Create new code (current_uses will default to 0 in the database)
         const { error } = await supabase
           .from('promo_codes')
-          .insert([{ ...dataToSubmit, current_uses: 0 }]);
+          .insert([dataToSubmit]);
 
         if (error) throw error;
         alert('קוד ההנחה נוסף בהצלחה!');
@@ -383,7 +383,7 @@ export default function PromoCodesPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        {code.current_uses} / {code.max_uses}
+                        {code.current_uses ?? 0} / {code.max_uses}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

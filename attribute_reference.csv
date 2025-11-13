@@ -1,0 +1,77 @@
+﻿=== סגנונות (Categories) ===
+slug,name
+modern-rugs,שטיחים מודרנים
+ethnic-rugs,שטיחים אתנים
+-1762999289423,שטיחים קלאסיים
+loop-rugs,שטיחי לולאות
+designer-carpets,שטיחים מעוצבים
+
+=== צבעים (Colors) ===
+slug,name
+gray,אפור
+black,שחור
+white,לבן
+beige,בז'
+brown,חום
+blue,כחול
+green,ירוק
+red,אדום
+pink,ורוד
+yellow,צהוב
+orange,כתום
+purple,סגול
+multicolor,רב צבעי
+
+=== צורות (Shapes) ===
+slug,name
+rectangle,מלבן
+square,ריבוע
+round,עגול
+oval,אובלי
+runner,מעבר
+irregular,לא סימטרי
+
+=== חללים (Spaces) ===
+slug,name
+living-room,סלון
+bedroom,חדר שינה
+kids-room,חדר ילדים
+dining-room,חדר אוכל
+hallway,מסדרון
+office,משרד
+bathroom,חדר רחצה
+balcony,מרפסת
+
+=== סוגי צמחים (Plant Types) ===
+slug,name
+indoor,צמחי בית
+outdoor,צמחי חוץ
+succulents,סוקולנטים
+herbs,צמחי תבלין
+flowering,צמחים פורחים
+decorative-trees,עצי נוי
+
+=== גדלי צמחים (Plant Sizes) ===
+slug,name
+small,קטן
+medium,בינוני
+large,גדול
+extra-large,ענק
+
+=== דרישות אור (Plant Light) ===
+slug,name
+low-light,אור מועט
+medium-light,אור בינוני
+bright-light,אור בהיר
+direct-sunlight,שמש ישירה
+
+=== רמות טיפול (Plant Care) ===
+slug,name
+easy,קל - מתאים למתחילים
+moderate,בינוני
+advanced,מתקדם
+
+=== בטיחות לחיות (Plant Pet Safety) ===
+slug,name
+safe,בטוח
+toxic,רעיל - הרחק מחיות
