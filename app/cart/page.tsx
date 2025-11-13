@@ -1,14 +1,31 @@
 'use client';
 
+import { useState } from 'react';
 import { useCart } from '@/contexts/CartContext';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FaTrash, FaShoppingCart, FaArrowRight } from 'react-icons/fa';
+import { FaTrash, FaShoppingCart, FaArrowRight, FaTimes, FaTicketAlt } from 'react-icons/fa';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
 export default function CartPage() {
-  const { cartItems, removeFromCart, updateQuantity, clearCart, getCartTotal, getCartItemsCount } = useCart();
+  const {
+    cartItems,
+    appliedCoupon,
+    removeFromCart,
+    updateQuantity,
+    clearCart,
+    getCartTotal,
+    getDiscountAmount,
+    getFinalTotal,
+    getCartItemsCount,
+    applyCoupon,
+    removeCoupon
+  } = useCart();
+
+  const [couponCode, setCouponCode] = useState('');
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState('');
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('he-IL', {
@@ -16,6 +33,49 @@ export default function CartPage() {
       currency: 'ILS',
       minimumFractionDigits: 0,
     }).format(price);
+  };
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      setCouponError('אנא הכנס קוד הנחה');
+      return;
+    }
+
+    setCouponLoading(true);
+    setCouponError('');
+
+    try {
+      const response = await fetch('/api/promo-codes/validate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          code: couponCode,
+          cartTotal: getCartTotal(),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'שגיאה באימות קוד ההנחה');
+      }
+
+      applyCoupon(data.promoCode);
+      setCouponCode('');
+      setCouponError('');
+    } catch (error: any) {
+      setCouponError(error.message);
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    removeCoupon();
+    setCouponCode('');
+    setCouponError('');
   };
 
   if (cartItems.length === 0) {
@@ -166,6 +226,58 @@ export default function CartPage() {
                   סיכום הזמנה
                 </h2>
 
+                {/* Coupon Code Section */}
+                <div className="mb-6 pb-6 border-b border-gray-200">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                    <FaTicketAlt />
+                    קוד הנחה
+                  </h3>
+
+                  {appliedCoupon ? (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold text-green-800">{appliedCoupon.code}</p>
+                        <p className="text-xs text-green-600">
+                          {appliedCoupon.discount_type === 'percentage'
+                            ? `${appliedCoupon.discount_value}% הנחה`
+                            : `₪${appliedCoupon.discount_value} הנחה`}
+                        </p>
+                      </div>
+                      <button
+                        onClick={handleRemoveCoupon}
+                        className="text-red-500 hover:text-red-700 transition-colors"
+                        title="הסר קוד הנחה"
+                      >
+                        <FaTimes />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={couponCode}
+                          onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                          onKeyPress={(e) => e.key === 'Enter' && handleApplyCoupon()}
+                          placeholder="הכנס קוד הנחה"
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          disabled={couponLoading}
+                        />
+                        <button
+                          onClick={handleApplyCoupon}
+                          disabled={couponLoading || !couponCode.trim()}
+                          className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                        >
+                          {couponLoading ? 'בודק...' : 'החל'}
+                        </button>
+                      </div>
+                      {couponError && (
+                        <p className="text-xs text-red-600">{couponError}</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
                 <div className="space-y-4 mb-6">
                   <div className="flex justify-between text-gray-600">
                     <span>סכום ביניים (לפני מע״מ)</span>
@@ -175,6 +287,12 @@ export default function CartPage() {
                     <span>מע״מ (18%)</span>
                     <span>{formatPrice(getCartTotal() - (getCartTotal() / 1.18))}</span>
                   </div>
+                  {appliedCoupon && (
+                    <div className="flex justify-between text-green-600 font-semibold">
+                      <span>הנחה</span>
+                      <span>-{formatPrice(getDiscountAmount())}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-gray-600">
                     <span>משלוח</span>
                     <span>חישוב בקופה</span>
@@ -182,7 +300,7 @@ export default function CartPage() {
                   <div className="border-t border-gray-200 pt-4">
                     <div className="flex justify-between text-xl font-bold text-gray-800">
                       <span>סה"כ לתשלום</span>
-                      <span className="text-primary-600">{formatPrice(getCartTotal())}</span>
+                      <span className="text-primary-600">{formatPrice(getFinalTotal())}</span>
                     </div>
                     <p className="text-xs text-gray-500 mt-2">
                       המחירים כולל מע״מ

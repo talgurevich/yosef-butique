@@ -251,3 +251,18 @@ export type NewsletterSubscriber = {
   subscribed_at: string;
   unsubscribed_at?: string;
 };
+
+export type PromoCode = {
+  id: string;
+  code: string;
+  discount_type: 'percentage' | 'fixed';
+  discount_value: number;
+  min_purchase_amount: number;
+  max_uses: number;
+  current_uses: number;
+  uses_per_customer: number;
+  is_active: boolean;
+  expires_at?: string;
+  created_at: string;
+  updated_at: string;
+};

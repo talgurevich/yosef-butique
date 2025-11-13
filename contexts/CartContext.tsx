@@ -13,13 +13,26 @@ export type CartItem = {
   slug: string;
 };
 
+export type AppliedCoupon = {
+  id: string;
+  code: string;
+  discount_type: 'percentage' | 'fixed';
+  discount_value: number;
+  discountAmount: number;
+};
+
 type CartContextType = {
   cartItems: CartItem[];
+  appliedCoupon: AppliedCoupon | null;
   addToCart: (item: Omit<CartItem, 'quantity'> & { quantity?: number }) => void;
   removeFromCart: (variantId: string) => void;
   updateQuantity: (variantId: string, quantity: number) => void;
   clearCart: () => void;
+  applyCoupon: (coupon: AppliedCoupon) => void;
+  removeCoupon: () => void;
   getCartTotal: () => number;
+  getDiscountAmount: () => number;
+  getFinalTotal: () => number;
   getCartItemsCount: () => number;
 };
 
@@ -27,11 +40,14 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Load cart from localStorage on mount
+  // Load cart and coupon from localStorage on mount
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
+    const savedCoupon = localStorage.getItem('appliedCoupon');
+
     if (savedCart) {
       try {
         setCartItems(JSON.parse(savedCart));
@@ -39,6 +55,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
         console.error('Error loading cart from localStorage:', error);
       }
     }
+
+    if (savedCoupon) {
+      try {
+        setAppliedCoupon(JSON.parse(savedCoupon));
+      } catch (error) {
+        console.error('Error loading coupon from localStorage:', error);
+      }
+    }
+
     setIsLoaded(true);
   }, []);
 
@@ -48,6 +73,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('cart', JSON.stringify(cartItems));
     }
   }, [cartItems, isLoaded]);
+
+  // Save coupon to localStorage whenever it changes
+  useEffect(() => {
+    if (isLoaded) {
+      if (appliedCoupon) {
+        localStorage.setItem('appliedCoupon', JSON.stringify(appliedCoupon));
+      } else {
+        localStorage.removeItem('appliedCoupon');
+      }
+    }
+  }, [appliedCoupon, isLoaded]);
 
   const addToCart = (item: Omit<CartItem, 'quantity'> & { quantity?: number }) => {
     setCartItems((prevItems) => {
@@ -87,10 +123,30 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const clearCart = () => {
     setCartItems([]);
+    setAppliedCoupon(null);
+  };
+
+  const applyCoupon = (coupon: AppliedCoupon) => {
+    setAppliedCoupon(coupon);
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
   };
 
   const getCartTotal = () => {
     return cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+  };
+
+  const getDiscountAmount = () => {
+    if (!appliedCoupon) return 0;
+    return appliedCoupon.discountAmount;
+  };
+
+  const getFinalTotal = () => {
+    const total = getCartTotal();
+    const discount = getDiscountAmount();
+    return Math.max(0, total - discount);
   };
 
   const getCartItemsCount = () => {
@@ -101,11 +157,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
     <CartContext.Provider
       value={{
         cartItems,
+        appliedCoupon,
         addToCart,
         removeFromCart,
         updateQuantity,
         clearCart,
+        applyCoupon,
+        removeCoupon,
         getCartTotal,
+        getDiscountAmount,
+        getFinalTotal,
         getCartItemsCount,
       }}
     >
