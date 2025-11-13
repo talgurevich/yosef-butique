@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { FaFacebook, FaInstagram, FaWhatsapp, FaPhone, FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaFacebook, FaInstagram, FaWhatsapp, FaPhone, FaEnvelope, FaMapMarkerAlt, FaTiktok } from 'react-icons/fa';
 import { useState } from 'react';
 
 export default function Footer() {
@@ -99,7 +99,7 @@ export default function Footer() {
             </p>
             <div className="flex space-x-4 space-x-reverse">
               <a
-                href="https://facebook.com"
+                href="https://www.facebook.com/share/1FGwU1cT56/?mibextid=wwXIfr"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-white transition-colors"
@@ -113,6 +113,14 @@ export default function Footer() {
                 className="text-gray-400 hover:text-white transition-colors"
               >
                 <FaInstagram className="text-2xl" />
+              </a>
+              <a
+                href="https://www.tiktok.com/@butiqyossef1?_r=1&_t=ZS-91MDi891VVF"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <FaTiktok className="text-2xl" />
               </a>
               <a
                 href="https://wa.me/972515092208"
