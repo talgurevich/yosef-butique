@@ -39,32 +39,76 @@ export default function BulkUploadPage() {
     const headers = [
       'name',
       'description',
+      'product_type',
       'material',
-      'categories',
       'is_featured',
       'is_active',
       'sizes',
       'prices',
       'compare_prices',
-      'stock_quantities'
+      'stock_quantities',
+      'categories',
+      'colors',
+      'shapes',
+      'spaces',
+      'plant_types',
+      'plant_sizes',
+      'plant_light',
+      'plant_care',
+      'plant_pet_safety',
+      'image_urls'
     ];
 
-    const exampleRow = [
+    const carpetExample = [
       'שטיח מודרני אפור',
       'שטיח איכותי ומעוצב לסלון',
+      'carpet',
       'צמר',
-      'סלון,חדר שינה',
       'yes',
       'yes',
       '160×230|200×290|240×340',
       '1500|2000|2500',
       '2000|2500|3000',
-      '' // optional - defaults to 0
+      '10|5|3',
+      'modern,minimalist',
+      'gray,white',
+      'rectangular',
+      'living-room,bedroom',
+      '',
+      '',
+      '',
+      '',
+      '',
+      'https://example.com/img1.jpg|https://example.com/img2.jpg'
+    ];
+
+    const plantExample = [
+      'מונסטרה דלישיוזה',
+      'צמח טרופי גדול ומרשים לבית',
+      'plant',
+      '',
+      'yes',
+      'yes',
+      'קטן|בינוני|גדול',
+      '150|250|400',
+      '200|300|500',
+      '5|3|2',
+      '',
+      'green',
+      '',
+      '',
+      'indoor,tropical',
+      'small,medium,large',
+      'medium,high',
+      'easy',
+      'safe',
+      'https://example.com/plant1.jpg'
     ];
 
     const csvContent = [
       headers.join(','),
-      exampleRow.map(cell => `"${cell}"`).join(',')
+      carpetExample.map(cell => `"${cell}"`).join(','),
+      plantExample.map(cell => `"${cell}"`).join(',')
     ].join('\n');
 
     const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -72,6 +116,119 @@ export default function BulkUploadPage() {
     link.href = URL.createObjectURL(blob);
     link.download = 'products_template.csv';
     link.click();
+  };
+
+  const handleDownloadReference = async () => {
+    try {
+      const response = await fetch('/api/products/attribute-reference');
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'שגיאה בהורדת קובץ הייחוס');
+      }
+
+      // Create CSV content
+      const sections = [];
+
+      // Categories
+      if (data.categories?.length > 0) {
+        sections.push('=== סגנונות (Categories) ===');
+        sections.push('slug,name');
+        data.categories.forEach((item: any) => {
+          sections.push(`${item.slug},${item.name}`);
+        });
+        sections.push('');
+      }
+
+      // Colors
+      if (data.colors?.length > 0) {
+        sections.push('=== צבעים (Colors) ===');
+        sections.push('slug,name');
+        data.colors.forEach((item: any) => {
+          sections.push(`${item.slug},${item.name}`);
+        });
+        sections.push('');
+      }
+
+      // Shapes
+      if (data.shapes?.length > 0) {
+        sections.push('=== צורות (Shapes) ===');
+        sections.push('slug,name');
+        data.shapes.forEach((item: any) => {
+          sections.push(`${item.slug},${item.name}`);
+        });
+        sections.push('');
+      }
+
+      // Spaces
+      if (data.spaces?.length > 0) {
+        sections.push('=== חללים (Spaces) ===');
+        sections.push('slug,name');
+        data.spaces.forEach((item: any) => {
+          sections.push(`${item.slug},${item.name}`);
+        });
+        sections.push('');
+      }
+
+      // Plant Types
+      if (data.plantTypes?.length > 0) {
+        sections.push('=== סוגי צמחים (Plant Types) ===');
+        sections.push('slug,name');
+        data.plantTypes.forEach((item: any) => {
+          sections.push(`${item.slug},${item.name}`);
+        });
+        sections.push('');
+      }
+
+      // Plant Sizes
+      if (data.plantSizes?.length > 0) {
+        sections.push('=== גדלי צמחים (Plant Sizes) ===');
+        sections.push('slug,name');
+        data.plantSizes.forEach((item: any) => {
+          sections.push(`${item.slug},${item.name}`);
+        });
+        sections.push('');
+      }
+
+      // Plant Light Requirements
+      if (data.plantLight?.length > 0) {
+        sections.push('=== דרישות אור (Plant Light) ===');
+        sections.push('slug,name');
+        data.plantLight.forEach((item: any) => {
+          sections.push(`${item.slug},${item.name}`);
+        });
+        sections.push('');
+      }
+
+      // Plant Care Levels
+      if (data.plantCare?.length > 0) {
+        sections.push('=== רמות טיפול (Plant Care) ===');
+        sections.push('slug,name');
+        data.plantCare.forEach((item: any) => {
+          sections.push(`${item.slug},${item.name}`);
+        });
+        sections.push('');
+      }
+
+      // Plant Pet Safety
+      if (data.plantPetSafety?.length > 0) {
+        sections.push('=== בטיחות לחיות (Plant Pet Safety) ===');
+        sections.push('slug,name');
+        data.plantPetSafety.forEach((item: any) => {
+          sections.push(`${item.slug},${item.name}`);
+        });
+        sections.push('');
+      }
+
+      const csvContent = sections.join('\n');
+      const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'attribute_reference.csv';
+      link.click();
+    } catch (error: any) {
+      alert('❌ ' + error.message);
+    }
   };
 
   const handleUpload = async () => {
@@ -154,17 +311,26 @@ export default function BulkUploadPage() {
 
       {/* Template Download */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">1. הורד תבנית</h2>
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">1. הורד קבצים</h2>
         <p className="text-gray-600 mb-4">
-          הורד קובץ תבנית לדוגמה עם כל השדות הנדרשים
+          הורד את קובץ התבנית וקובץ הייחוס עם כל ה-slugs הזמינים
         </p>
-        <button
-          onClick={handleDownloadTemplate}
-          className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
-        >
-          <FaDownload />
-          הורד קובץ תבנית לדוגמה
-        </button>
+        <div className="flex flex-wrap gap-3">
+          <button
+            onClick={handleDownloadTemplate}
+            className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
+          >
+            <FaDownload />
+            הורד תבנית CSV
+          </button>
+          <button
+            onClick={handleDownloadReference}
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+          >
+            <FaDownload />
+            הורד קובץ ייחוס (Slugs)
+          </button>
+        </div>
       </div>
 
       {/* CSV Format Reference */}
@@ -181,6 +347,9 @@ export default function BulkUploadPage() {
               </tr>
             </thead>
             <tbody className="text-gray-700">
+              <tr className="bg-yellow-50">
+                <td className="border border-gray-300 px-4 py-2 font-mono font-bold" colSpan={4}>שדות כלליים</td>
+              </tr>
               <tr>
                 <td className="border border-gray-300 px-4 py-2 font-mono">name</td>
                 <td className="border border-gray-300 px-4 py-2">✅</td>
@@ -194,16 +363,16 @@ export default function BulkUploadPage() {
                 <td className="border border-gray-300 px-4 py-2">שטיח איכותי לסלון</td>
               </tr>
               <tr>
+                <td className="border border-gray-300 px-4 py-2 font-mono">product_type</td>
+                <td className="border border-gray-300 px-4 py-2">✅</td>
+                <td className="border border-gray-300 px-4 py-2">סוג מוצר</td>
+                <td className="border border-gray-300 px-4 py-2">carpet / plant</td>
+              </tr>
+              <tr>
                 <td className="border border-gray-300 px-4 py-2 font-mono">material</td>
                 <td className="border border-gray-300 px-4 py-2">❌</td>
                 <td className="border border-gray-300 px-4 py-2">חומר</td>
                 <td className="border border-gray-300 px-4 py-2">צמר</td>
-              </tr>
-              <tr>
-                <td className="border border-gray-300 px-4 py-2 font-mono">categories</td>
-                <td className="border border-gray-300 px-4 py-2">❌</td>
-                <td className="border border-gray-300 px-4 py-2">קטגוריות (מופרדות בפסיק)</td>
-                <td className="border border-gray-300 px-4 py-2">סלון,חדר שינה</td>
               </tr>
               <tr>
                 <td className="border border-gray-300 px-4 py-2 font-mono">is_featured</td>
@@ -238,8 +407,74 @@ export default function BulkUploadPage() {
               <tr>
                 <td className="border border-gray-300 px-4 py-2 font-mono">stock_quantities</td>
                 <td className="border border-gray-300 px-4 py-2">❌</td>
-                <td className="border border-gray-300 px-4 py-2">כמויות מלאי (מופרדות ב-|) - ברירת מחדל: 0</td>
-                <td className="border border-gray-300 px-4 py-2">10|5</td>
+                <td className="border border-gray-300 px-4 py-2">כמויות מלאי (מופרדות ב-|)</td>
+                <td className="border border-gray-300 px-4 py-2">10|5|3</td>
+              </tr>
+              <tr>
+                <td className="border border-gray-300 px-4 py-2 font-mono">image_urls</td>
+                <td className="border border-gray-300 px-4 py-2">❌</td>
+                <td className="border border-gray-300 px-4 py-2">כתובות תמונות (מופרדות ב-|)</td>
+                <td className="border border-gray-300 px-4 py-2">https://...jpg|https://...jpg</td>
+              </tr>
+              <tr className="bg-blue-50">
+                <td className="border border-gray-300 px-4 py-2 font-mono font-bold" colSpan={4}>שטיחים (השאר ריק לעציצים)</td>
+              </tr>
+              <tr>
+                <td className="border border-gray-300 px-4 py-2 font-mono">categories</td>
+                <td className="border border-gray-300 px-4 py-2">❌</td>
+                <td className="border border-gray-300 px-4 py-2">סגנונות - slugs מופרדים בפסיק</td>
+                <td className="border border-gray-300 px-4 py-2">modern,minimalist</td>
+              </tr>
+              <tr>
+                <td className="border border-gray-300 px-4 py-2 font-mono">colors</td>
+                <td className="border border-gray-300 px-4 py-2">❌</td>
+                <td className="border border-gray-300 px-4 py-2">צבעים - slugs מופרדים בפסיק</td>
+                <td className="border border-gray-300 px-4 py-2">gray,white</td>
+              </tr>
+              <tr>
+                <td className="border border-gray-300 px-4 py-2 font-mono">shapes</td>
+                <td className="border border-gray-300 px-4 py-2">❌</td>
+                <td className="border border-gray-300 px-4 py-2">צורות - slugs מופרדים בפסיק</td>
+                <td className="border border-gray-300 px-4 py-2">rectangular,round</td>
+              </tr>
+              <tr>
+                <td className="border border-gray-300 px-4 py-2 font-mono">spaces</td>
+                <td className="border border-gray-300 px-4 py-2">❌</td>
+                <td className="border border-gray-300 px-4 py-2">חללים - slugs מופרדים בפסיק</td>
+                <td className="border border-gray-300 px-4 py-2">living-room,bedroom</td>
+              </tr>
+              <tr className="bg-green-50">
+                <td className="border border-gray-300 px-4 py-2 font-mono font-bold" colSpan={4}>עציצים (השאר ריק לשטיחים)</td>
+              </tr>
+              <tr>
+                <td className="border border-gray-300 px-4 py-2 font-mono">plant_types</td>
+                <td className="border border-gray-300 px-4 py-2">❌</td>
+                <td className="border border-gray-300 px-4 py-2">סוגי צמחים - slugs מופרדים בפסיק</td>
+                <td className="border border-gray-300 px-4 py-2">indoor,tropical</td>
+              </tr>
+              <tr>
+                <td className="border border-gray-300 px-4 py-2 font-mono">plant_sizes</td>
+                <td className="border border-gray-300 px-4 py-2">❌</td>
+                <td className="border border-gray-300 px-4 py-2">גדלי צמחים - slugs מופרדים בפסיק</td>
+                <td className="border border-gray-300 px-4 py-2">small,medium,large</td>
+              </tr>
+              <tr>
+                <td className="border border-gray-300 px-4 py-2 font-mono">plant_light</td>
+                <td className="border border-gray-300 px-4 py-2">❌</td>
+                <td className="border border-gray-300 px-4 py-2">דרישות אור - slugs מופרדים בפסיק</td>
+                <td className="border border-gray-300 px-4 py-2">medium,high</td>
+              </tr>
+              <tr>
+                <td className="border border-gray-300 px-4 py-2 font-mono">plant_care</td>
+                <td className="border border-gray-300 px-4 py-2">❌</td>
+                <td className="border border-gray-300 px-4 py-2">רמת טיפול - slugs מופרדים בפסיק</td>
+                <td className="border border-gray-300 px-4 py-2">easy</td>
+              </tr>
+              <tr>
+                <td className="border border-gray-300 px-4 py-2 font-mono">plant_pet_safety</td>
+                <td className="border border-gray-300 px-4 py-2">❌</td>
+                <td className="border border-gray-300 px-4 py-2">בטיחות לחיות - slugs מופרדים בפסיק</td>
+                <td className="border border-gray-300 px-4 py-2">safe</td>
               </tr>
             </tbody>
           </table>

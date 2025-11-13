@@ -5,14 +5,24 @@ import Papa from 'papaparse';
 type CSVRow = {
   name: string;
   description?: string;
+  product_type: string;
   material?: string;
-  categories?: string;
   is_featured?: string;
   is_active?: string;
   sizes: string;
   prices: string;
   compare_prices?: string;
-  stock_quantities: string;
+  stock_quantities?: string;
+  categories?: string;
+  colors?: string;
+  shapes?: string;
+  spaces?: string;
+  plant_types?: string;
+  plant_sizes?: string;
+  plant_light?: string;
+  plant_care?: string;
+  plant_pet_safety?: string;
+  image_urls?: string;
 };
 
 type ValidationError = {
@@ -50,7 +60,7 @@ export async function POST(request: NextRequest) {
     const parseResult = Papa.parse<CSVRow>(text, {
       header: true,
       skipEmptyLines: true,
-      transformHeader: (header) => header.trim().toLowerCase(),
+      transformHeader: (header) => header.trim().toLowerCase().replace(/ /g, '_'),
     });
 
     if (parseResult.errors.length > 0) {
@@ -65,14 +75,44 @@ export async function POST(request: NextRequest) {
     let successCount = 0;
     let errorCount = 0;
 
-    // Fetch all categories for mapping
-    const { data: categories } = await supabaseAdmin
-      .from('categories')
-      .select('id, name');
+    // Fetch all attributes for mapping (slug-based)
+    const [
+      categoriesData,
+      colorsData,
+      shapesData,
+      spacesData,
+      plantTypesData,
+      plantSizesData,
+      plantLightData,
+      plantCareData,
+      plantPetSafetyData,
+      productTypesData
+    ] = await Promise.all([
+      supabaseAdmin.from('categories').select('id, slug'),
+      supabaseAdmin.from('colors').select('id, slug'),
+      supabaseAdmin.from('shapes').select('id, slug'),
+      supabaseAdmin.from('spaces').select('id, slug'),
+      supabaseAdmin.from('plant_types').select('id, slug'),
+      supabaseAdmin.from('plant_sizes').select('id, slug'),
+      supabaseAdmin.from('plant_light_requirements').select('id, slug'),
+      supabaseAdmin.from('plant_care_levels').select('id, slug'),
+      supabaseAdmin.from('plant_pet_safety').select('id, slug'),
+      supabaseAdmin.from('product_types').select('id, slug'),
+    ]);
 
-    const categoryMap = new Map(
-      categories?.map(cat => [cat.name.toLowerCase().trim(), cat.id]) || []
-    );
+    // Create slug maps
+    const slugMaps = {
+      categories: new Map((categoriesData.data || []).map(item => [item.slug, item.id])),
+      colors: new Map((colorsData.data || []).map(item => [item.slug, item.id])),
+      shapes: new Map((shapesData.data || []).map(item => [item.slug, item.id])),
+      spaces: new Map((spacesData.data || []).map(item => [item.slug, item.id])),
+      plantTypes: new Map((plantTypesData.data || []).map(item => [item.slug, item.id])),
+      plantSizes: new Map((plantSizesData.data || []).map(item => [item.slug, item.id])),
+      plantLight: new Map((plantLightData.data || []).map(item => [item.slug, item.id])),
+      plantCare: new Map((plantCareData.data || []).map(item => [item.slug, item.id])),
+      plantPetSafety: new Map((plantPetSafetyData.data || []).map(item => [item.slug, item.id])),
+      productTypes: new Map((productTypesData.data || []).map(item => [item.slug, item.id])),
+    };
 
     // Process each row
     for (let i = 0; i < rows.length; i++) {
@@ -86,6 +126,27 @@ export async function POST(request: NextRequest) {
             row: rowNumber,
             field: 'name',
             message: 'שם המוצר הוא שדה חובה'
+          });
+          errorCount++;
+          continue;
+        }
+
+        if (!row.product_type || !row.product_type.trim()) {
+          errors.push({
+            row: rowNumber,
+            field: 'product_type',
+            message: 'סוג מוצר (product_type) הוא שדה חובה - carpet או plant'
+          });
+          errorCount++;
+          continue;
+        }
+
+        const productType = row.product_type.trim().toLowerCase();
+        if (productType !== 'carpet' && productType !== 'plant') {
+          errors.push({
+            row: rowNumber,
+            field: 'product_type',
+            message: 'סוג מוצר חייב להיות carpet או plant'
           });
           errorCount++;
           continue;
@@ -132,7 +193,6 @@ export async function POST(request: NextRequest) {
           continue;
         }
 
-        // If stock quantities provided, validate they match
         if (stockQuantities.length > 0 && stockQuantities.length !== sizes.length) {
           errors.push({
             row: rowNumber,
@@ -143,11 +203,15 @@ export async function POST(request: NextRequest) {
           continue;
         }
 
-        if (sizes.length === 0) {
+        // Get product type ID
+        const productTypeSlug = productType === 'carpet' ? 'carpets' : 'plants';
+        const productTypeId = slugMaps.productTypes.get(productTypeSlug);
+
+        if (!productTypeId) {
           errors.push({
             row: rowNumber,
-            field: 'sizes',
-            message: 'יש לציין לפחות מידה אחת'
+            field: 'product_type',
+            message: `לא נמצא סוג מוצר עבור ${productTypeSlug}`
           });
           errorCount++;
           continue;
@@ -184,6 +248,7 @@ export async function POST(request: NextRequest) {
             style: [],
             color: [],
             has_variants: sizes.length > 1,
+            product_type_id: productTypeId,
           }])
           .select()
           .single();
@@ -220,32 +285,65 @@ export async function POST(request: NextRequest) {
             field: 'variants',
             message: variantsError.message
           });
-          // Delete the product since variants failed
           await supabaseAdmin.from('products').delete().eq('id', productData.id);
           errorCount++;
           continue;
         }
 
-        // Associate categories
-        if (row.categories && row.categories.trim()) {
-          const categoryNames = row.categories
-            .split(',')
-            .map(c => c.trim().toLowerCase())
-            .filter(Boolean);
+        // Helper function to associate attributes
+        const associateAttributes = async (
+          slugsString: string | undefined,
+          slugMap: Map<string, string>,
+          tableName: string,
+          columnName: string
+        ) => {
+          if (!slugsString || !slugsString.trim()) return;
 
-          const categoryIds = categoryNames
-            .map(name => categoryMap.get(name))
-            .filter(Boolean) as string[];
+          const slugs = slugsString.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+          const ids = slugs.map(slug => slugMap.get(slug)).filter(Boolean) as string[];
 
-          if (categoryIds.length > 0) {
-            const categoryRelations = categoryIds.map(categoryId => ({
-              product_id: productData.id,
-              category_id: categoryId,
-            }));
+          if (ids.length === 0) return;
 
-            await supabaseAdmin
-              .from('product_categories')
-              .insert(categoryRelations);
+          const relations = ids.map(id => ({
+            product_id: productData.id,
+            [columnName]: id,
+          }));
+
+          await supabaseAdmin.from(tableName).insert(relations);
+        };
+
+        // Associate all attributes based on product type
+        if (productType === 'carpet') {
+          await Promise.all([
+            associateAttributes(row.categories, slugMaps.categories, 'product_categories', 'category_id'),
+            associateAttributes(row.colors, slugMaps.colors, 'product_colors', 'color_id'),
+            associateAttributes(row.shapes, slugMaps.shapes, 'product_shapes', 'shape_id'),
+            associateAttributes(row.spaces, slugMaps.spaces, 'product_spaces', 'space_id'),
+          ]);
+        } else if (productType === 'plant') {
+          await Promise.all([
+            associateAttributes(row.plant_types, slugMaps.plantTypes, 'product_plant_types', 'plant_type_id'),
+            associateAttributes(row.plant_sizes, slugMaps.plantSizes, 'product_plant_sizes', 'plant_size_id'),
+            associateAttributes(row.plant_light, slugMaps.plantLight, 'product_plant_light_requirements', 'plant_light_requirement_id'),
+            associateAttributes(row.plant_care, slugMaps.plantCare, 'product_plant_care_levels', 'plant_care_level_id'),
+            associateAttributes(row.plant_pet_safety, slugMaps.plantPetSafety, 'product_plant_pet_safety', 'plant_pet_safety_id'),
+            associateAttributes(row.colors, slugMaps.colors, 'product_colors', 'color_id'),
+          ]);
+        }
+
+        // Handle image URLs
+        if (row.image_urls && row.image_urls.trim()) {
+          const imageUrls = row.image_urls.split('|').map(url => url.trim()).filter(Boolean);
+
+          const imagesToInsert = imageUrls.map((url, idx) => ({
+            product_id: productData.id,
+            image_url: url,
+            alt_text: `${row.name} - Image ${idx + 1}`,
+            sort_order: idx,
+          }));
+
+          if (imagesToInsert.length > 0) {
+            await supabaseAdmin.from('product_images').insert(imagesToInsert);
           }
         }
 
