@@ -1,10 +1,13 @@
 import Link from 'next/link';
 import { FaHeart, FaLeaf, FaStar, FaUsers, FaHome, FaTruck, FaAward, FaHandshake } from 'react-icons/fa';
 import Breadcrumbs from '@/components/Breadcrumbs';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-cream">
+      <Header />
       {/* Hero Section */}
       <div className="relative text-white py-20 overflow-hidden">
         {/* Background Image */}
@@ -255,6 +258,7 @@ export default function AboutPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

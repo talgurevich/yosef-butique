@@ -4,6 +4,8 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaWhatsapp, FaClock, FaPaperPlane } from 'react-icons/fa';
 import Breadcrumbs from '@/components/Breadcrumbs';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -59,9 +61,21 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Header />
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary-600 to-primary-700 text-white py-16">
-        <div className="container mx-auto px-4">
+      <div className="relative text-white py-16 overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <img
+            src="https://images.unsplash.com/photo-1423666639041-f56000c27a9a?w=1920&q=80"
+            alt="Contact us"
+            className="w-full h-full object-cover"
+          />
+          {/* Dark gradient overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-primary-900/85 to-primary-800/85"></div>
+        </div>
+
+        <div className="container mx-auto px-4 relative z-10">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">צור קשר</h1>
           <p className="text-xl text-primary-100">
             נשמח לעזור ולענות על כל שאלה
@@ -345,6 +359,7 @@ export default function ContactPage() {
           </Link>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
