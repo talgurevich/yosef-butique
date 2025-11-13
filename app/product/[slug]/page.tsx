@@ -1,17 +1,20 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import { supabase, Product, ProductVariant } from '@/lib/supabase';
 import { FaShoppingCart, FaArrowRight, FaCheck, FaTruck, FaShieldAlt } from 'react-icons/fa';
+import { useCart } from '@/contexts/CartContext';
 
 export default function ProductPage() {
   const params = useParams();
+  const router = useRouter();
   const slug = params.slug as string;
+  const { addToCart } = useCart();
 
   const [product, setProduct] = useState<Product | null>(null);
   const [variants, setVariants] = useState<ProductVariant[]>([]);
@@ -20,6 +23,7 @@ export default function ProductPage() {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [addedToCart, setAddedToCart] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
   const [colors, setColors] = useState<any[]>([]);
   const [shapes, setShapes] = useState<any[]>([]);
@@ -182,8 +186,39 @@ export default function ProductPage() {
   };
 
   const handleAddToCart = () => {
-    // TODO: Implement cart functionality
-    alert('המוצר נוסף לסל הקניות!');
+    if (!product) return;
+
+    // For products with variants, require a variant selection
+    if (product.has_variants && !selectedVariant) {
+      alert('אנא בחר מידה');
+      return;
+    }
+
+    // Determine which variant to use
+    const variantToAdd = selectedVariant || {
+      id: `default-${product.id}`,
+      size: product.size || 'רגיל',
+      price: product.price,
+    };
+
+    // Get the first product image if available
+    const imageUrl = productImages.length > 0 ? productImages[0].image_url : undefined;
+
+    // Add to cart
+    addToCart({
+      productId: product.id,
+      variantId: variantToAdd.id,
+      productName: product.name,
+      variantSize: variantToAdd.size,
+      price: variantToAdd.price,
+      imageUrl,
+      slug: product.slug,
+      quantity,
+    });
+
+    // Show success feedback
+    setAddedToCart(true);
+    setTimeout(() => setAddedToCart(false), 3000);
   };
 
   const getCurrentPrice = () => {
@@ -502,10 +537,23 @@ export default function ProductPage() {
               <button
                 onClick={handleAddToCart}
                 disabled={!isInStock()}
-                className="w-full bg-terracotta text-white py-4 rounded-lg font-bold text-lg hover:bg-terracotta-dark transition-colors flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed mb-6"
+                className={`w-full py-4 rounded-lg font-bold text-lg transition-colors flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed mb-6 ${
+                  addedToCart
+                    ? 'bg-green-600 hover:bg-green-700'
+                    : 'bg-terracotta hover:bg-terracotta-dark'
+                } text-white`}
               >
-                <FaShoppingCart />
-                {isInStock() ? 'הוסף לסל הקניות' : 'אזל מהמלאי'}
+                {addedToCart ? (
+                  <>
+                    <FaCheck />
+                    נוסף לעגלה!
+                  </>
+                ) : (
+                  <>
+                    <FaShoppingCart />
+                    {isInStock() ? 'הוסף לסל הקניות' : 'אזל מהמלאי'}
+                  </>
+                )}
               </button>
 
               {/* Features */}

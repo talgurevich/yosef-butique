@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import AuthSessionProvider from "@/components/SessionProvider";
+import { CartProvider } from "@/contexts/CartContext";
 import { Alef, Rubik } from 'next/font/google';
 
 const alef = Alef({
@@ -30,7 +31,9 @@ export default function RootLayout({
     <html lang="he" dir="rtl" className={`${alef.variable} ${rubik.variable}`}>
       <body className="antialiased font-body">
         <AuthSessionProvider>
-          {children}
+          <CartProvider>
+            {children}
+          </CartProvider>
         </AuthSessionProvider>
       </body>
     </html>

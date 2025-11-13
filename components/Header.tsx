@@ -5,8 +5,10 @@ import Link from 'next/link';
 import { FaShoppingCart, FaWhatsapp, FaUser, FaTimes, FaChevronDown } from 'react-icons/fa';
 import CarpetsDropdown from './CarpetsDropdown';
 import PlantsDropdown from './PlantsDropdown';
+import { useCart } from '@/contexts/CartContext';
 
 export default function Header() {
+  const { getCartItemsCount } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [carpetsDropdownOpen, setCarpetsDropdownOpen] = useState(false);
   const [plantsDropdownOpen, setPlantsDropdownOpen] = useState(false);
@@ -168,9 +170,11 @@ export default function Header() {
               className="relative p-2 text-gray-700 hover:text-primary-600 transition-colors"
             >
               <FaShoppingCart className="text-2xl" />
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                0
-              </span>
+              {getCartItemsCount() > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {getCartItemsCount()}
+                </span>
+              )}
             </Link>
 
             {/* Admin Link */}
@@ -273,7 +277,7 @@ export default function Header() {
                   className="flex items-center justify-center space-x-2 space-x-reverse bg-primary-600 text-white px-4 py-3 rounded-lg hover:bg-primary-700 transition-colors"
                 >
                   <FaShoppingCart className="text-xl" />
-                  <span>עגלת קניות (0)</span>
+                  <span>עגלת קניות ({getCartItemsCount()})</span>
                 </Link>
 
                 <Link
