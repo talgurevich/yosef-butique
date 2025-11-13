@@ -1,7 +1,7 @@
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
 import MostWanted from '@/components/MostWanted';
-import CategoriesPreview from '@/components/CategoriesPreview';
+import AttributesPreview from '@/components/AttributesPreview';
 import CustomerGallery from '@/components/CustomerGallery';
 import AboutSection from '@/components/AboutSection';
 import Reviews from '@/components/Reviews';
@@ -53,22 +53,36 @@ async function getFeaturedProducts(): Promise<any[]> {
 }
 
 async function getCategories(): Promise<any[]> {
-  if (!supabase) {
-    return [];
-  }
-
+  if (!supabase) return [];
   try {
     const { data, error } = await supabase
       .from('categories')
       .select('*')
       .eq('is_active', true)
       .order('sort_order');
-
     if (error) {
       console.error('Error fetching categories:', error);
       return [];
     }
+    return data || [];
+  } catch (error) {
+    console.error('Error:', error);
+    return [];
+  }
+}
 
+async function getSpaces(): Promise<any[]> {
+  if (!supabase) return [];
+  try {
+    const { data, error } = await supabase
+      .from('spaces')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order');
+    if (error) {
+      console.error('Error fetching spaces:', error);
+      return [];
+    }
     return data || [];
   } catch (error) {
     console.error('Error:', error);
@@ -79,13 +93,17 @@ async function getCategories(): Promise<any[]> {
 export default async function Home() {
   const featuredProducts = await getFeaturedProducts();
   const categories = await getCategories();
+  const spaces = await getSpaces();
 
   return (
     <main className="min-h-screen">
       <Header />
       <Hero />
       <MostWanted products={featuredProducts} />
-      <CategoriesPreview categories={categories} />
+      <AttributesPreview
+        categories={categories}
+        spaces={spaces}
+      />
       <AboutSection />
       <Reviews />
       <CustomerGallery />
