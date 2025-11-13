@@ -47,11 +47,11 @@ export default function CarpetsDropdown({ onClose }: { onClose?: () => void }) {
   };
 
   return (
-    <div className="absolute top-full right-0 pt-2 w-[500px] z-50">
-      <div className="bg-white rounded-lg shadow-xl border border-gray-200 max-h-[70vh] overflow-y-auto p-6">
-        <h3 className="text-xl font-bold text-gray-800 mb-4 pb-3 border-b border-gray-200">שטיחים</h3>
+    <div className="absolute top-full left-0 right-0 z-50 bg-white shadow-xl border-t border-gray-200">
+      <div className="container mx-auto px-4 py-8">
+          <h3 className="text-2xl font-bold text-gray-800 mb-6 pb-3 border-b border-gray-200">שטיחים</h3>
 
-        <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-4 gap-8">
           {/* Categories */}
           {categories.length > 0 && (
             <div>
@@ -154,11 +154,11 @@ export default function CarpetsDropdown({ onClose }: { onClose?: () => void }) {
         <Link
           href="/products?type=carpets"
           onClick={onClose}
-          className="block px-4 py-3 mt-6 rounded-lg text-center bg-primary-600 hover:bg-primary-700 text-white font-semibold transition-colors"
+          className="mt-6 inline-flex items-center justify-center px-6 py-3 rounded-lg bg-primary-600 hover:bg-primary-700 text-white font-semibold transition-colors"
         >
           כל השטיחים ←
         </Link>
-        </div>
       </div>
+    </div>
   );
 }
