@@ -107,173 +107,182 @@ async function getProducts(filters: FilterParams = {}) {
 
   if (!products) return [];
 
-  // Filter by category (junction table)
+  // Filter by category (junction table) - supports multiple values
   let filteredProducts = products;
 
   if (filters.category) {
+    const categorySlugs = filters.category.split(',');
     const { data: categoryData } = await supabase
       .from('categories')
       .select('id')
-      .eq('slug', filters.category)
-      .single();
+      .in('slug', categorySlugs);
 
-    if (categoryData) {
+    if (categoryData && categoryData.length > 0) {
+      const categoryIds = categoryData.map(c => c.id);
       const { data: productCategories } = await supabase
         .from('product_categories')
         .select('product_id')
-        .eq('category_id', categoryData.id);
+        .in('category_id', categoryIds);
 
       const productIds = new Set(productCategories?.map(pc => pc.product_id) || []);
       filteredProducts = filteredProducts.filter(p => productIds.has(p.id));
     }
   }
 
-  // Filter by color (junction table)
+  // Filter by color (junction table) - supports multiple values
   if (filters.color) {
+    const colorSlugs = filters.color.split(',');
     const { data: colorData } = await supabase
       .from('colors')
       .select('id')
-      .eq('slug', filters.color)
-      .single();
+      .in('slug', colorSlugs);
 
-    if (colorData) {
+    if (colorData && colorData.length > 0) {
+      const colorIds = colorData.map(c => c.id);
       const { data: productColors } = await supabase
         .from('product_colors')
         .select('product_id')
-        .eq('color_id', colorData.id);
+        .in('color_id', colorIds);
 
       const productIds = new Set(productColors?.map(pc => pc.product_id) || []);
       filteredProducts = filteredProducts.filter(p => productIds.has(p.id));
     }
   }
 
-  // Filter by shape (junction table)
+  // Filter by shape (junction table) - supports multiple values
   if (filters.shape) {
+    const shapeSlugs = filters.shape.split(',');
     const { data: shapeData } = await supabase
       .from('shapes')
       .select('id')
-      .eq('slug', filters.shape)
-      .single();
+      .in('slug', shapeSlugs);
 
-    if (shapeData) {
+    if (shapeData && shapeData.length > 0) {
+      const shapeIds = shapeData.map(s => s.id);
       const { data: productShapes } = await supabase
         .from('product_shapes')
         .select('product_id')
-        .eq('shape_id', shapeData.id);
+        .in('shape_id', shapeIds);
 
       const productIds = new Set(productShapes?.map(ps => ps.product_id) || []);
       filteredProducts = filteredProducts.filter(p => productIds.has(p.id));
     }
   }
 
-  // Filter by space (junction table)
+  // Filter by space (junction table) - supports multiple values
   if (filters.space) {
+    const spaceSlugs = filters.space.split(',');
     const { data: spaceData } = await supabase
       .from('spaces')
       .select('id')
-      .eq('slug', filters.space)
-      .single();
+      .in('slug', spaceSlugs);
 
-    if (spaceData) {
+    if (spaceData && spaceData.length > 0) {
+      const spaceIds = spaceData.map(s => s.id);
       const { data: productSpaces } = await supabase
         .from('product_spaces')
         .select('product_id')
-        .eq('space_id', spaceData.id);
+        .in('space_id', spaceIds);
 
       const productIds = new Set(productSpaces?.map(ps => ps.product_id) || []);
       filteredProducts = filteredProducts.filter(p => productIds.has(p.id));
     }
   }
 
-  // Filter by plant type (junction table)
+  // Filter by plant type (junction table) - supports multiple values
   if (filters.plantType) {
+    const plantTypeSlugs = filters.plantType.split(',');
     const { data: plantTypeData } = await supabase
       .from('plant_types')
       .select('id')
-      .eq('slug', filters.plantType)
-      .single();
+      .in('slug', plantTypeSlugs);
 
-    if (plantTypeData) {
+    if (plantTypeData && plantTypeData.length > 0) {
+      const plantTypeIds = plantTypeData.map(pt => pt.id);
       const { data: productPlantTypes } = await supabase
         .from('product_plant_types')
         .select('product_id')
-        .eq('plant_type_id', plantTypeData.id);
+        .in('plant_type_id', plantTypeIds);
 
       const productIds = new Set(productPlantTypes?.map(pt => pt.product_id) || []);
       filteredProducts = filteredProducts.filter(p => productIds.has(p.id));
     }
   }
 
-  // Filter by plant size (junction table)
+  // Filter by plant size (junction table) - supports multiple values
   if (filters.plantSize) {
+    const plantSizeSlugs = filters.plantSize.split(',');
     const { data: plantSizeData } = await supabase
       .from('plant_sizes')
       .select('id')
-      .eq('slug', filters.plantSize)
-      .single();
+      .in('slug', plantSizeSlugs);
 
-    if (plantSizeData) {
+    if (plantSizeData && plantSizeData.length > 0) {
+      const plantSizeIds = plantSizeData.map(ps => ps.id);
       const { data: productPlantSizes } = await supabase
         .from('product_plant_sizes')
         .select('product_id')
-        .eq('plant_size_id', plantSizeData.id);
+        .in('plant_size_id', plantSizeIds);
 
       const productIds = new Set(productPlantSizes?.map(ps => ps.product_id) || []);
       filteredProducts = filteredProducts.filter(p => productIds.has(p.id));
     }
   }
 
-  // Filter by plant light requirements (junction table)
+  // Filter by plant light requirements (junction table) - supports multiple values
   if (filters.plantLight) {
+    const plantLightSlugs = filters.plantLight.split(',');
     const { data: plantLightData } = await supabase
       .from('plant_light_requirements')
       .select('id')
-      .eq('slug', filters.plantLight)
-      .single();
+      .in('slug', plantLightSlugs);
 
-    if (plantLightData) {
+    if (plantLightData && plantLightData.length > 0) {
+      const plantLightIds = plantLightData.map(pl => pl.id);
       const { data: productPlantLights } = await supabase
         .from('product_plant_light_requirements')
         .select('product_id')
-        .eq('plant_light_requirement_id', plantLightData.id);
+        .in('plant_light_requirement_id', plantLightIds);
 
       const productIds = new Set(productPlantLights?.map(pl => pl.product_id) || []);
       filteredProducts = filteredProducts.filter(p => productIds.has(p.id));
     }
   }
 
-  // Filter by plant care level (junction table)
+  // Filter by plant care level (junction table) - supports multiple values
   if (filters.plantCare) {
+    const plantCareSlugs = filters.plantCare.split(',');
     const { data: plantCareData } = await supabase
       .from('plant_care_levels')
       .select('id')
-      .eq('slug', filters.plantCare)
-      .single();
+      .in('slug', plantCareSlugs);
 
-    if (plantCareData) {
+    if (plantCareData && plantCareData.length > 0) {
+      const plantCareIds = plantCareData.map(pc => pc.id);
       const { data: productPlantCares } = await supabase
         .from('product_plant_care_levels')
         .select('product_id')
-        .eq('plant_care_level_id', plantCareData.id);
+        .in('plant_care_level_id', plantCareIds);
 
       const productIds = new Set(productPlantCares?.map(pc => pc.product_id) || []);
       filteredProducts = filteredProducts.filter(p => productIds.has(p.id));
     }
   }
 
-  // Filter by plant pet safety (junction table)
+  // Filter by plant pet safety (junction table) - supports multiple values
   if (filters.plantPetSafety) {
+    const plantPetSafetySlugs = filters.plantPetSafety.split(',');
     const { data: plantPetSafetyData } = await supabase
       .from('plant_pet_safety')
       .select('id')
-      .eq('slug', filters.plantPetSafety)
-      .single();
+      .in('slug', plantPetSafetySlugs);
 
-    if (plantPetSafetyData) {
+    if (plantPetSafetyData && plantPetSafetyData.length > 0) {
+      const plantPetSafetyIds = plantPetSafetyData.map(pps => pps.id);
       const { data: productPlantPetSafety } = await supabase
         .from('product_plant_pet_safety')
         .select('product_id')
-        .eq('plant_pet_safety_id', plantPetSafetyData.id);
+        .in('plant_pet_safety_id', plantPetSafetyIds);
 
       const productIds = new Set(productPlantPetSafety?.map(pps => pps.product_id) || []);
       filteredProducts = filteredProducts.filter(p => productIds.has(p.id));

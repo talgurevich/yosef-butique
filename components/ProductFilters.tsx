@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { FaChevronDown, FaChevronUp, FaTimes } from 'react-icons/fa';
 
 type FilterData = {
@@ -46,6 +46,22 @@ export default function ProductFilters({
   isOpen,
   onClose,
 }: FilterData) {
+  const router = useRouter();
+
+  // Initialize selected filters from URL params
+  const [selectedFilters, setSelectedFilters] = useState({
+    categories: filters.category ? filters.category.split(',') : [],
+    productType: filters.productType || '',
+    colors: filters.color ? filters.color.split(',') : [],
+    shapes: filters.shape ? filters.shape.split(',') : [],
+    spaces: filters.space ? filters.space.split(',') : [],
+    plantTypes: filters.plantType ? filters.plantType.split(',') : [],
+    plantSizes: filters.plantSize ? filters.plantSize.split(',') : [],
+    plantLights: filters.plantLight ? filters.plantLight.split(',') : [],
+    plantCares: filters.plantCare ? filters.plantCare.split(',') : [],
+    plantPetSafety: filters.plantPetSafety ? filters.plantPetSafety.split(',') : [],
+  });
+
   const [expandedSections, setExpandedSections] = useState<{
     carpets: boolean;
     plants: boolean;
@@ -60,6 +76,87 @@ export default function ProductFilters({
       [section]: !prev[section],
     }));
   };
+
+  const toggleFilter = (filterType: string, value: string) => {
+    setSelectedFilters(prev => {
+      const currentValues = prev[filterType as keyof typeof prev] as string[];
+      const newValues = currentValues.includes(value)
+        ? currentValues.filter(v => v !== value)
+        : [...currentValues, value];
+
+      return {
+        ...prev,
+        [filterType]: newValues,
+      };
+    });
+  };
+
+  const applyFilters = () => {
+    const params = new URLSearchParams();
+
+    if (selectedFilters.productType) {
+      params.set('type', selectedFilters.productType);
+    }
+    if (selectedFilters.categories.length > 0) {
+      params.set('category', selectedFilters.categories.join(','));
+    }
+    if (selectedFilters.colors.length > 0) {
+      params.set('color', selectedFilters.colors.join(','));
+    }
+    if (selectedFilters.shapes.length > 0) {
+      params.set('shape', selectedFilters.shapes.join(','));
+    }
+    if (selectedFilters.spaces.length > 0) {
+      params.set('space', selectedFilters.spaces.join(','));
+    }
+    if (selectedFilters.plantTypes.length > 0) {
+      params.set('plantType', selectedFilters.plantTypes.join(','));
+    }
+    if (selectedFilters.plantSizes.length > 0) {
+      params.set('plantSize', selectedFilters.plantSizes.join(','));
+    }
+    if (selectedFilters.plantLights.length > 0) {
+      params.set('plantLight', selectedFilters.plantLights.join(','));
+    }
+    if (selectedFilters.plantCares.length > 0) {
+      params.set('plantCare', selectedFilters.plantCares.join(','));
+    }
+    if (selectedFilters.plantPetSafety.length > 0) {
+      params.set('plantPetSafety', selectedFilters.plantPetSafety.join(','));
+    }
+
+    const queryString = params.toString();
+    router.push(`/products${queryString ? `?${queryString}` : ''}`);
+    onClose();
+  };
+
+  const clearAllFilters = () => {
+    setSelectedFilters({
+      categories: [],
+      productType: '',
+      colors: [],
+      shapes: [],
+      spaces: [],
+      plantTypes: [],
+      plantSizes: [],
+      plantLights: [],
+      plantCares: [],
+      plantPetSafety: [],
+    });
+    router.push('/products');
+    onClose();
+  };
+
+  const hasActiveFilters =
+    selectedFilters.categories.length > 0 ||
+    selectedFilters.colors.length > 0 ||
+    selectedFilters.shapes.length > 0 ||
+    selectedFilters.spaces.length > 0 ||
+    selectedFilters.plantTypes.length > 0 ||
+    selectedFilters.plantSizes.length > 0 ||
+    selectedFilters.plantLights.length > 0 ||
+    selectedFilters.plantCares.length > 0 ||
+    selectedFilters.plantPetSafety.length > 0;
 
   // Prevent body scroll when panel is open
   useEffect(() => {
@@ -113,14 +210,7 @@ export default function ProductFilters({
         </div>
 
         {/* Scrollable Content */}
-        <div className="p-6 overflow-y-auto h-[calc(100%-80px)]">
-        {/* All Products Link */}
-        <Link
-          href="/products"
-          className="block px-4 py-2 mb-4 rounded-lg bg-primary-600 text-white text-center hover:bg-primary-700 transition-colors font-semibold"
-        >
-          כל המוצרים ({productsCount})
-        </Link>
+        <div className="p-6 overflow-y-auto h-[calc(100vh-180px)]">
 
         {/* Carpets Section */}
         <div className="mb-4 border-b border-gray-200 pb-4">
@@ -142,47 +232,46 @@ export default function ProductFilters({
               {categories.length > 0 && (
                 <div>
                   <h4 className="text-sm font-semibold text-gray-700 mb-2 px-2">סגנונות</h4>
-                  <ul className="space-y-1">
+                  <div className="space-y-1">
                     {categories
                       .filter(cat => !cat.parent_id)
                       .map((category) => (
-                        <li key={category.id}>
-                          <Link
-                            href={`/products?category=${category.slug}&type=carpets`}
-                            className={`block px-3 py-1.5 rounded-lg text-sm transition-colors ${
-                              filters.category === category.slug
-                                ? 'bg-primary-100 text-primary-700 font-semibold'
-                                : 'hover:bg-gray-100 text-gray-700'
-                            }`}
-                          >
-                            {category.name}
-                          </Link>
+                        <div key={category.id}>
+                          <label className="flex items-center px-3 py-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors">
+                            <input
+                              type="checkbox"
+                              checked={selectedFilters.categories.includes(category.slug)}
+                              onChange={() => toggleFilter('categories', category.slug)}
+                              className="ml-2 w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                            />
+                            <span className="text-sm text-gray-700">{category.name}</span>
+                          </label>
                           {/* Subcategories */}
                           {categories
                             .filter(subcat => subcat.parent_id === category.id)
                             .length > 0 && (
-                            <ul className="mr-3 mt-1 space-y-1">
+                            <div className="mr-6 mt-1 space-y-1">
                               {categories
                                 .filter(subcat => subcat.parent_id === category.id)
                                 .map((subcategory) => (
-                                  <li key={subcategory.id}>
-                                    <Link
-                                      href={`/products?category=${subcategory.slug}&type=carpets`}
-                                      className={`block px-3 py-1 rounded-lg text-xs transition-colors ${
-                                        filters.category === subcategory.slug
-                                          ? 'bg-primary-100 text-primary-700 font-semibold'
-                                          : 'hover:bg-gray-100 text-gray-600'
-                                      }`}
-                                    >
-                                      ↳ {subcategory.name}
-                                    </Link>
-                                  </li>
+                                  <label
+                                    key={subcategory.id}
+                                    className="flex items-center px-3 py-1.5 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      checked={selectedFilters.categories.includes(subcategory.slug)}
+                                      onChange={() => toggleFilter('categories', subcategory.slug)}
+                                      className="ml-2 w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                                    />
+                                    <span className="text-xs text-gray-600">↳ {subcategory.name}</span>
+                                  </label>
                                 ))}
-                            </ul>
+                            </div>
                           )}
-                        </li>
+                        </div>
                       ))}
-                  </ul>
+                  </div>
                 </div>
               )}
 
@@ -192,17 +281,18 @@ export default function ProductFilters({
                   <h4 className="text-sm font-semibold text-gray-700 mb-2 px-2">צבעים</h4>
                   <div className="space-y-1">
                     {colors.map((color) => (
-                      <Link
+                      <label
                         key={color.id}
-                        href={`/products?color=${color.slug}&type=carpets${filters.category ? `&category=${filters.category}` : ''}`}
-                        className={`block px-3 py-1.5 rounded-lg text-sm transition-colors ${
-                          filters.color === color.slug
-                            ? 'bg-primary-100 text-primary-700 font-semibold'
-                            : 'hover:bg-gray-100 text-gray-700'
-                        }`}
+                        className="flex items-center px-3 py-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
                       >
-                        {color.name}
-                      </Link>
+                        <input
+                          type="checkbox"
+                          checked={selectedFilters.colors.includes(color.slug)}
+                          onChange={() => toggleFilter('colors', color.slug)}
+                          className="ml-2 w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                        />
+                        <span className="text-sm text-gray-700">{color.name}</span>
+                      </label>
                     ))}
                   </div>
                 </div>
@@ -214,17 +304,18 @@ export default function ProductFilters({
                   <h4 className="text-sm font-semibold text-gray-700 mb-2 px-2">צורות</h4>
                   <div className="space-y-1">
                     {shapes.map((shape) => (
-                      <Link
+                      <label
                         key={shape.id}
-                        href={`/products?shape=${shape.slug}&type=carpets${filters.category ? `&category=${filters.category}` : ''}`}
-                        className={`block px-3 py-1.5 rounded-lg text-sm transition-colors ${
-                          filters.shape === shape.slug
-                            ? 'bg-primary-100 text-primary-700 font-semibold'
-                            : 'hover:bg-gray-100 text-gray-700'
-                        }`}
+                        className="flex items-center px-3 py-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
                       >
-                        {shape.name}
-                      </Link>
+                        <input
+                          type="checkbox"
+                          checked={selectedFilters.shapes.includes(shape.slug)}
+                          onChange={() => toggleFilter('shapes', shape.slug)}
+                          className="ml-2 w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                        />
+                        <span className="text-sm text-gray-700">{shape.name}</span>
+                      </label>
                     ))}
                   </div>
                 </div>
@@ -236,17 +327,18 @@ export default function ProductFilters({
                   <h4 className="text-sm font-semibold text-gray-700 mb-2 px-2">חללים</h4>
                   <div className="space-y-1">
                     {spaces.map((space) => (
-                      <Link
+                      <label
                         key={space.id}
-                        href={`/products?space=${space.slug}&type=carpets${filters.category ? `&category=${filters.category}` : ''}`}
-                        className={`block px-3 py-1.5 rounded-lg text-sm transition-colors ${
-                          filters.space === space.slug
-                            ? 'bg-primary-100 text-primary-700 font-semibold'
-                            : 'hover:bg-gray-100 text-gray-700'
-                        }`}
+                        className="flex items-center px-3 py-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
                       >
-                        {space.name}
-                      </Link>
+                        <input
+                          type="checkbox"
+                          checked={selectedFilters.spaces.includes(space.slug)}
+                          onChange={() => toggleFilter('spaces', space.slug)}
+                          className="ml-2 w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                        />
+                        <span className="text-sm text-gray-700">{space.name}</span>
+                      </label>
                     ))}
                   </div>
                 </div>
@@ -277,17 +369,18 @@ export default function ProductFilters({
                   <h4 className="text-sm font-semibold text-gray-700 mb-2 px-2">סוג צמח</h4>
                   <div className="space-y-1">
                     {plantTypes.map((plantType) => (
-                      <Link
+                      <label
                         key={plantType.id}
-                        href={`/products?type=plants&plantType=${plantType.slug}`}
-                        className={`block px-3 py-1.5 rounded-lg text-sm transition-colors ${
-                          filters.plantType === plantType.slug
-                            ? 'bg-green-100 text-green-700 font-semibold'
-                            : 'hover:bg-gray-100 text-gray-700'
-                        }`}
+                        className="flex items-center px-3 py-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
                       >
-                        {plantType.name}
-                      </Link>
+                        <input
+                          type="checkbox"
+                          checked={selectedFilters.plantTypes.includes(plantType.slug)}
+                          onChange={() => toggleFilter('plantTypes', plantType.slug)}
+                          className="ml-2 w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                        />
+                        <span className="text-sm text-gray-700">{plantType.name}</span>
+                      </label>
                     ))}
                   </div>
                 </div>
@@ -299,17 +392,18 @@ export default function ProductFilters({
                   <h4 className="text-sm font-semibold text-gray-700 mb-2 px-2">גודל</h4>
                   <div className="space-y-1">
                     {plantSizes.map((size) => (
-                      <Link
+                      <label
                         key={size.id}
-                        href={`/products?type=plants&plantSize=${size.slug}${filters.plantType ? `&plantType=${filters.plantType}` : ''}`}
-                        className={`block px-3 py-1.5 rounded-lg text-sm transition-colors ${
-                          filters.plantSize === size.slug
-                            ? 'bg-green-100 text-green-700 font-semibold'
-                            : 'hover:bg-gray-100 text-gray-700'
-                        }`}
+                        className="flex items-center px-3 py-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
                       >
-                        {size.name}
-                      </Link>
+                        <input
+                          type="checkbox"
+                          checked={selectedFilters.plantSizes.includes(size.slug)}
+                          onChange={() => toggleFilter('plantSizes', size.slug)}
+                          className="ml-2 w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                        />
+                        <span className="text-sm text-gray-700">{size.name}</span>
+                      </label>
                     ))}
                   </div>
                 </div>
@@ -321,17 +415,18 @@ export default function ProductFilters({
                   <h4 className="text-sm font-semibold text-gray-700 mb-2 px-2">דרישות אור</h4>
                   <div className="space-y-1">
                     {plantLightRequirements.map((light) => (
-                      <Link
+                      <label
                         key={light.id}
-                        href={`/products?type=plants&plantLight=${light.slug}${filters.plantType ? `&plantType=${filters.plantType}` : ''}`}
-                        className={`block px-3 py-1.5 rounded-lg text-sm transition-colors ${
-                          filters.plantLight === light.slug
-                            ? 'bg-green-100 text-green-700 font-semibold'
-                            : 'hover:bg-gray-100 text-gray-700'
-                        }`}
+                        className="flex items-center px-3 py-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
                       >
-                        {light.name}
-                      </Link>
+                        <input
+                          type="checkbox"
+                          checked={selectedFilters.plantLights.includes(light.slug)}
+                          onChange={() => toggleFilter('plantLights', light.slug)}
+                          className="ml-2 w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                        />
+                        <span className="text-sm text-gray-700">{light.name}</span>
+                      </label>
                     ))}
                   </div>
                 </div>
@@ -343,17 +438,18 @@ export default function ProductFilters({
                   <h4 className="text-sm font-semibold text-gray-700 mb-2 px-2">רמת טיפול</h4>
                   <div className="space-y-1">
                     {plantCareLevels.map((care) => (
-                      <Link
+                      <label
                         key={care.id}
-                        href={`/products?type=plants&plantCare=${care.slug}${filters.plantType ? `&plantType=${filters.plantType}` : ''}`}
-                        className={`block px-3 py-1.5 rounded-lg text-sm transition-colors ${
-                          filters.plantCare === care.slug
-                            ? 'bg-green-100 text-green-700 font-semibold'
-                            : 'hover:bg-gray-100 text-gray-700'
-                        }`}
+                        className="flex items-center px-3 py-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
                       >
-                        {care.name}
-                      </Link>
+                        <input
+                          type="checkbox"
+                          checked={selectedFilters.plantCares.includes(care.slug)}
+                          onChange={() => toggleFilter('plantCares', care.slug)}
+                          className="ml-2 w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                        />
+                        <span className="text-sm text-gray-700">{care.name}</span>
+                      </label>
                     ))}
                   </div>
                 </div>
@@ -365,17 +461,18 @@ export default function ProductFilters({
                   <h4 className="text-sm font-semibold text-gray-700 mb-2 px-2">בטיחות לחיות</h4>
                   <div className="space-y-1">
                     {plantPetSafety.map((safety) => (
-                      <Link
+                      <label
                         key={safety.id}
-                        href={`/products?type=plants&plantPetSafety=${safety.slug}${filters.plantType ? `&plantType=${filters.plantType}` : ''}`}
-                        className={`block px-3 py-1.5 rounded-lg text-sm transition-colors ${
-                          filters.plantPetSafety === safety.slug
-                            ? 'bg-green-100 text-green-700 font-semibold'
-                            : 'hover:bg-gray-100 text-gray-700'
-                        }`}
+                        className="flex items-center px-3 py-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
                       >
-                        {safety.name}
-                      </Link>
+                        <input
+                          type="checkbox"
+                          checked={selectedFilters.plantPetSafety.includes(safety.slug)}
+                          onChange={() => toggleFilter('plantPetSafety', safety.slug)}
+                          className="ml-2 w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                        />
+                        <span className="text-sm text-gray-700">{safety.name}</span>
+                      </label>
                     ))}
                   </div>
                 </div>
@@ -383,6 +480,24 @@ export default function ProductFilters({
             </div>
           )}
         </div>
+        </div>
+
+        {/* Footer - Action Buttons */}
+        <div className="absolute bottom-0 left-0 right-0 p-6 bg-white border-t border-gray-200 space-y-3">
+          <button
+            onClick={applyFilters}
+            className="w-full bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-semibold shadow-md"
+          >
+            הצג תוצאות ({productsCount})
+          </button>
+          {hasActiveFilters && (
+            <button
+              onClick={clearAllFilters}
+              className="w-full bg-gray-100 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+            >
+              נקה הכל
+            </button>
+          )}
         </div>
       </aside>
     </>
