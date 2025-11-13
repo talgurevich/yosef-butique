@@ -344,17 +344,25 @@ export default function CartPage() {
                       </svg>
                       תשלום מאובטח
                     </div>
-                    <div className="flex items-center gap-2">
-                      <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <div className="flex items-start gap-2">
+                      <svg className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
-                      משלוח מהיר
+                      <div>
+                        <p>משלוח מהיר</p>
+                        <p className="text-xs text-gray-500">עד 10 ימי עסקים</p>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <div className="flex items-start gap-2">
+                      <svg className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
-                      החזרות בחינם
+                      <div>
+                        <p>החזרות בחינם</p>
+                        <Link href="/returns-policy" className="text-xs text-primary-600 hover:text-primary-700 underline">
+                          קרא את מדיניות ההחזרות
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 </div>

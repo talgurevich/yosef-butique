@@ -158,6 +158,30 @@ export default function Footer() {
                   צור קשר
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/privacy-policy"
+                  className="hover:text-white transition-colors text-sm"
+                >
+                  מדיניות פרטיות
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/terms-of-service"
+                  className="hover:text-white transition-colors text-sm"
+                >
+                  תנאי שימוש
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/returns-policy"
+                  className="hover:text-white transition-colors text-sm"
+                >
+                  מדיניות החזרות
+                </Link>
+              </li>
             </ul>
           </div>
 
