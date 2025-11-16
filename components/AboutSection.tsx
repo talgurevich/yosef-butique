@@ -53,7 +53,7 @@ export default function AboutSection() {
     {
       icon: <DeliveryIcon />,
       title: 'משלוח חינם',
-      description: 'משלוח חינם בקנייה מעל ₪299',
+      description: 'משלוח חינם בקנייה מעל ₪500',
       gradient: 'from-blue-500 to-cyan-500',
       color: 'text-blue-500',
     },
