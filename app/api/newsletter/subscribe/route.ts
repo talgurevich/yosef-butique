@@ -58,6 +58,30 @@ export async function POST(request: NextRequest) {
 
         if (updateError) throw updateError;
 
+        // Also re-add to SendGrid Marketing Contacts
+        if (process.env.SENDGRID_API_KEY) {
+          try {
+            await fetch('https://api.sendgrid.com/v3/marketing/contacts', {
+              method: 'PUT',
+              headers: {
+                'Authorization': `Bearer ${process.env.SENDGRID_API_KEY}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                contacts: [
+                  {
+                    email: email.toLowerCase(),
+                    first_name: full_name?.split(' ')[0] || '',
+                    last_name: full_name?.split(' ').slice(1).join(' ') || '',
+                  },
+                ],
+              }),
+            });
+          } catch (error) {
+            console.error('Error re-adding contact to SendGrid:', error);
+          }
+        }
+
         return NextResponse.json({
           success: true,
           message: 'ברוך שובך! הופעלת מחדש בניוזלטר שלנו'
@@ -114,6 +138,36 @@ export async function POST(request: NextRequest) {
     if (process.env.SENDGRID_API_KEY) {
       try {
         sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+        // Add contact to SendGrid Marketing Contacts
+        try {
+          const addContactResponse = await fetch('https://api.sendgrid.com/v3/marketing/contacts', {
+            method: 'PUT',
+            headers: {
+              'Authorization': `Bearer ${process.env.SENDGRID_API_KEY}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              contacts: [
+                {
+                  email: email.toLowerCase(),
+                  first_name: full_name?.split(' ')[0] || '',
+                  last_name: full_name?.split(' ').slice(1).join(' ') || '',
+                  custom_fields: {
+                    // You can add custom fields here if you create them in SendGrid
+                    // e1_T: source, // Example: source field
+                  },
+                },
+              ],
+            }),
+          });
+
+          const contactResult = await addContactResponse.json();
+          console.log('SendGrid contact added:', contactResult);
+        } catch (contactError) {
+          console.error('Error adding contact to SendGrid:', contactError);
+          // Continue even if adding to SendGrid contacts fails
+        }
 
         // Send welcome email with promo code
         const msg = {
