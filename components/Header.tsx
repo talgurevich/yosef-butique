@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { FaShoppingCart, FaWhatsapp, FaUser, FaTimes, FaChevronDown } from 'react-icons/fa';
 import CarpetsDropdown from './CarpetsDropdown';
 import PlantsDropdown from './PlantsDropdown';
@@ -95,8 +96,15 @@ export default function Header() {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="text-2xl font-bold text-gray-800">
-            שטיחי בוטיק יוסף
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/logo.png"
+              alt="Yossef Boutique Rugs"
+              width={900}
+              height={300}
+              className="h-10 md:h-12 w-auto"
+              priority
+            />
           </Link>
 
           {/* Navigation */}
