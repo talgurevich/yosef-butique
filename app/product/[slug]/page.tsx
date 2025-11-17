@@ -8,6 +8,7 @@ import Footer from '@/components/Footer';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import ProductFAQ from '@/components/ProductFAQ';
+import ImageMagnifier from '@/components/ImageMagnifier';
 import { supabase, Product, ProductVariant } from '@/lib/supabase';
 import { FaShoppingCart, FaArrowRight, FaCheck, FaTruck, FaShieldAlt } from 'react-icons/fa';
 import { useCart } from '@/contexts/CartContext';
@@ -321,12 +322,14 @@ export default function ProductPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Product Image */}
             <div className="bg-white rounded-lg shadow-lg p-8">
-              <div className="aspect-square bg-gradient-to-br from-gray-200 to-gray-300 rounded-lg flex items-center justify-center overflow-hidden">
+              <div className="aspect-square bg-gradient-to-br from-gray-200 to-gray-300 rounded-lg flex items-center justify-center overflow-hidden relative">
                 {productImages.length > 0 ? (
-                  <img
+                  <ImageMagnifier
                     src={productImages[selectedImageIndex]?.image_url}
                     alt={productImages[selectedImageIndex]?.alt_text || product.name}
-                    className="w-full h-full object-cover"
+                    magnifierHeight={200}
+                    magnifierWidth={200}
+                    zoomLevel={2.5}
                   />
                 ) : (
                   <div className="text-gray-400 text-9xl">🏠</div>
