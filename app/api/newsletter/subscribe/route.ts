@@ -215,7 +215,7 @@ export async function POST(request: NextRequest) {
                   </ul>
 
                   <div style="text-align: center;">
-                    <a href="https://yossef-boutique.co.il/products" class="button">התחל לקנות עכשיו</a>
+                    <a href="https://boutique-yossef.co.il/products" class="button">התחל לקנות עכשיו</a>
                   </div>
 
                   <p>נשמח לעמוד לשירותך בכל שאלה!</p>
@@ -227,7 +227,7 @@ export async function POST(request: NextRequest) {
                 </div>
                 <div class="footer">
                   <p>קיבלת מייל זה כי נרשמת לניוזלטר שלנו</p>
-                  <p><a href="https://yossef-boutique.co.il/newsletter/unsubscribe?email=${encodeURIComponent(email)}">בטל הירשמות</a></p>
+                  <p><a href="https://boutique-yossef.co.il/newsletter/unsubscribe?email=${encodeURIComponent(email)}">בטל הירשמות</a></p>
                   <p>© ${new Date().getFullYear()} שטיחי בוטיק יוסף. כל הזכויות שמורות.</p>
                 </div>
               </div>
@@ -250,13 +250,13 @@ export async function POST(request: NextRequest) {
 - טיפים לעיצוב הבית
 - מבצעים מיוחדים רק למנויים
 
-התחל לקנות: https://yossef-boutique.co.il/products
+התחל לקנות: https://boutique-yossef.co.il/products
 
 שטיחי בוטיק יוסף
 📞 051-509-2208
 📍 השקד משק 47, מושב בית עזרא
 
-לביטול הירשמות: https://yossef-boutique.co.il/newsletter/unsubscribe?email=${encodeURIComponent(email)}
+לביטול הירשמות: https://boutique-yossef.co.il/newsletter/unsubscribe?email=${encodeURIComponent(email)}
           `,
         };
 
