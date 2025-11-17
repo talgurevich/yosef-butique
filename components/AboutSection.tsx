@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 
 // Custom SVG Icons
 const DeliveryIcon = () => (
@@ -97,7 +98,14 @@ export default function AboutSection() {
               <span className="font-bold text-gray-700">מותג מוביל בישראל</span>
             </div>
 
-            <h2 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-600 via-terracotta to-primary-800 mb-8 leading-tight">
+            <h2 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-600 via-terracotta to-primary-800 mb-8 leading-tight flex items-center gap-4">
+              <Image
+                src="/logo-icon.png"
+                alt=""
+                width={50}
+                height={50}
+                className="w-12 h-12 md:w-14 md:h-14"
+              />
               אודות שטיחי בוטיק יוסף
             </h2>
             <p className="text-gray-600 text-xl mb-6 leading-relaxed">

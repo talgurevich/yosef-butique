@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { supabase, GalleryImage } from '@/lib/supabase';
 
 export default function CustomerGallery() {
@@ -35,7 +36,14 @@ export default function CustomerGallery() {
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4 flex items-center justify-center gap-4">
+              <Image
+                src="/logo-icon.png"
+                alt=""
+                width={50}
+                height={50}
+                className="w-10 h-10 md:w-12 md:h-12"
+              />
               הלקוחות שלנו
             </h2>
             <p className="text-gray-600 text-lg">
@@ -58,7 +66,14 @@ export default function CustomerGallery() {
     <section className="py-16 bg-white">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4 flex items-center justify-center gap-4">
+            <Image
+              src="/logo-icon.png"
+              alt=""
+              width={50}
+              height={50}
+              className="w-10 h-10 md:w-12 md:h-12"
+            />
             הלקוחות שלנו
           </h2>
           <p className="text-gray-600 text-lg">

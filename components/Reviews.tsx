@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { FaStar, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
 const reviews = [
@@ -96,7 +97,14 @@ export default function Reviews() {
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-600 via-terracotta to-primary-800 mb-6">
+          <h2 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-600 via-terracotta to-primary-800 mb-6 flex items-center justify-center gap-4">
+            <Image
+              src="/logo-icon.png"
+              alt=""
+              width={50}
+              height={50}
+              className="w-12 h-12 md:w-14 md:h-14"
+            />
             מה הלקוחות שלנו אומרים
           </h2>
           <p className="text-gray-600 text-xl max-w-2xl mx-auto">

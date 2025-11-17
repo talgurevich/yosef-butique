@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { FaChevronDown } from 'react-icons/fa';
 
 interface FAQItem {
@@ -61,7 +62,14 @@ export default function ProductFAQ() {
   return (
     <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12">
       <div className="text-center mb-8">
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-3">
+        <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-3 flex items-center justify-center gap-4">
+          <Image
+            src="/logo-icon.png"
+            alt=""
+            width={50}
+            height={50}
+            className="w-10 h-10 md:w-12 md:h-12"
+          />
           שאלות נפוצות
         </h2>
         <p className="text-gray-600">

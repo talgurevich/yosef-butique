@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface Attribute {
   id: string;
@@ -51,7 +52,14 @@ export default function AttributesPreview({ categories, spaces }: AttributesPrev
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-600 via-terracotta to-primary-800 mb-6">
+          <h2 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-600 via-terracotta to-primary-800 mb-6 flex items-center justify-center gap-4">
+            <Image
+              src="/logo-icon.png"
+              alt=""
+              width={50}
+              height={50}
+              className="w-12 h-12 md:w-14 md:h-14"
+            />
             קטגוריות מוצרים
           </h2>
           <p className="text-gray-600 text-xl max-w-2xl mx-auto">
