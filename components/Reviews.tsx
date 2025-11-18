@@ -93,46 +93,50 @@ export default function Reviews() {
   const totalSlides = Math.ceil(reviews.length / reviewsPerView);
 
   return (
-    <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
+    <section className="section-spacing bg-gradient-to-b from-gray-50 to-white">
       <div className="container mx-auto px-4">
         {/* Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-600 via-terracotta to-primary-800 mb-6 flex items-center justify-center gap-4">
+        <div className="text-center mb-20">
+          <div className="inline-flex items-center justify-center gap-3 mb-4">
+            <div className="w-12 h-0.5 bg-gradient-to-r from-transparent to-yellow-600"></div>
             <Image
               src="/logo-icon.png"
               alt=""
-              width={50}
-              height={50}
-              className="w-12 h-12 md:w-14 md:h-14"
+              width={40}
+              height={40}
+              className="w-10 h-10"
             />
+            <div className="w-12 h-0.5 bg-gradient-to-l from-transparent to-yellow-600"></div>
+          </div>
+          <h2 className="text-4xl md:text-6xl font-black text-gray-900 mb-5 font-display tracking-tight">
             מה הלקוחות שלנו אומרים
           </h2>
-          <p className="text-gray-600 text-xl max-w-2xl mx-auto">
-            אלפי לקוחות מרוצים בחרו בשטיחי בוטיק יוסף
+          <p className="text-gray-600 text-lg md:text-xl max-w-2xl mx-auto font-light">
+            אלפי לקוחות מרוצים בחרו
+            <span className="font-serif italic"> בשטיחי בוטיק יוסף</span>
           </p>
-          <div className="mt-6 h-1 w-24 bg-gradient-to-r from-terracotta to-primary-600 mx-auto rounded-full"></div>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16 max-w-4xl mx-auto">
-          <div className="bg-white rounded-xl shadow-lg p-6 text-center">
-            <div className="flex items-center justify-center gap-1 mb-2">
+        {/* Stats - Refined */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20 max-w-5xl mx-auto">
+          <div className="card-luxury-minimal p-8 text-center group">
+            <div className="flex items-center justify-center gap-1 mb-3">
               {[...Array(5)].map((_, i) => (
-                <FaStar key={i} className="text-yellow-400 text-2xl" />
+                <FaStar key={i} className="text-yellow-500 text-2xl group-hover:scale-110 transition-transform" style={{ transitionDelay: `${i * 50}ms` }} />
               ))}
             </div>
-            <div className="text-4xl font-bold text-gray-800 mb-1">5.0</div>
-            <div className="text-gray-600">דירוג ממוצע</div>
+            <div className="text-5xl font-black text-gray-900 mb-2 font-display">5.0</div>
+            <div className="text-gray-600 font-light uppercase tracking-wider text-sm">דירוג ממוצע</div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-lg p-6 text-center">
-            <div className="text-4xl font-bold text-primary-600 mb-1">1,000+</div>
-            <div className="text-gray-600">לקוחות מרוצים</div>
+          <div className="card-luxury-minimal p-8 text-center group">
+            <div className="text-5xl font-black text-yellow-600 mb-2 font-display">1,000+</div>
+            <div className="text-gray-600 font-light uppercase tracking-wider text-sm">לקוחות מרוצים</div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-lg p-6 text-center">
-            <div className="text-4xl font-bold text-terracotta mb-1">15+</div>
-            <div className="text-gray-600">שנות ניסיון</div>
+          <div className="card-luxury-minimal p-8 text-center group">
+            <div className="text-5xl font-black text-yellow-600 mb-2 font-display">15+</div>
+            <div className="text-gray-600 font-light uppercase tracking-wider text-sm">שנות ניסיון</div>
           </div>
         </div>
 
