@@ -20,9 +20,9 @@ const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async signIn({ user, account, profile }) {
-      // Check if user email is in the allowed admin emails list
-      const allowedEmails = process.env.ADMIN_EMAILS?.split(',').map(e => e.trim()) || [];
-      if (!user.email || !allowedEmails.includes(user.email)) {
+      // Check if user email is in the allowed admin emails list (case-insensitive)
+      const allowedEmails = process.env.ADMIN_EMAILS?.split(',').map(e => e.trim().toLowerCase()) || [];
+      if (!user.email || !allowedEmails.includes(user.email.toLowerCase())) {
         return false;
       }
       return true;
