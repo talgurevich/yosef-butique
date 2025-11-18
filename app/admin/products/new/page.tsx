@@ -701,54 +701,6 @@ export default function NewProductPage() {
           </div>
         </div>
 
-        {/* Colors Section */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-6">
-            צבעים
-          </h2>
-
-          {colors.length === 0 ? (
-            <div className="text-center py-4">
-              <p className="text-gray-600">אין צבעים זמינים</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-              {colors.map((color) => (
-                <label
-                  key={color.id}
-                  className={`flex items-center p-3 border-2 rounded-lg cursor-pointer transition-colors ${
-                    selectedColors.includes(color.id)
-                      ? 'border-primary-600 bg-primary-50'
-                      : 'border-gray-200 hover:border-primary-300'
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedColors.includes(color.id)}
-                    onChange={() => toggleColor(color.id)}
-                    className="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-                  />
-                  {color.hex_code && (
-                    <span
-                      className="w-6 h-6 rounded-full mr-2 border border-gray-300"
-                      style={{ backgroundColor: color.hex_code }}
-                    ></span>
-                  )}
-                  <span className="mr-2 text-gray-700 font-medium">
-                    {color.name}
-                  </span>
-                </label>
-              ))}
-            </div>
-          )}
-
-          <div className="mt-4 p-4 bg-sage-light bg-opacity-20 rounded-lg border border-sage">
-            <p className="text-sm text-gray-700">
-              <strong>💡 טיפ:</strong> בחר את כל הצבעים הרלוונטיים למוצר.
-            </p>
-          </div>
-        </div>
-
         {/* Shapes Section */}
         <div className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-6">
