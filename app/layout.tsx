@@ -4,7 +4,7 @@ import AuthSessionProvider from "@/components/SessionProvider";
 import { CartProvider } from "@/contexts/CartContext";
 import StructuredData from "@/components/StructuredData";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
-import { Alef, Rubik } from 'next/font/google';
+import { Alef, Rubik, Montserrat, Playfair_Display } from 'next/font/google';
 
 const alef = Alef({
   subsets: ['hebrew'],
@@ -16,6 +16,20 @@ const rubik = Rubik({
   subsets: ['hebrew'],
   weight: ['300', '400', '500', '600', '700'],
   variable: '--font-rubik',
+});
+
+const montserrat = Montserrat({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-montserrat',
+  display: 'swap',
+});
+
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-playfair',
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -73,7 +87,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="he" dir="rtl" className={`${alef.variable} ${rubik.variable}`}>
+    <html lang="he" dir="rtl" className={`${alef.variable} ${rubik.variable} ${montserrat.variable} ${playfair.variable}`}>
       <head>
         <StructuredData />
       </head>

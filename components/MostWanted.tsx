@@ -10,23 +10,28 @@ interface MostWantedProps {
 
 export default function MostWanted({ products }: MostWantedProps) {
   return (
-    <section className="py-20 bg-gradient-to-b from-white to-gray-50">
+    <section className="section-spacing bg-white pattern-chevron-subtle">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16 animate-fade-in">
-          <h2 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-600 via-terracotta to-primary-800 mb-6 flex items-center justify-center gap-4">
+        <div className="text-center mb-20 animate-fade-in">
+          {/* Decorative header */}
+          <div className="inline-flex items-center justify-center gap-3 mb-4">
+            <div className="w-12 h-0.5 bg-gradient-to-r from-transparent to-yellow-600"></div>
             <Image
               src="/logo-icon.png"
               alt=""
-              width={50}
-              height={50}
-              className="w-12 h-12 md:w-14 md:h-14"
+              width={40}
+              height={40}
+              className="w-10 h-10"
             />
+            <div className="w-12 h-0.5 bg-gradient-to-l from-transparent to-yellow-600"></div>
+          </div>
+          <h2 className="text-4xl md:text-6xl font-black text-gray-900 mb-5 font-display tracking-tight">
             המוצרים המבוקשים ביותר
           </h2>
-          <p className="text-gray-600 text-xl max-w-2xl mx-auto">
-            הקולקציה הפופולרית ביותר שלנו - מוצרים נבחרים באיכות פרימיום
+          <p className="text-gray-600 text-lg md:text-xl max-w-2xl mx-auto font-light">
+            הקולקציה הפופולרית ביותר שלנו - מוצרים נבחרים
+            <span className="font-serif italic"> באיכות פרימיום</span>
           </p>
-          <div className="mt-6 h-1 w-24 bg-gradient-to-r from-terracotta to-primary-600 mx-auto rounded-full"></div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -41,10 +46,10 @@ export default function MostWanted({ products }: MostWantedProps) {
           )}
         </div>
 
-        <div className="text-center mt-16">
+        <div className="text-center mt-20">
           <Link
             href="/products"
-            className="inline-flex items-center gap-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white px-10 py-4 rounded-xl font-bold text-lg hover:from-primary-700 hover:to-primary-800 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl"
+            className="btn-primary inline-flex items-center gap-3 shadow-luxury text-lg"
           >
             <span>צפה בכל המוצרים</span>
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
