@@ -46,6 +46,7 @@ export type ProductVariant = {
   id: string;
   product_id: string;
   size: string;
+  color_id?: string | null;
   sku: string;
   price: number;
   compare_at_price?: number;

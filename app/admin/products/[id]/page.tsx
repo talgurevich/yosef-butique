@@ -533,28 +533,9 @@ export default function EditProductPage() {
         if (insertError) throw insertError;
       }
 
-      // 3. Sync color relationships
-      const { error: deleteColorsError } = await supabase
-        .from('product_colors')
-        .delete()
-        .eq('product_id', productId);
+      // Note: Colors are now managed at the variant level, not product level
 
-      if (deleteColorsError) throw deleteColorsError;
-
-      if (selectedColors.length > 0) {
-        const colorRelations = selectedColors.map((colorId) => ({
-          product_id: productId,
-          color_id: colorId,
-        }));
-
-        const { error: insertColorsError } = await supabase
-          .from('product_colors')
-          .insert(colorRelations);
-
-        if (insertColorsError) throw insertColorsError;
-      }
-
-      // 4. Sync shape relationships
+      // 3. Sync shape relationships
       const { error: deleteShapesError } = await supabase
         .from('product_shapes')
         .delete()
@@ -664,6 +645,7 @@ export default function EditProductPage() {
       id: `temp-${Date.now()}`,
       product_id: productId,
       size: '',
+      color_id: null,
       sku: `VAR-${Date.now()}`,
       price: 0,
       compare_at_price: 0,
@@ -731,6 +713,7 @@ export default function EditProductPage() {
             {
               product_id: productId,
               size: variant.size,
+              color_id: variant.color_id || null,
               sku: variant.sku,
               price: variant.price,
               compare_at_price: variant.compare_at_price || null,
@@ -753,6 +736,7 @@ export default function EditProductPage() {
           .from('product_variants')
           .update({
             size: variant.size,
+            color_id: variant.color_id || null,
             sku: variant.sku,
             price: variant.price,
             compare_at_price: variant.compare_at_price || null,
@@ -928,54 +912,6 @@ export default function EditProductPage() {
           <div className="mt-4 p-4 bg-sage-light bg-opacity-20 rounded-lg border border-sage">
             <p className="text-sm text-gray-700">
               <strong>💡 טיפ:</strong> ניתן לבחור מספר סגנונות למוצר אחד.
-            </p>
-          </div>
-        </div>
-
-        {/* Colors Section */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-6">
-            צבעים
-          </h2>
-
-          {colors.length === 0 ? (
-            <div className="text-center py-4">
-              <p className="text-gray-600">אין צבעים זמינים</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-              {colors.map((color) => (
-                <label
-                  key={color.id}
-                  className={`flex items-center p-3 border-2 rounded-lg cursor-pointer transition-colors ${
-                    selectedColors.includes(color.id)
-                      ? 'border-primary-600 bg-primary-50'
-                      : 'border-gray-200 hover:border-primary-300'
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedColors.includes(color.id)}
-                    onChange={() => toggleColor(color.id)}
-                    className="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-                  />
-                  {color.hex_code && (
-                    <span
-                      className="w-6 h-6 rounded-full mr-2 border border-gray-300"
-                      style={{ backgroundColor: color.hex_code }}
-                    ></span>
-                  )}
-                  <span className="mr-2 text-gray-700 font-medium">
-                    {color.name}
-                  </span>
-                </label>
-              ))}
-            </div>
-          )}
-
-          <div className="mt-4 p-4 bg-sage-light bg-opacity-20 rounded-lg border border-sage">
-            <p className="text-sm text-gray-700">
-              <strong>💡 טיפ:</strong> בחר את כל הצבעים הרלוונטיים למוצר.
             </p>
           </div>
         </div>
@@ -1273,7 +1209,7 @@ export default function EditProductPage() {
                 key={variant.id}
                 className="border border-gray-200 rounded-lg p-4"
               >
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
                   {/* Size */}
                   <div>
                     <label className="block text-gray-700 text-sm font-medium mb-1">
@@ -1288,6 +1224,27 @@ export default function EditProductPage() {
                       placeholder="160×230"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                     />
+                  </div>
+
+                  {/* Color */}
+                  <div>
+                    <label className="block text-gray-700 text-sm font-medium mb-1">
+                      צבע
+                    </label>
+                    <select
+                      value={variant.color_id || ''}
+                      onChange={(e) =>
+                        updateVariant(index, 'color_id', e.target.value || null)
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    >
+                      <option value="">ללא צבע</option>
+                      {colors.map((color) => (
+                        <option key={color.id} value={color.id}>
+                          {color.name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   {/* Price */}
