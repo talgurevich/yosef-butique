@@ -82,44 +82,53 @@ export default function AboutSection() {
   ];
 
   return (
-    <section className="py-20 bg-gradient-to-br from-primary-50 via-white to-sage-light/20 relative overflow-hidden">
-      {/* Decorative elements */}
-      <div className="absolute top-20 right-0 w-72 h-72 bg-gradient-to-l from-primary-600/5 to-transparent rounded-full blur-3xl"></div>
-      <div className="absolute bottom-20 left-0 w-96 h-96 bg-gradient-to-r from-terracotta/5 to-transparent rounded-full blur-3xl"></div>
+    <section className="section-spacing bg-gradient-to-br from-gray-50 via-white to-gray-50 relative overflow-hidden pattern-chevron-subtle">
+      {/* Geometric decorative elements */}
+      <div className="absolute top-20 right-0 w-72 h-72 bg-gradient-to-l from-yellow-500/5 to-transparent rounded-full blur-3xl animate-float"></div>
+      <div className="absolute bottom-20 left-0 w-96 h-96 bg-gradient-to-r from-yellow-500/5 to-transparent rounded-full blur-3xl animate-pulse-slow"></div>
 
       <div className="container mx-auto px-4 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
+        <div className="grid lg:grid-cols-2 gap-20 items-center">
           {/* Content */}
           <div className="animate-slide-in-right">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-terracotta/10 to-primary-600/10 px-5 py-2 rounded-full mb-6">
-              <svg className="w-5 h-5 text-terracotta" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              <span className="font-bold text-gray-700">מותג מוביל בישראל</span>
+            {/* Premium badge */}
+            <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-yellow-200 px-4 py-2 rounded-full mb-6 shadow-sm">
+              <span className="w-2 h-2 bg-yellow-500 rounded-full"></span>
+              <span className="font-semibold text-gray-800 text-sm uppercase tracking-wide">מותג מוביל בישראל</span>
             </div>
 
-            <h2 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-600 via-terracotta to-primary-800 mb-8 leading-tight flex items-center gap-4">
+            {/* Header with icon */}
+            <div className="flex items-center gap-4 mb-6">
               <Image
                 src="/logo-icon.png"
                 alt=""
                 width={50}
                 height={50}
-                className="w-12 h-12 md:w-14 md:h-14"
+                className="w-12 h-12"
               />
+              <div className="w-16 h-0.5 bg-gradient-to-r from-yellow-600 to-transparent"></div>
+            </div>
+
+            <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-8 leading-tight font-display">
               אודות שטיחי בוטיק יוסף
             </h2>
-            <p className="text-gray-600 text-xl mb-6 leading-relaxed">
-              אנחנו מתמחים במכירת שטיחים איכותיים ומעוצבים לבית. עם ניסיון של שנים
-              רבות בתחום, אנו מציעים מבחר רחב של שטיחים מודרניים, קלאסיים ומעוצבים
-              המתאימים לכל סגנון ובית.
-            </p>
-            <p className="text-gray-600 text-xl mb-10 leading-relaxed">
-              אנו מאמינים באיכות, בשירות מעולה ובמתן חוויית קנייה נעימה ללקוחותינו.
-              כל שטיח בחנות שלנו נבחר בקפידה על מנת להבטיח את האיכות הגבוהה ביותר.
-            </p>
+
+            <div className="space-y-5 mb-10">
+              <p className="text-gray-600 text-lg leading-relaxed">
+                אנחנו מתמחים במכירת שטיחים איכותיים ומעוצבים לבית. עם ניסיון של שנים
+                רבות בתחום, אנו מציעים מבחר רחב של שטיחים מודרניים, קלאסיים ומעוצבים
+                <span className="font-serif italic text-gray-700"> המתאימים לכל סגנון ובית</span>.
+              </p>
+              <p className="text-gray-600 text-lg leading-relaxed">
+                אנו מאמינים באיכות, בשירות מעולה ובמתן חוויית קנייה נעימה ללקוחותינו.
+                כל שטיח בחנות שלנו נבחר בקפידה על מנת להבטיח
+                <span className="font-semibold text-gray-800"> את האיכות הגבוהה ביותר</span>.
+              </p>
+            </div>
+
             <Link
               href="/about"
-              className="inline-flex items-center gap-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white px-10 py-4 rounded-xl font-bold text-lg hover:from-primary-700 hover:to-primary-800 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl"
+              className="btn-primary inline-flex items-center gap-3 shadow-luxury"
             >
               <span>קרא עוד אודותינו</span>
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -128,29 +137,23 @@ export default function AboutSection() {
             </Link>
           </div>
 
-          {/* Features Grid */}
+          {/* Features Grid - Refined */}
           <div className="grid grid-cols-2 gap-6 animate-slide-in-left">
             {features.map((feature, index) => (
               <div
                 key={index}
-                className="group bg-white p-8 rounded-2xl shadow-lg text-center hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 relative overflow-hidden"
+                className="group card-luxury-minimal p-6 text-center geometric-corner"
                 style={{
                   animationDelay: `${index * 100}ms`,
                 }}
               >
-                {/* Gradient background on hover */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500`}></div>
-
-                <div className={`relative flex justify-center mb-5 group-hover:scale-110 transition-transform duration-500 ${feature.color}`}>
+                <div className={`flex justify-center mb-4 group-hover:scale-110 transition-transform duration-300 ${feature.color}`}>
                   {feature.icon}
                 </div>
-                <h3 className="relative font-bold text-xl text-gray-800 mb-3 group-hover:text-primary-600 transition-colors">
+                <h3 className="font-bold text-lg text-gray-900 mb-2 font-display">
                   {feature.title}
                 </h3>
-                <p className="relative text-gray-600 text-base leading-relaxed">{feature.description}</p>
-
-                {/* Decorative corner */}
-                <div className="absolute top-3 right-3 w-8 h-8 border-t-2 border-r-2 border-transparent group-hover:border-primary-300 rounded-tr-xl transition-all duration-500"></div>
+                <p className="text-gray-600 text-sm leading-relaxed font-light">{feature.description}</p>
               </div>
             ))}
           </div>

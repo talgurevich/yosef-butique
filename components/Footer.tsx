@@ -50,33 +50,34 @@ export default function Footer() {
   return (
     <footer className="bg-gray-900 text-gray-300">
       {/* Newsletter Section */}
-      <div className="bg-primary-600 py-8">
+      <div className="bg-gradient-to-r from-primary-600 to-primary-700 py-12">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
             <div>
-              <h3 className="text-white text-2xl font-bold mb-2">
+              <h3 className="text-white text-3xl md:text-4xl font-black mb-3 font-display">
                 הצטרפו לניוזלטר שלנו
               </h3>
-              <p className="text-primary-100">
+              <p className="text-primary-100 text-lg font-light">
                 קבלו הנחה של 10% על הרכישה הראשונה שלכם
+                <span className="font-serif italic"> והישארו מעודכנים</span>
               </p>
             </div>
             <form
               onSubmit={handleNewsletterSubmit}
-              className="flex w-full md:w-auto gap-2"
+              className="flex w-full md:w-auto gap-3"
             >
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="הכניסו את כתובת המייל שלכם"
-                className="px-4 py-3 rounded-lg w-full md:w-80 text-gray-900"
+                className="px-6 py-4 rounded-lg w-full md:w-96 text-gray-900 shadow-lg focus:ring-2 focus:ring-white focus:outline-none"
                 required
               />
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-white text-primary-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-white text-primary-600 px-8 py-4 rounded-lg font-bold hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'נרשם...' : 'הרשמה'}
               </button>
@@ -354,12 +355,12 @@ export default function Footer() {
               href="https://waze.com/ul?q=השקד משק 47 מושב בית עזרא&navigate=yes"
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-4 flex items-center justify-center gap-2 bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors font-semibold"
+              className="mt-4 btn-primary inline-flex items-center justify-center gap-3 shadow-luxury"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 0C7.8 0 4 3.2 4 7.2c0 5.4 8 16.8 8 16.8s8-11.4 8-16.8C20 3.2 16.2 0 12 0zm0 11c-1.7 0-3-1.3-3-3s1.3-3 3-3 3 1.3 3 3-1.3 3-3 3z"/>
               </svg>
-              נווט עם Waze
+              <span>נווט עם Waze</span>
             </a>
           </div>
         </div>

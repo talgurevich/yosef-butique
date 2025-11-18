@@ -45,27 +45,31 @@ export default function AttributesPreview({ categories, spaces }: AttributesPrev
   const displaySpaces = spaces.slice(0, 4);
 
   return (
-    <section className="py-20 bg-gradient-to-br from-sage-light/20 via-white to-primary-50/30 relative overflow-hidden">
+    <section className="section-spacing bg-gradient-to-br from-gray-50 via-white to-gray-50 relative overflow-hidden pattern-chevron-subtle">
       {/* Decorative background elements */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-terracotta/10 to-transparent rounded-full blur-3xl"></div>
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-tl from-primary-600/10 to-transparent rounded-full blur-3xl"></div>
+      <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-yellow-500/5 to-transparent rounded-full blur-3xl animate-float"></div>
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-tl from-yellow-500/5 to-transparent rounded-full blur-3xl animate-pulse-slow"></div>
 
       <div className="container mx-auto px-4 relative z-10">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-600 via-terracotta to-primary-800 mb-6 flex items-center justify-center gap-4">
+        <div className="text-center mb-20">
+          <div className="inline-flex items-center justify-center gap-3 mb-4">
+            <div className="w-12 h-0.5 bg-gradient-to-r from-transparent to-yellow-600"></div>
             <Image
               src="/logo-icon.png"
               alt=""
-              width={50}
-              height={50}
-              className="w-12 h-12 md:w-14 md:h-14"
+              width={40}
+              height={40}
+              className="w-10 h-10"
             />
+            <div className="w-12 h-0.5 bg-gradient-to-l from-transparent to-yellow-600"></div>
+          </div>
+          <h2 className="text-4xl md:text-6xl font-black text-gray-900 mb-5 font-display tracking-tight">
             קטגוריות מוצרים
           </h2>
-          <p className="text-gray-600 text-xl max-w-2xl mx-auto">
-            גלה את המגוון הרחב שלנו - שטיחים ועציצים בכל הסגנונות והצבעים
+          <p className="text-gray-600 text-lg md:text-xl max-w-2xl mx-auto font-light">
+            גלה את המגוון הרחב שלנו - שטיחים
+            <span className="font-serif italic"> בכל הסגנונות והצבעים</span>
           </p>
-          <div className="mt-6 h-1 w-24 bg-gradient-to-r from-terracotta to-primary-600 mx-auto rounded-full"></div>
         </div>
 
         {/* First Row - Categories (סגנונות) */}
@@ -193,7 +197,7 @@ export default function AttributesPreview({ categories, spaces }: AttributesPrev
         <div className="text-center mt-16">
           <Link
             href="/products"
-            className="inline-flex items-center gap-3 bg-gradient-to-r from-terracotta to-red-600 text-white px-10 py-4 rounded-xl font-bold text-lg hover:from-terracotta-dark hover:to-red-700 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl"
+            className="btn-primary inline-flex items-center gap-3 shadow-luxury text-lg"
           >
             <span>צפה בכל המוצרים</span>
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

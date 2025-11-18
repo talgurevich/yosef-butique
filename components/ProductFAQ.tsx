@@ -60,20 +60,25 @@ export default function ProductFAQ() {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-3 flex items-center justify-center gap-4">
+    <div className="card-luxury-minimal p-8 md:p-12">
+      <div className="text-center mb-16">
+        <div className="inline-flex items-center justify-center gap-3 mb-4">
+          <div className="w-12 h-0.5 bg-gradient-to-r from-transparent to-yellow-600"></div>
           <Image
             src="/logo-icon.png"
             alt=""
-            width={50}
-            height={50}
-            className="w-10 h-10 md:w-12 md:h-12"
+            width={40}
+            height={40}
+            className="w-10 h-10"
           />
+          <div className="w-12 h-0.5 bg-gradient-to-l from-transparent to-yellow-600"></div>
+        </div>
+        <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4 font-display">
           שאלות נפוצות
         </h2>
-        <p className="text-gray-600">
-          מצאו תשובות לשאלות הנפוצות ביותר על המוצרים שלנו
+        <p className="text-gray-600 text-lg font-light">
+          מצאו תשובות לשאלות הנפוצות ביותר
+          <span className="font-serif italic"> על המוצרים שלנו</span>
         </p>
       </div>
 
@@ -81,11 +86,11 @@ export default function ProductFAQ() {
         {faqs.map((faq, index) => (
           <div
             key={index}
-            className="border border-gray-200 rounded-lg overflow-hidden transition-all hover:shadow-md"
+            className="card-luxury-minimal border-gray-200 overflow-hidden"
           >
             <button
               onClick={() => toggleFAQ(index)}
-              className="w-full flex items-center justify-between p-5 text-right bg-white hover:bg-gray-50 transition-colors"
+              className="w-full flex items-center justify-between p-6 text-right bg-white hover:bg-gray-50 transition-colors"
             >
               <span className="font-semibold text-gray-800 text-lg">
                 {faq.question}
@@ -103,7 +108,7 @@ export default function ProductFAQ() {
                   : 'max-h-0 opacity-0'
               } overflow-hidden`}
             >
-              <div className="p-5 pt-0 text-gray-600 leading-relaxed bg-gray-50">
+              <div className="px-6 pb-6 text-gray-600 leading-relaxed bg-gray-50">
                 {faq.answer}
               </div>
             </div>
@@ -111,15 +116,18 @@ export default function ProductFAQ() {
         ))}
       </div>
 
-      <div className="mt-8 text-center">
-        <p className="text-gray-600 mb-4">
+      <div className="mt-12 text-center">
+        <p className="text-gray-600 text-lg mb-6">
           לא מצאתם תשובה לשאלה שלכם?
         </p>
         <a
           href="/contact"
-          className="inline-block bg-primary-600 text-white px-8 py-3 rounded-lg hover:bg-primary-700 transition-colors font-semibold"
+          className="btn-primary inline-flex items-center gap-3 shadow-luxury"
         >
-          צרו קשר
+          <span>צרו קשר</span>
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
         </a>
       </div>
     </div>
