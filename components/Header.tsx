@@ -98,11 +98,11 @@ export default function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center">
             <Image
-              src="/logo.png"
-              alt="Yossef Boutique Rugs"
-              width={900}
-              height={300}
-              className="h-10 md:h-12 w-auto"
+              src="/logo-cropped.png"
+              alt="Yossef Boutique"
+              width={650}
+              height={250}
+              className="h-20 md:h-24 w-auto"
               priority
             />
           </Link>
