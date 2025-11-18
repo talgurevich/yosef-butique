@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FaShoppingCart, FaWhatsapp, FaUser, FaTimes, FaChevronDown } from 'react-icons/fa';
+import { FaShoppingCart, FaWhatsapp, FaUser, FaTimes, FaChevronDown, FaFacebook, FaInstagram, FaTiktok } from 'react-icons/fa';
 import CarpetsDropdown from './CarpetsDropdown';
 import PlantsDropdown from './PlantsDropdown';
 import { useCart } from '@/contexts/CartContext';
@@ -161,6 +161,37 @@ export default function Header() {
 
           {/* Actions */}
           <div className="hidden md:flex items-center space-x-4 space-x-reverse">
+            {/* Social Media Icons */}
+            <div className="flex items-center space-x-3 space-x-reverse border-l border-gray-300 pl-4">
+              <a
+                href="https://www.facebook.com/share/1FGwU1cT56/?mibextid=wwXIfr"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-600 hover:text-blue-600 transition-colors"
+                aria-label="Facebook"
+              >
+                <FaFacebook className="text-xl" />
+              </a>
+              <a
+                href="https://www.instagram.com/yossef_carpets?igsh=MWEydXA5ZDFkemE3Ng=="
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-600 hover:text-pink-600 transition-colors"
+                aria-label="Instagram"
+              >
+                <FaInstagram className="text-xl" />
+              </a>
+              <a
+                href="https://www.tiktok.com/@butiqyossef1?_r=1&_t=ZS-91MDi891VVF"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-600 hover:text-gray-900 transition-colors"
+                aria-label="TikTok"
+              >
+                <FaTiktok className="text-xl" />
+              </a>
+            </div>
+
             {/* WhatsApp Button */}
             <a
               href="https://wa.me/972515092208"
@@ -272,6 +303,37 @@ export default function Header() {
 
               {/* Mobile Actions */}
               <div className="flex flex-col space-y-3 pt-4 border-t border-gray-200">
+                {/* Social Media Icons */}
+                <div className="flex items-center justify-center space-x-6 space-x-reverse py-2">
+                  <a
+                    href="https://www.facebook.com/share/1FGwU1cT56/?mibextid=wwXIfr"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-600 hover:text-blue-600 transition-colors"
+                    aria-label="Facebook"
+                  >
+                    <FaFacebook className="text-2xl" />
+                  </a>
+                  <a
+                    href="https://www.instagram.com/yossef_carpets?igsh=MWEydXA5ZDFkemE3Ng=="
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-600 hover:text-pink-600 transition-colors"
+                    aria-label="Instagram"
+                  >
+                    <FaInstagram className="text-2xl" />
+                  </a>
+                  <a
+                    href="https://www.tiktok.com/@butiqyossef1?_r=1&_t=ZS-91MDi891VVF"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-600 hover:text-gray-900 transition-colors"
+                    aria-label="TikTok"
+                  >
+                    <FaTiktok className="text-2xl" />
+                  </a>
+                </div>
+
                 <a
                   href="https://wa.me/972515092208"
                   target="_blank"
