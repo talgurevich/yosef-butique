@@ -152,16 +152,6 @@ export async function POST(request: NextRequest) {
           continue;
         }
 
-        if (!row.sizes || !row.sizes.trim()) {
-          errors.push({
-            row: rowNumber,
-            field: 'sizes',
-            message: 'יש לציין לפחות מידה אחת'
-          });
-          errorCount++;
-          continue;
-        }
-
         if (!row.prices || !row.prices.trim()) {
           errors.push({
             row: rowNumber,
@@ -173,8 +163,23 @@ export async function POST(request: NextRequest) {
         }
 
         // Parse variants
-        const sizes = row.sizes.split('|').map(s => s.trim()).filter(Boolean);
+        // For plants, sizes can be empty - we'll use a default size
+        const hasSizes = row.sizes && row.sizes.trim();
+        const sizes = hasSizes
+          ? row.sizes.split('|').map(s => s.trim()).filter(Boolean)
+          : (productType === 'plant' ? ['Standard'] : []);
         const prices = row.prices.split('|').map(p => p.trim()).filter(Boolean);
+
+        // Validate sizes for carpets
+        if (productType === 'carpet' && sizes.length === 0) {
+          errors.push({
+            row: rowNumber,
+            field: 'sizes',
+            message: 'שטיחים חייבים לכלול לפחות מידה אחת'
+          });
+          errorCount++;
+          continue;
+        }
         const comparePrices = row.compare_prices
           ? row.compare_prices.split('|').map(p => p.trim()).filter(Boolean)
           : [];

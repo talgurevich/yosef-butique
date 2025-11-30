@@ -46,17 +46,7 @@ export default function BulkUploadPage() {
       'sizes',
       'prices',
       'compare_prices',
-      'stock_quantities',
-      'categories',
-      'colors',
-      'shapes',
-      'spaces',
-      'plant_types',
-      'plant_sizes',
-      'plant_light',
-      'plant_care',
-      'plant_pet_safety',
-      'image_urls'
+      'stock_quantities'
     ];
 
     const carpetExample = [
@@ -64,22 +54,12 @@ export default function BulkUploadPage() {
       'שטיח איכותי ומעוצב לסלון',
       'carpet',
       'צמר',
-      'yes',
+      'no',
       'yes',
       '160×230|200×290|240×340',
       '1500|2000|2500',
       '2000|2500|3000',
-      '10|5|3',
-      'modern,minimalist',
-      'gray,white',
-      'rectangular',
-      'living-room,bedroom',
-      '',
-      '',
-      '',
-      '',
-      '',
-      'https://example.com/img1.jpg|https://example.com/img2.jpg'
+      '10|5|3'
     ];
 
     const plantExample = [
@@ -87,22 +67,12 @@ export default function BulkUploadPage() {
       'צמח טרופי גדול ומרשים לבית',
       'plant',
       '',
+      'no',
       'yes',
-      'yes',
-      'קטן|בינוני|גדול',
-      '150|250|400',
-      '200|300|500',
-      '5|3|2',
       '',
-      'green',
-      '',
-      '',
-      'indoor,tropical',
-      'small,medium,large',
-      'medium,high',
-      'easy',
-      'safe',
-      'https://example.com/plant1.jpg'
+      '150',
+      '200',
+      '5'
     ];
 
     const csvContent = [
@@ -291,51 +261,67 @@ export default function BulkUploadPage() {
         <h2 className="text-lg font-bold text-blue-900 mb-4">📋 הוראות שימוש</h2>
         <ol className="list-decimal list-inside space-y-2 text-blue-800">
           <li>הורד את קובץ התבנית לדוגמה</li>
-          <li>מלא את הפרטים בקובץ ה-CSV</li>
+          <li>מלא את הפרטים הבסיסיים בקובץ ה-CSV</li>
           <li>שמור את הקובץ</li>
           <li>העלה את הקובץ כאן</li>
+          <li><strong>לאחר הייבוא:</strong> ערוך כל מוצר להוספת תמונות, צבעים, קטגוריות ופרטים נוספים</li>
         </ol>
 
         <div className="mt-4 p-4 bg-white rounded-lg border border-blue-200">
           <h3 className="font-semibold text-blue-900 mb-2">💡 טיפים חשובים:</h3>
           <ul className="list-disc list-inside space-y-1 text-sm text-blue-800">
             <li>השתמש בתו <code className="bg-blue-100 px-1">|</code> (pipe) להפרדה בין מידות, מחירים ומלאי</li>
-            <li>השתמש בפסיק להפרדה בין קטגוריות: <code className="bg-blue-100 px-1">סלון,חדר שינה</code></li>
             <li>ערכים אפשריים ל-is_featured ו-is_active: <code className="bg-blue-100 px-1">yes/no</code></li>
-            <li>כל מוצר חייב לכלול לפחות מידה אחת עם מחיר</li>
+            <li>שטיחים: הוסף מספר מידות מופרדות ב-|</li>
+            <li>עציצים: השאר את שדה sizes ריק (ישתמש במחיר בודד)</li>
             <li>כמות מלאי היא אופציונלית - אם לא מצוינת, ברירת המחדל היא 0</li>
-            <li>שים <code className="bg-blue-100 px-1">""</code> (מרכאות) סביב ערכים עם פסיקים</li>
+            <li><strong>תמונות, צבעים וקטגוריות:</strong> יתווספו ידנית בעורך המוצר לאחר הייבוא</li>
+          </ul>
+        </div>
+
+        <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
+          <h3 className="font-semibold text-green-900 mb-2">✅ מה כלול בייבוא CSV:</h3>
+          <ul className="list-disc list-inside space-y-1 text-sm text-green-800">
+            <li>שם ותיאור מוצר</li>
+            <li>סוג מוצר (שטיח/עציץ)</li>
+            <li>מידות ומחירים</li>
+            <li>מלאי ומחירי השוואה</li>
+          </ul>
+        </div>
+
+        <div className="mt-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+          <h3 className="font-semibold text-yellow-900 mb-2">⚠️ מה דורש עריכה ידנית:</h3>
+          <ul className="list-disc list-inside space-y-1 text-sm text-yellow-800">
+            <li>תמונות מוצר</li>
+            <li>צבעים לכל וריאנט</li>
+            <li>קטגוריות וסגנונות</li>
+            <li>צורות וחללים (לשטיחים)</li>
+            <li>תכונות צמח (לעציצים)</li>
           </ul>
         </div>
       </div>
 
       {/* Template Download */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">1. הורד קבצים</h2>
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">1. הורד תבנית CSV</h2>
         <p className="text-gray-600 mb-4">
-          הורד את קובץ התבנית וקובץ הייחוס עם כל ה-slugs הזמינים
+          הורד את קובץ התבנית עם דוגמאות לשטיח ולעציץ
         </p>
-        <div className="flex flex-wrap gap-3">
-          <button
-            onClick={handleDownloadTemplate}
-            className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
-          >
-            <FaDownload />
-            הורד תבנית CSV
-          </button>
-          <button
-            onClick={handleDownloadReference}
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-          >
-            <FaDownload />
-            הורד קובץ ייחוס (Slugs)
-          </button>
-        </div>
+        <button
+          onClick={handleDownloadTemplate}
+          className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
+        >
+          <FaDownload />
+          הורד תבנית CSV
+        </button>
       </div>
 
       {/* CSV Format Reference */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">📄 מבנה הקובץ</h2>
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">📄 מבנה הקובץ - שדות בסיסיים</h2>
+        <p className="text-gray-600 mb-4">
+          הקובץ כולל רק את השדות הבסיסיים. תמונות, צבעים, קטגוריות ותכונות נוספות יתווספו בעריכה ידנית.
+        </p>
         <div className="overflow-x-auto">
           <table className="w-full text-sm border-collapse">
             <thead>
@@ -347,9 +333,6 @@ export default function BulkUploadPage() {
               </tr>
             </thead>
             <tbody className="text-gray-700">
-              <tr className="bg-yellow-50">
-                <td className="border border-gray-300 px-4 py-2 font-mono font-bold" colSpan={4}>שדות כלליים</td>
-              </tr>
               <tr>
                 <td className="border border-gray-300 px-4 py-2 font-mono">name</td>
                 <td className="border border-gray-300 px-4 py-2">✅</td>
@@ -377,104 +360,38 @@ export default function BulkUploadPage() {
               <tr>
                 <td className="border border-gray-300 px-4 py-2 font-mono">is_featured</td>
                 <td className="border border-gray-300 px-4 py-2">❌</td>
-                <td className="border border-gray-300 px-4 py-2">מוצר מומלץ</td>
+                <td className="border border-gray-300 px-4 py-2">מוצר מומלץ (ברירת מחדל: no)</td>
                 <td className="border border-gray-300 px-4 py-2">yes / no</td>
               </tr>
               <tr>
                 <td className="border border-gray-300 px-4 py-2 font-mono">is_active</td>
                 <td className="border border-gray-300 px-4 py-2">❌</td>
-                <td className="border border-gray-300 px-4 py-2">מוצר פעיל</td>
+                <td className="border border-gray-300 px-4 py-2">מוצר פעיל (ברירת מחדל: yes)</td>
                 <td className="border border-gray-300 px-4 py-2">yes / no</td>
               </tr>
               <tr>
                 <td className="border border-gray-300 px-4 py-2 font-mono">sizes</td>
-                <td className="border border-gray-300 px-4 py-2">✅</td>
-                <td className="border border-gray-300 px-4 py-2">מידות (מופרדות ב-|)</td>
-                <td className="border border-gray-300 px-4 py-2">160×230|200×290</td>
+                <td className="border border-gray-300 px-4 py-2">⚠️</td>
+                <td className="border border-gray-300 px-4 py-2">מידות (חובה לשטיחים, ריק לעציצים)</td>
+                <td className="border border-gray-300 px-4 py-2">160×230|200×290|240×340</td>
               </tr>
               <tr>
                 <td className="border border-gray-300 px-4 py-2 font-mono">prices</td>
                 <td className="border border-gray-300 px-4 py-2">✅</td>
-                <td className="border border-gray-300 px-4 py-2">מחירים (מופרדים ב-|)</td>
-                <td className="border border-gray-300 px-4 py-2">1500|2000</td>
+                <td className="border border-gray-300 px-4 py-2">מחירים (חייב להתאים למספר המידות)</td>
+                <td className="border border-gray-300 px-4 py-2">1500|2000|2500</td>
               </tr>
               <tr>
                 <td className="border border-gray-300 px-4 py-2 font-mono">compare_prices</td>
                 <td className="border border-gray-300 px-4 py-2">❌</td>
-                <td className="border border-gray-300 px-4 py-2">מחירי השוואה (מופרדים ב-|)</td>
-                <td className="border border-gray-300 px-4 py-2">2000|2500</td>
+                <td className="border border-gray-300 px-4 py-2">מחירי השוואה</td>
+                <td className="border border-gray-300 px-4 py-2">2000|2500|3000</td>
               </tr>
               <tr>
                 <td className="border border-gray-300 px-4 py-2 font-mono">stock_quantities</td>
                 <td className="border border-gray-300 px-4 py-2">❌</td>
-                <td className="border border-gray-300 px-4 py-2">כמויות מלאי (מופרדות ב-|)</td>
+                <td className="border border-gray-300 px-4 py-2">כמויות מלאי (ברירת מחדל: 0)</td>
                 <td className="border border-gray-300 px-4 py-2">10|5|3</td>
-              </tr>
-              <tr>
-                <td className="border border-gray-300 px-4 py-2 font-mono">image_urls</td>
-                <td className="border border-gray-300 px-4 py-2">❌</td>
-                <td className="border border-gray-300 px-4 py-2">כתובות תמונות (מופרדות ב-|)</td>
-                <td className="border border-gray-300 px-4 py-2">https://...jpg|https://...jpg</td>
-              </tr>
-              <tr className="bg-blue-50">
-                <td className="border border-gray-300 px-4 py-2 font-mono font-bold" colSpan={4}>שטיחים (השאר ריק לעציצים)</td>
-              </tr>
-              <tr>
-                <td className="border border-gray-300 px-4 py-2 font-mono">categories</td>
-                <td className="border border-gray-300 px-4 py-2">❌</td>
-                <td className="border border-gray-300 px-4 py-2">סגנונות - slugs מופרדים בפסיק</td>
-                <td className="border border-gray-300 px-4 py-2">modern,minimalist</td>
-              </tr>
-              <tr>
-                <td className="border border-gray-300 px-4 py-2 font-mono">colors</td>
-                <td className="border border-gray-300 px-4 py-2">❌</td>
-                <td className="border border-gray-300 px-4 py-2">צבעים - slugs מופרדים בפסיק</td>
-                <td className="border border-gray-300 px-4 py-2">gray,white</td>
-              </tr>
-              <tr>
-                <td className="border border-gray-300 px-4 py-2 font-mono">shapes</td>
-                <td className="border border-gray-300 px-4 py-2">❌</td>
-                <td className="border border-gray-300 px-4 py-2">צורות - slugs מופרדים בפסיק</td>
-                <td className="border border-gray-300 px-4 py-2">rectangular,round</td>
-              </tr>
-              <tr>
-                <td className="border border-gray-300 px-4 py-2 font-mono">spaces</td>
-                <td className="border border-gray-300 px-4 py-2">❌</td>
-                <td className="border border-gray-300 px-4 py-2">חללים - slugs מופרדים בפסיק</td>
-                <td className="border border-gray-300 px-4 py-2">living-room,bedroom</td>
-              </tr>
-              <tr className="bg-green-50">
-                <td className="border border-gray-300 px-4 py-2 font-mono font-bold" colSpan={4}>עציצים (השאר ריק לשטיחים)</td>
-              </tr>
-              <tr>
-                <td className="border border-gray-300 px-4 py-2 font-mono">plant_types</td>
-                <td className="border border-gray-300 px-4 py-2">❌</td>
-                <td className="border border-gray-300 px-4 py-2">סוגי צמחים - slugs מופרדים בפסיק</td>
-                <td className="border border-gray-300 px-4 py-2">indoor,tropical</td>
-              </tr>
-              <tr>
-                <td className="border border-gray-300 px-4 py-2 font-mono">plant_sizes</td>
-                <td className="border border-gray-300 px-4 py-2">❌</td>
-                <td className="border border-gray-300 px-4 py-2">גדלי צמחים - slugs מופרדים בפסיק</td>
-                <td className="border border-gray-300 px-4 py-2">small,medium,large</td>
-              </tr>
-              <tr>
-                <td className="border border-gray-300 px-4 py-2 font-mono">plant_light</td>
-                <td className="border border-gray-300 px-4 py-2">❌</td>
-                <td className="border border-gray-300 px-4 py-2">דרישות אור - slugs מופרדים בפסיק</td>
-                <td className="border border-gray-300 px-4 py-2">medium,high</td>
-              </tr>
-              <tr>
-                <td className="border border-gray-300 px-4 py-2 font-mono">plant_care</td>
-                <td className="border border-gray-300 px-4 py-2">❌</td>
-                <td className="border border-gray-300 px-4 py-2">רמת טיפול - slugs מופרדים בפסיק</td>
-                <td className="border border-gray-300 px-4 py-2">easy</td>
-              </tr>
-              <tr>
-                <td className="border border-gray-300 px-4 py-2 font-mono">plant_pet_safety</td>
-                <td className="border border-gray-300 px-4 py-2">❌</td>
-                <td className="border border-gray-300 px-4 py-2">בטיחות לחיות - slugs מופרדים בפסיק</td>
-                <td className="border border-gray-300 px-4 py-2">safe</td>
               </tr>
             </tbody>
           </table>
