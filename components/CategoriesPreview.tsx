@@ -75,7 +75,7 @@ export default function CategoriesPreview({ categories }: CategoriesPreviewProps
                     </p>
                   )}
                   <div className="flex items-center gap-2 text-white font-semibold">
-                    <span className="text-lg">חקור עכשיו</span>
+                    <span className="text-lg">צפו</span>
                     <svg className="w-5 h-5 transform group-hover:translate-x-2 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                     </svg>
