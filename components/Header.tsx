@@ -102,7 +102,7 @@ export default function Header() {
               alt="Yossef Boutique"
               width={650}
               height={250}
-              className="h-20 md:h-24 w-auto"
+              className="h-16 sm:h-20 md:h-24 w-auto object-contain max-w-[200px] sm:max-w-none"
               priority
             />
           </Link>
