@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FaUpload, FaTrash, FaImage, FaStar } from 'react-icons/fa';
 import { supabase, ProductImage } from '@/lib/supabase';
 
@@ -18,6 +18,11 @@ export default function ProductImageUpload({
   const [images, setImages] = useState<ProductImage[]>(existingImages);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+
+  // Sync images when existingImages prop changes (fixes loading issue)
+  useEffect(() => {
+    setImages(existingImages);
+  }, [existingImages]);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -208,17 +213,22 @@ export default function ProductImageUpload({
           <h3 className="font-semibold text-gray-800 mb-3">
             תמונות ({images.length})
           </h3>
+          <p className="text-sm text-gray-600 mb-4">
+            התמונה הראשונה תוצג כתמונה ראשית של המוצר. לחץ על כוכב כדי להגדיר תמונה אחרת כראשית.
+          </p>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {images.map((image, index) => (
               <div
                 key={image.id}
-                className="relative group border-2 border-gray-200 rounded-lg overflow-hidden hover:border-primary-600 transition-all"
+                className={`relative border-2 rounded-lg overflow-hidden transition-all ${
+                  index === 0 ? 'border-terracotta shadow-md' : 'border-gray-200 hover:border-primary-400'
+                }`}
               >
                 {/* Primary Badge */}
                 {index === 0 && (
-                  <div className="absolute top-2 right-2 bg-terracotta text-white px-2 py-1 rounded text-xs font-semibold flex items-center gap-1 z-10">
+                  <div className="absolute top-2 right-2 bg-terracotta text-white px-2 py-1 rounded text-xs font-semibold flex items-center gap-1 z-10 shadow-lg">
                     <FaStar />
-                    ראשי
+                    תמונה ראשית
                   </div>
                 )}
 
@@ -229,23 +239,30 @@ export default function ProductImageUpload({
                   className="w-full h-40 object-cover"
                 />
 
-                {/* Actions Overlay */}
-                <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                {/* Action Buttons - Always Visible */}
+                <div className="bg-white border-t border-gray-200 p-2 flex gap-2">
                   {index !== 0 && (
                     <button
                       onClick={() => setPrimaryImage(image)}
-                      className="bg-white text-gray-800 p-2 rounded-full hover:bg-gray-100 transition-colors"
+                      className="flex-1 bg-terracotta bg-opacity-10 text-terracotta px-3 py-2 rounded-lg hover:bg-terracotta hover:text-white transition-colors text-sm font-medium flex items-center justify-center gap-1"
                       title="הגדר כתמונה ראשית"
                     >
-                      <FaStar />
+                      <FaStar className="text-xs" />
+                      הגדר כראשית
                     </button>
+                  )}
+                  {index === 0 && (
+                    <div className="flex-1 bg-gray-100 text-gray-500 px-3 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-1 cursor-not-allowed">
+                      <FaStar className="text-xs" />
+                      תמונה ראשית
+                    </div>
                   )}
                   <button
                     onClick={() => deleteImage(image)}
-                    className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors"
+                    className="bg-red-50 text-red-600 px-3 py-2 rounded-lg hover:bg-red-600 hover:text-white transition-colors"
                     title="מחק תמונה"
                   >
-                    <FaTrash />
+                    <FaTrash className="text-sm" />
                   </button>
                 </div>
               </div>
