@@ -22,7 +22,7 @@ const heroSlides = [
   },
   {
     id: 'plants',
-    image: 'https://images.unsplash.com/photo-1463320726281-696a485928c7?w=1920&q=80',
+    image: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=1920&q=80',
     badge: 'ירוק בריא לבית',
     title: 'עציצים מרהיבים',
     subtitle: 'לכל חלל',
