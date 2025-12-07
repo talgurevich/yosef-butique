@@ -111,12 +111,6 @@ export default function Hero() {
             isTransitioning ? 'opacity-0 translate-y-8' : 'opacity-100 translate-y-0'
           }`}
         >
-          {/* Small badge */}
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full mb-6 border border-white/20">
-            <span className={`w-2 h-2 ${slide.accentColor} rounded-full animate-pulse`}></span>
-            <span className="text-sm font-semibold">{slide.badge}</span>
-          </div>
-
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 leading-[1.1] font-display">
             <span className="text-white drop-shadow-2xl block">
               {slide.title}
