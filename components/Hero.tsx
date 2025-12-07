@@ -4,8 +4,43 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
+const heroSlides = [
+  {
+    id: 'carpets',
+    image: 'https://images.unsplash.com/photo-1554995207-c18c203602cb?w=1920&q=80',
+    badge: 'איכות פרימיום מאז 2010',
+    title: 'שטיחים איכותיים',
+    subtitle: 'לכל בית',
+    description: 'מבחר רחב של שטיחים מעוצבים, מודרניים וקלאסיים',
+    highlight: 'באיכות פרימיום',
+    link: '/products?type=carpets',
+    linkText: 'צפה בשטיחים',
+    gradientFrom: 'from-yellow-400',
+    gradientVia: 'via-yellow-300',
+    gradientTo: 'to-yellow-500',
+    accentColor: 'text-yellow-400',
+  },
+  {
+    id: 'plants',
+    image: 'https://images.unsplash.com/photo-1463320726281-696a485928c7?w=1920&q=80',
+    badge: 'ירוק בריא לבית',
+    title: 'עציצים מרהיבים',
+    subtitle: 'לכל חלל',
+    description: 'מגוון עציצים מדהים שיהפכו את הבית שלך',
+    highlight: 'לגן עדן ירוק',
+    link: '/products?type=plants',
+    linkText: 'צפה בעציצים',
+    gradientFrom: 'from-green-400',
+    gradientVia: 'via-green-300',
+    gradientTo: 'to-green-500',
+    accentColor: 'text-green-400',
+  },
+];
+
 export default function Hero() {
   const [scrollY, setScrollY] = useState(0);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -16,22 +51,50 @@ export default function Hero() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Auto-rotate slides every 6 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+        setIsTransitioning(false);
+      }, 500);
+    }, 6000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const goToSlide = (index: number) => {
+    if (index !== currentSlide && !isTransitioning) {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setCurrentSlide(index);
+        setIsTransitioning(false);
+      }, 500);
+    }
+  };
+
+  const slide = heroSlides[currentSlide];
+
   return (
     <section className="relative h-[700px] md:h-[800px] text-white overflow-hidden pattern-chevron-subtle">
       {/* Geometric Background Elements */}
       <div className="absolute top-20 right-10 w-96 h-96 bg-gradient-to-br from-yellow-500/10 to-transparent rounded-full blur-3xl animate-float"></div>
       <div className="absolute bottom-20 left-10 w-80 h-80 bg-gradient-to-tl from-primary-500/10 to-transparent rounded-full blur-3xl animate-pulse-slow"></div>
 
-      {/* Background Image with Parallax */}
+      {/* Background Image with Parallax and Transition */}
       <div
-        className="absolute inset-0 will-change-transform"
+        className={`absolute inset-0 will-change-transform transition-opacity duration-500 ${
+          isTransitioning ? 'opacity-0' : 'opacity-100'
+        }`}
         style={{
           transform: `translateY(${scrollY * 0.5}px)`,
         }}
       >
         <Image
-          src="https://images.unsplash.com/photo-1554995207-c18c203602cb?w=1920&q=80"
-          alt="Beautiful living room with modern carpet"
+          key={slide.id}
+          src={slide.image}
+          alt={slide.title}
           fill
           className="object-cover scale-110"
           priority
@@ -43,35 +106,39 @@ export default function Hero() {
 
       {/* Content */}
       <div className="relative container mx-auto px-4 h-full flex items-center">
-        <div className="max-w-4xl animate-fade-in">
+        <div
+          className={`max-w-4xl transition-all duration-500 ${
+            isTransitioning ? 'opacity-0 translate-y-8' : 'opacity-100 translate-y-0'
+          }`}
+        >
           {/* Small badge */}
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full mb-6 border border-white/20">
-            <span className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></span>
-            <span className="text-sm font-semibold">איכות פרימיום מאז 2010</span>
+            <span className={`w-2 h-2 ${slide.accentColor} rounded-full animate-pulse`}></span>
+            <span className="text-sm font-semibold">{slide.badge}</span>
           </div>
 
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 leading-[1.1] font-display">
             <span className="text-white drop-shadow-2xl block">
-              שטיחים איכותיים
+              {slide.title}
             </span>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-500 drop-shadow-2xl inline-block mt-2">
-              לכל בית
+            <span className={`text-transparent bg-clip-text bg-gradient-to-r ${slide.gradientFrom} ${slide.gradientVia} ${slide.gradientTo} drop-shadow-2xl inline-block mt-2`}>
+              {slide.subtitle}
             </span>
           </h1>
 
-          <div className="w-20 h-1 bg-gradient-to-r from-yellow-400 to-transparent mb-8"></div>
+          <div className={`w-20 h-1 bg-gradient-to-r ${slide.gradientFrom} to-transparent mb-8`}></div>
 
           <p className="text-xl md:text-2xl mb-12 text-gray-100 font-light leading-relaxed max-w-2xl">
-            מבחר רחב של שטיחים מעוצבים, מודרניים וקלאסיים
-            <span className="font-serif italic text-yellow-200"> באיכות פרימיום</span>
+            {slide.description}
+            <span className={`font-serif italic ${slide.accentColor.replace('text-', 'text-').replace('400', '200')}`}> {slide.highlight}</span>
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4">
             <Link
-              href="/products"
+              href={slide.link}
               className="btn-primary inline-flex items-center justify-center gap-3 bg-white text-gray-900 hover:bg-gray-100 shadow-luxury"
             >
-              <span>צפה בקולקציה</span>
+              <span>{slide.linkText}</span>
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
@@ -87,18 +154,34 @@ export default function Hero() {
             </Link>
           </div>
 
+          {/* Navigation Dots */}
+          <div className="flex gap-3 mt-8">
+            {heroSlides.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => goToSlide(index)}
+                className={`transition-all duration-300 ${
+                  index === currentSlide
+                    ? `w-12 h-3 ${slide.accentColor.replace('text-', 'bg-')}`
+                    : 'w-3 h-3 bg-white/40 hover:bg-white/60'
+                } rounded-full`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
+          </div>
+
           {/* Stats - Refined */}
-          <div className="flex flex-wrap gap-12 mt-16 pt-10 border-t border-white/10">
+          <div className="flex flex-wrap gap-12 mt-8 pt-10 border-t border-white/10">
             <div className="group">
-              <div className="text-4xl md:text-5xl font-black font-display mb-1 text-yellow-400">1000+</div>
+              <div className={`text-4xl md:text-5xl font-black font-display mb-1 ${slide.accentColor}`}>1000+</div>
               <div className="text-sm uppercase tracking-wider text-gray-300 font-light">לקוחות מרוצים</div>
             </div>
             <div className="group">
-              <div className="text-4xl md:text-5xl font-black font-display mb-1 text-yellow-400">4.9/5</div>
+              <div className={`text-4xl md:text-5xl font-black font-display mb-1 ${slide.accentColor}`}>4.9/5</div>
               <div className="text-sm uppercase tracking-wider text-gray-300 font-light">דירוג ממוצע</div>
             </div>
             <div className="group">
-              <div className="text-4xl md:text-5xl font-black font-display mb-1 text-yellow-400">15+</div>
+              <div className={`text-4xl md:text-5xl font-black font-display mb-1 ${slide.accentColor}`}>15+</div>
               <div className="text-sm uppercase tracking-wider text-gray-300 font-light">שנות ניסיון</div>
             </div>
           </div>
