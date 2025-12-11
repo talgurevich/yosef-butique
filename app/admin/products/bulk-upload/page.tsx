@@ -227,11 +227,13 @@ export default function BulkUploadPage() {
 
       setResult(data);
 
-      if (data.success) {
-        alert(`✅ הייבוא הושלם בהצלחה!\n\nנוספו ${data.successCount} מוצרים\n${data.errorCount > 0 ? `${data.errorCount} שגיאות` : ''}`);
-      } else {
-        alert(`⚠️ הייבוא הושלם עם שגיאות\n\nנוספו ${data.successCount} מוצרים\n${data.errorCount} שגיאות`);
-      }
+      // Scroll to results section after brief delay
+      setTimeout(() => {
+        document.getElementById('import-results')?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }, 100);
     } catch (error: any) {
       alert('❌ ' + error.message);
     } finally {
@@ -447,17 +449,20 @@ export default function BulkUploadPage() {
 
       {/* Results */}
       {result && (
-        <div className={`rounded-lg shadow-md p-6 ${result.errorCount === 0 ? 'bg-green-50 border border-green-200' : 'bg-yellow-50 border border-yellow-200'}`}>
-          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+        <div
+          id="import-results"
+          className={`rounded-lg shadow-md p-6 ${result.errorCount === 0 ? 'bg-green-50 border-2 border-green-300' : 'bg-red-50 border-2 border-red-300'}`}
+        >
+          <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
             {result.errorCount === 0 ? (
               <>
-                <FaCheckCircle className="text-green-600" />
+                <FaCheckCircle className="text-3xl text-green-600" />
                 <span className="text-green-900">הייבוא הושלם בהצלחה!</span>
               </>
             ) : (
               <>
-                <FaTimesCircle className="text-yellow-600" />
-                <span className="text-yellow-900">הייבוא הושלם עם שגיאות</span>
+                <FaTimesCircle className="text-3xl text-red-600" />
+                <span className="text-red-900">שים לב! נמצאו שגיאות בייבוא</span>
               </>
             )}
           </h2>
@@ -474,23 +479,51 @@ export default function BulkUploadPage() {
           </div>
 
           {result.errors && result.errors.length > 0 && (
-            <div className="mt-4">
-              <h3 className="font-semibold text-gray-800 mb-2">פירוט שגיאות:</h3>
-              <div className="bg-white rounded-lg border border-gray-200 max-h-64 overflow-y-auto">
-                <table className="w-full text-sm">
-                  <thead className="bg-gray-50 sticky top-0">
+            <div className="mt-6">
+              <div className="bg-red-100 border-2 border-red-400 rounded-lg p-4 mb-4">
+                <h3 className="font-bold text-red-900 text-xl mb-2 flex items-center gap-2">
+                  <FaTimesCircle className="text-red-600" />
+                  פירוט מלא של השגיאות ({result.errors.length})
+                </h3>
+                <p className="text-red-800 text-sm">
+                  תקן את השגיאות הבאות בקובץ ה-CSV ונסה שוב להעלות את השורות שנכשלו
+                </p>
+              </div>
+
+              <div className="bg-white rounded-lg border-2 border-red-200 shadow-lg max-h-96 overflow-y-auto">
+                <table className="w-full">
+                  <thead className="bg-red-100 sticky top-0 shadow">
                     <tr>
-                      <th className="px-4 py-2 text-right border-b">שורה</th>
-                      <th className="px-4 py-2 text-right border-b">שדה</th>
-                      <th className="px-4 py-2 text-right border-b">שגיאה</th>
+                      <th className="px-4 py-3 text-right border-b-2 border-red-200 font-bold text-red-900">
+                        שורה בקובץ
+                      </th>
+                      <th className="px-4 py-3 text-right border-b-2 border-red-200 font-bold text-red-900">
+                        שדה בעייתי
+                      </th>
+                      <th className="px-4 py-3 text-right border-b-2 border-red-200 font-bold text-red-900">
+                        תיאור השגיאה
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {result.errors.map((error, index) => (
-                      <tr key={index} className="hover:bg-gray-50">
-                        <td className="px-4 py-2 border-b">{error.row}</td>
-                        <td className="px-4 py-2 border-b font-mono text-xs">{error.field}</td>
-                        <td className="px-4 py-2 border-b text-red-600">{error.message}</td>
+                      <tr
+                        key={index}
+                        className={`hover:bg-red-50 transition-colors ${
+                          index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                        }`}
+                      >
+                        <td className="px-4 py-3 border-b border-gray-200 font-bold text-red-700">
+                          שורה {error.row}
+                        </td>
+                        <td className="px-4 py-3 border-b border-gray-200">
+                          <code className="bg-gray-100 px-2 py-1 rounded text-sm font-mono text-blue-700">
+                            {error.field}
+                          </code>
+                        </td>
+                        <td className="px-4 py-3 border-b border-gray-200 text-red-700 font-medium">
+                          {error.message}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
