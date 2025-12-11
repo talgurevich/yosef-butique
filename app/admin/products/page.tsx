@@ -25,6 +25,24 @@ export default function ProductsPage() {
             image_url,
             alt_text,
             sort_order
+          ),
+          product_colors (
+            colors (
+              id,
+              name
+            )
+          ),
+          product_categories (
+            categories (
+              id,
+              name
+            )
+          ),
+          product_spaces (
+            spaces (
+              id,
+              name
+            )
           )
         `)
         .order('created_at', { ascending: false });
@@ -63,8 +81,7 @@ export default function ProductsPage() {
   };
 
   const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.sku.toLowerCase().includes(searchTerm.toLowerCase())
+    product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -99,7 +116,7 @@ export default function ProductsPage() {
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <input
           type="text"
-          placeholder="חפש מוצר לפי שם או מק״ט..."
+          placeholder="חפש מוצר לפי שם..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -132,7 +149,13 @@ export default function ProductsPage() {
                     שם המוצר
                   </th>
                   <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">
-                    מק״ט
+                    צבעים
+                  </th>
+                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">
+                    סגנון
+                  </th>
+                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">
+                    חלל
                   </th>
                   <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">
                     מחיר
@@ -149,7 +172,12 @@ export default function ProductsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {filteredProducts.map((product) => (
+                {filteredProducts.map((product) => {
+                  const colors = (product as any).product_colors?.map((pc: any) => pc.colors?.name).filter(Boolean) || [];
+                  const categories = (product as any).product_categories?.map((pc: any) => pc.categories?.name).filter(Boolean) || [];
+                  const spaces = (product as any).product_spaces?.map((ps: any) => ps.spaces?.name).filter(Boolean) || [];
+
+                  return (
                   <tr key={product.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div className="flex items-center">
@@ -170,13 +198,24 @@ export default function ProductsPage() {
                           <div className="font-medium text-gray-900">
                             {product.name}
                           </div>
-                          <div className="text-sm text-gray-500">
-                            {product.size} | {product.material}
-                          </div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-gray-700">{product.sku}</td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-gray-700">
+                        {colors.length > 0 ? colors.join(', ') : '-'}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-gray-700">
+                        {categories.length > 0 ? categories.join(', ') : '-'}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-gray-700">
+                        {spaces.length > 0 ? spaces.join(', ') : '-'}
+                      </div>
+                    </td>
                     <td className="px-6 py-4 text-gray-700 font-semibold">
                       ₪{product.price.toLocaleString()}
                     </td>
@@ -224,7 +263,8 @@ export default function ProductsPage() {
                       </div>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>
