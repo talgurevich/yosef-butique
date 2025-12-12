@@ -22,6 +22,7 @@ export default function ProductPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [variants, setVariants] = useState<ProductVariant[]>([]);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
+  const [selectedColor, setSelectedColor] = useState<any>(null);
   const [productImages, setProductImages] = useState<any[]>([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -145,7 +146,12 @@ export default function ProductPage() {
         .select('colors (*)')
         .eq('product_id', productId);
       if (productColors) {
-        setColors(productColors.map((pc: any) => pc.colors));
+        const colorsList = productColors.map((pc: any) => pc.colors);
+        setColors(colorsList);
+        // Auto-select first color if available
+        if (colorsList.length > 0) {
+          setSelectedColor(colorsList[0]);
+        }
       }
 
       // Fetch shapes
@@ -224,6 +230,12 @@ export default function ProductPage() {
       return;
     }
 
+    // For products with colors, require a color selection
+    if (colors.length > 0 && !selectedColor) {
+      alert('אנא בחר צבע');
+      return;
+    }
+
     // Determine which variant to use
     const variantToAdd = selectedVariant || {
       id: `default-${product.id}`,
@@ -240,6 +252,7 @@ export default function ProductPage() {
       variantId: variantToAdd.id,
       productName: product.name,
       variantSize: variantToAdd.size,
+      variantColor: selectedColor?.name,
       price: variantToAdd.price,
       imageUrl,
       slug: product.slug,
@@ -445,12 +458,6 @@ export default function ProductPage() {
                       <span className="font-semibold text-gray-800">{categories.map(c => c.name).join(', ')}</span>
                     </div>
                   )}
-                  {colors.length > 0 && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">צבעים:</span>
-                      <span className="font-semibold text-gray-800">{colors.map(c => c.name).join(', ')}</span>
-                    </div>
-                  )}
                   {shapes.length > 0 && (
                     <div className="flex justify-between">
                       <span className="text-gray-600">צורה:</span>
@@ -497,6 +504,30 @@ export default function ProductPage() {
                   )}
                 </div>
               </div>
+
+              {/* Color Selection */}
+              {colors.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-bold text-gray-800 mb-3">בחר צבע</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {colors.map((color) => (
+                      <button
+                        key={color.id}
+                        onClick={() => setSelectedColor(color)}
+                        className={`p-4 border-2 rounded-lg transition-all ${
+                          selectedColor?.id === color.id
+                            ? 'border-primary-600 bg-primary-50'
+                            : 'border-gray-300 hover:border-primary-400'
+                        }`}
+                      >
+                        <div className="text-center">
+                          <div className="font-bold text-gray-800">{color.name}</div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Variant Selection */}
               {product.has_variants && variants.length > 0 && (

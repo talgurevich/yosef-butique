@@ -161,6 +161,9 @@ export default function CartPage() {
                       </Link>
                       <p className="text-gray-600 mb-4">
                         מידה: <span className="font-medium">{item.variantSize}</span>
+                        {item.variantColor && (
+                          <> | צבע: <span className="font-medium">{item.variantColor}</span></>
+                        )}
                       </p>
 
                       {/* Quantity Controls */}
