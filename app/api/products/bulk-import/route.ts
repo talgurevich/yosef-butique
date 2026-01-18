@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
     let successCount = 0;
     let errorCount = 0;
 
-    // Fetch all attributes for mapping (slug-based)
+    // Fetch all attributes for mapping (slug and name based)
     const [
       categoriesData,
       colorsData,
@@ -88,29 +88,41 @@ export async function POST(request: NextRequest) {
       plantPetSafetyData,
       productTypesData
     ] = await Promise.all([
-      supabaseAdmin.from('categories').select('id, slug'),
-      supabaseAdmin.from('colors').select('id, slug'),
-      supabaseAdmin.from('shapes').select('id, slug'),
-      supabaseAdmin.from('spaces').select('id, slug'),
-      supabaseAdmin.from('plant_types').select('id, slug'),
-      supabaseAdmin.from('plant_sizes').select('id, slug'),
-      supabaseAdmin.from('plant_light_requirements').select('id, slug'),
-      supabaseAdmin.from('plant_care_levels').select('id, slug'),
-      supabaseAdmin.from('plant_pet_safety').select('id, slug'),
+      supabaseAdmin.from('categories').select('id, slug, name'),
+      supabaseAdmin.from('colors').select('id, slug, name'),
+      supabaseAdmin.from('shapes').select('id, slug, name'),
+      supabaseAdmin.from('spaces').select('id, slug, name'),
+      supabaseAdmin.from('plant_types').select('id, slug, name'),
+      supabaseAdmin.from('plant_sizes').select('id, slug, name'),
+      supabaseAdmin.from('plant_light_requirements').select('id, slug, name'),
+      supabaseAdmin.from('plant_care_levels').select('id, slug, name'),
+      supabaseAdmin.from('plant_pet_safety').select('id, slug, name'),
       supabaseAdmin.from('product_types').select('id, slug'),
     ]);
 
-    // Create slug maps
+    // Helper to create a map that supports both slug and Hebrew name lookups
+    const createLookupMap = (data: any[] | null) => {
+      const map = new Map<string, string>();
+      (data || []).forEach(item => {
+        map.set(item.slug.toLowerCase(), item.id);
+        if (item.name) {
+          map.set(item.name.toLowerCase(), item.id);
+        }
+      });
+      return map;
+    };
+
+    // Create lookup maps (support both slug and Hebrew name)
     const slugMaps = {
-      categories: new Map((categoriesData.data || []).map(item => [item.slug, item.id])),
-      colors: new Map((colorsData.data || []).map(item => [item.slug, item.id])),
-      shapes: new Map((shapesData.data || []).map(item => [item.slug, item.id])),
-      spaces: new Map((spacesData.data || []).map(item => [item.slug, item.id])),
-      plantTypes: new Map((plantTypesData.data || []).map(item => [item.slug, item.id])),
-      plantSizes: new Map((plantSizesData.data || []).map(item => [item.slug, item.id])),
-      plantLight: new Map((plantLightData.data || []).map(item => [item.slug, item.id])),
-      plantCare: new Map((plantCareData.data || []).map(item => [item.slug, item.id])),
-      plantPetSafety: new Map((plantPetSafetyData.data || []).map(item => [item.slug, item.id])),
+      categories: createLookupMap(categoriesData.data),
+      colors: createLookupMap(colorsData.data),
+      shapes: createLookupMap(shapesData.data),
+      spaces: createLookupMap(spacesData.data),
+      plantTypes: createLookupMap(plantTypesData.data),
+      plantSizes: createLookupMap(plantSizesData.data),
+      plantLight: createLookupMap(plantLightData.data),
+      plantCare: createLookupMap(plantCareData.data),
+      plantPetSafety: createLookupMap(plantPetSafetyData.data),
       productTypes: new Map((productTypesData.data || []).map(item => [item.slug, item.id])),
     };
 
