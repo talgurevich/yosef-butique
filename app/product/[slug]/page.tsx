@@ -97,23 +97,46 @@ export default function ProductPage() {
       // Fetch variants if product has them
       if (productData.has_variants) {
         console.log('Fetching variants for product:', productData.id);
-        const { data: variantsData, error: variantsError } = await supabase
-          .from('product_variants')
-          .select(`
-            *,
-            colors (
-              id,
-              name,
-              slug
-            )
-          `)
-          .eq('product_id', productData.id)
-          .eq('is_active', true)
-          .order('sort_order');
 
-        if (variantsError) {
-          console.error('Error fetching variants:', variantsError);
-          throw variantsError;
+        // First try to fetch with color join
+        let variantsData = null;
+        let variantsError = null;
+
+        try {
+          const result = await supabase
+            .from('product_variants')
+            .select(`
+              *,
+              colors (
+                id,
+                name,
+                slug
+              )
+            `)
+            .eq('product_id', productData.id)
+            .eq('is_active', true)
+            .order('sort_order');
+
+          variantsData = result.data;
+          variantsError = result.error;
+        } catch (e) {
+          console.error('Error with color join, fetching without:', e);
+        }
+
+        // If color join failed, fetch without it
+        if (variantsError || !variantsData) {
+          console.log('Fetching variants without color join');
+          const result = await supabase
+            .from('product_variants')
+            .select('*')
+            .eq('product_id', productData.id)
+            .eq('is_active', true)
+            .order('sort_order');
+
+          variantsData = result.data;
+          if (result.error) {
+            console.error('Error fetching variants:', result.error);
+          }
         }
 
         console.log('Variants data:', variantsData);
