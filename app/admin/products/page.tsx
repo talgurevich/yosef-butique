@@ -2,13 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { FaPlus, FaEdit, FaTrash, FaUpload } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaUpload, FaCheckSquare, FaSquare } from 'react-icons/fa';
 import { supabase, Product } from '@/lib/supabase';
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     fetchProducts();
@@ -73,10 +75,61 @@ export default function ProductsPage() {
       if (error) throw error;
 
       setProducts(products.filter((p) => p.id !== id));
+      setSelectedIds(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
       alert('המוצר נמחק בהצלחה');
     } catch (error) {
       console.error('Error deleting product:', error);
       alert('שגיאה במחיקת המוצר');
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
+
+    if (!confirm(`האם אתה בטוח שברצונך למחוק ${selectedIds.size} מוצרים?`)) return;
+
+    setDeleting(true);
+    try {
+      const idsArray = Array.from(selectedIds);
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .in('id', idsArray);
+
+      if (error) throw error;
+
+      setProducts(products.filter((p) => !selectedIds.has(p.id)));
+      setSelectedIds(new Set());
+      alert(`${idsArray.length} מוצרים נמחקו בהצלחה`);
+    } catch (error) {
+      console.error('Error deleting products:', error);
+      alert('שגיאה במחיקת המוצרים');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === filteredProducts.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredProducts.map(p => p.id)));
     }
   };
 
@@ -112,15 +165,32 @@ export default function ProductsPage() {
         </div>
       </div>
 
-      {/* Search Bar */}
+      {/* Search Bar and Bulk Actions */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <input
-          type="text"
-          placeholder="חפש מוצר לפי שם..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-        />
+        <div className="flex gap-4 items-center">
+          <input
+            type="text"
+            placeholder="חפש מוצר לפי שם..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+          />
+          {selectedIds.size > 0 && (
+            <button
+              onClick={handleBulkDelete}
+              disabled={deleting}
+              className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2 font-semibold disabled:opacity-50"
+            >
+              <FaTrash />
+              {deleting ? 'מוחק...' : `מחק ${selectedIds.size} מוצרים`}
+            </button>
+          )}
+        </div>
+        {selectedIds.size > 0 && (
+          <div className="mt-3 text-sm text-gray-600">
+            נבחרו {selectedIds.size} מוצרים מתוך {filteredProducts.length}
+          </div>
+        )}
       </div>
 
       {/* Products Table */}
@@ -145,6 +215,19 @@ export default function ProductsPage() {
             <table className="w-full">
               <thead className="bg-gray-50 border-b">
                 <tr>
+                  <th className="px-4 py-4 text-center w-12">
+                    <button
+                      onClick={toggleSelectAll}
+                      className="text-gray-600 hover:text-primary-600 transition-colors"
+                      title={selectedIds.size === filteredProducts.length ? 'בטל בחירה' : 'בחר הכל'}
+                    >
+                      {selectedIds.size === filteredProducts.length && filteredProducts.length > 0 ? (
+                        <FaCheckSquare className="text-xl text-primary-600" />
+                      ) : (
+                        <FaSquare className="text-xl" />
+                      )}
+                    </button>
+                  </th>
                   <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">
                     שם המוצר
                   </th>
@@ -178,7 +261,19 @@ export default function ProductsPage() {
                   const spaces = (product as any).product_spaces?.map((ps: any) => ps.spaces?.name).filter(Boolean) || [];
 
                   return (
-                  <tr key={product.id} className="hover:bg-gray-50">
+                  <tr key={product.id} className={`hover:bg-gray-50 ${selectedIds.has(product.id) ? 'bg-blue-50' : ''}`}>
+                    <td className="px-4 py-4 text-center">
+                      <button
+                        onClick={() => toggleSelect(product.id)}
+                        className="text-gray-600 hover:text-primary-600 transition-colors"
+                      >
+                        {selectedIds.has(product.id) ? (
+                          <FaCheckSquare className="text-xl text-primary-600" />
+                        ) : (
+                          <FaSquare className="text-xl" />
+                        )}
+                      </button>
+                    </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center">
                         <div className="h-12 w-12 bg-gray-200 rounded flex-shrink-0 ml-4 overflow-hidden">
