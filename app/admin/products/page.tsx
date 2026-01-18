@@ -45,17 +45,27 @@ export default function ProductsPage() {
               id,
               name
             )
+          ),
+          product_variants (
+            id,
+            stock_quantity
           )
         `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      // Sort images by sort_order
-      const productsWithSortedImages = data?.map(product => ({
-        ...product,
-        product_images: (product as any).product_images?.sort((a: any, b: any) => a.sort_order - b.sort_order) || []
-      }));
+      // Sort images and calculate total stock from variants
+      const productsWithSortedImages = data?.map(product => {
+        const variants = (product as any).product_variants || [];
+        const totalVariantStock = variants.reduce((sum: number, v: any) => sum + (v.stock_quantity || 0), 0);
+
+        return {
+          ...product,
+          product_images: (product as any).product_images?.sort((a: any, b: any) => a.sort_order - b.sort_order) || [],
+          total_stock: totalVariantStock > 0 ? totalVariantStock : product.stock_quantity,
+        };
+      });
 
       setProducts(productsWithSortedImages as any || []);
     } catch (error) {
@@ -317,14 +327,14 @@ export default function ProductsPage() {
                     <td className="px-6 py-4">
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          product.stock_quantity > 10
+                          (product as any).total_stock > 10
                             ? 'bg-green-100 text-green-800'
-                            : product.stock_quantity > 0
+                            : (product as any).total_stock > 0
                             ? 'bg-yellow-100 text-yellow-800'
                             : 'bg-red-100 text-red-800'
                         }`}
                       >
-                        {product.stock_quantity} יחידות
+                        {(product as any).total_stock} יחידות
                       </span>
                     </td>
                     <td className="px-6 py-4">
