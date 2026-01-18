@@ -46,7 +46,8 @@ export default function BulkUploadPage() {
       'sizes',
       'prices',
       'compare_prices',
-      'stock_quantities'
+      'stock_quantities',
+      'variant_colors'
     ];
 
     const carpetExample = [
@@ -56,10 +57,11 @@ export default function BulkUploadPage() {
       'צמר',
       'no',
       'yes',
-      '160×230|200×290|240×340',
-      '1500|2000|2500',
-      '2000|2500|3000',
-      '10|5|3'
+      '160×230|160×230|200×290|200×290',
+      '1500|1500|2000|2000',
+      '2000|2000|2500|2500',
+      '10|5|8|3',
+      'אפור|בז\'|אפור|בז\''
     ];
 
     const plantExample = [
@@ -72,7 +74,8 @@ export default function BulkUploadPage() {
       '',
       '150',
       '200',
-      '5'
+      '5',
+      ''
     ];
 
     const csvContent = [
@@ -277,8 +280,25 @@ export default function BulkUploadPage() {
             <li>שטיחים: הוסף מספר מידות מופרדות ב-|</li>
             <li>עציצים: השאר את שדה sizes ריק (ישתמש במחיר בודד)</li>
             <li>כמות מלאי היא אופציונלית - אם לא מצוינת, ברירת המחדל היא 0</li>
-            <li><strong>תמונות, צבעים וקטגוריות:</strong> יתווספו ידנית בעורך המוצר לאחר הייבוא</li>
+            <li><strong>variant_colors:</strong> כל מידה יכולה להיות משויכת לצבע נפרד עם מלאי משלו</li>
+            <li><strong>תמונות וקטגוריות:</strong> יתווספו ידנית בעורך המוצר לאחר הייבוא</li>
           </ul>
+        </div>
+
+        <div className="mt-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
+          <h3 className="font-semibold text-purple-900 mb-2">🎨 מעקב מלאי לפי מידה+צבע:</h3>
+          <p className="text-sm text-purple-800 mb-2">
+            כדי לנהל מלאי נפרד לכל שילוב של מידה וצבע, חזור על המידה עם צבע שונה:
+          </p>
+          <pre className="bg-white p-3 rounded text-xs overflow-x-auto border border-purple-200">
+{`sizes: 160×230|160×230|200×290|200×290
+variant_colors: אפור|בז'|אפור|בז'
+prices: 1500|1500|2000|2000
+stock_quantities: 10|5|8|3`}
+          </pre>
+          <p className="text-xs text-purple-700 mt-2">
+            זה יצור 4 וריאנטים: 160×230 אפור (10 במלאי), 160×230 בז' (5 במלאי), 200×290 אפור (8 במלאי), 200×290 בז' (3 במלאי)
+          </p>
         </div>
 
         <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
@@ -394,6 +414,12 @@ export default function BulkUploadPage() {
                 <td className="border border-gray-300 px-4 py-2">❌</td>
                 <td className="border border-gray-300 px-4 py-2">כמויות מלאי (ברירת מחדל: 0)</td>
                 <td className="border border-gray-300 px-4 py-2">10|5|3</td>
+              </tr>
+              <tr className="bg-yellow-50">
+                <td className="border border-gray-300 px-4 py-2 font-mono">variant_colors</td>
+                <td className="border border-gray-300 px-4 py-2">❌</td>
+                <td className="border border-gray-300 px-4 py-2">צבע לכל וריאנט (מלאי נפרד לכל שילוב מידה+צבע)</td>
+                <td className="border border-gray-300 px-4 py-2">אפור|בז'|אפור|בז'</td>
               </tr>
             </tbody>
           </table>

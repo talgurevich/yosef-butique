@@ -99,7 +99,14 @@ export default function ProductPage() {
         console.log('Fetching variants for product:', productData.id);
         const { data: variantsData, error: variantsError } = await supabase
           .from('product_variants')
-          .select('*')
+          .select(`
+            *,
+            colors (
+              id,
+              name,
+              slug
+            )
+          `)
           .eq('product_id', productData.id)
           .eq('is_active', true)
           .order('sort_order');
@@ -112,10 +119,7 @@ export default function ProductPage() {
         console.log('Variants data:', variantsData);
         setVariants(variantsData || []);
 
-        // Select first variant by default
-        if (variantsData && variantsData.length > 0) {
-          setSelectedVariant(variantsData[0]);
-        }
+        // Don't auto-select variant - let user choose size and color
       } else {
         console.log('Product does not have variants (has_variants is false)');
       }
@@ -230,8 +234,15 @@ export default function ProductPage() {
       return;
     }
 
-    // For products with colors, require a color selection
-    if (colors.length > 0 && !selectedColor) {
+    // For products with variant colors, require a color selection
+    const variantColors = getVariantColors();
+    if (product.has_variants && variantColors.length > 0 && !selectedColor) {
+      alert('אנא בחר צבע');
+      return;
+    }
+
+    // For products with product-level colors (no variant colors), require a color selection
+    if ((!product.has_variants || variantColors.length === 0) && colors.length > 0 && !selectedColor) {
       alert('אנא בחר צבע');
       return;
     }
@@ -243,6 +254,9 @@ export default function ProductPage() {
       price: product.price,
     };
 
+    // Get color name - prefer variant's color, fall back to selected product color
+    const colorName = (selectedVariant as any)?.colors?.name || selectedColor?.name;
+
     // Get the first product image if available
     const imageUrl = productImages.length > 0 ? productImages[0].image_url : undefined;
 
@@ -252,7 +266,7 @@ export default function ProductPage() {
       variantId: variantToAdd.id,
       productName: product.name,
       variantSize: variantToAdd.size,
-      variantColor: selectedColor?.name,
+      variantColor: colorName,
       price: variantToAdd.price,
       imageUrl,
       slug: product.slug,
@@ -287,6 +301,115 @@ export default function ProductPage() {
 
   const isInStock = () => {
     return getStockQuantity() > 0;
+  };
+
+  // Get unique sizes from variants
+  const getUniqueSizes = () => {
+    const sizes = Array.from(new Set(variants.map(v => v.size)));
+    return sizes;
+  };
+
+  // Get unique colors from variants (variant-level colors)
+  const getVariantColors = () => {
+    const colorMap = new Map();
+    variants.forEach((v: any) => {
+      if (v.color_id && v.colors) {
+        colorMap.set(v.color_id, v.colors);
+      }
+    });
+    return Array.from(colorMap.values());
+  };
+
+  // Check if a specific size+color combination is available
+  const isCombinationAvailable = (size: string, colorId: string | null) => {
+    const variant = variants.find(v =>
+      v.size === size &&
+      (colorId ? v.color_id === colorId : !v.color_id)
+    );
+    return variant && variant.stock_quantity > 0;
+  };
+
+  // Check if a size has any stock (across all colors)
+  const isSizeAvailable = (size: string) => {
+    return variants.some(v => v.size === size && v.stock_quantity > 0);
+  };
+
+  // Check if a color has any stock (across all sizes)
+  const isColorAvailable = (colorId: string) => {
+    return variants.some(v => v.color_id === colorId && v.stock_quantity > 0);
+  };
+
+  // Get stock for specific size+color combination
+  const getCombinationStock = (size: string, colorId: string | null) => {
+    const variant = variants.find(v =>
+      v.size === size &&
+      (colorId ? v.color_id === colorId : !v.color_id)
+    );
+    return variant?.stock_quantity || 0;
+  };
+
+  // Find and select variant based on size and color
+  const findMatchingVariant = (size: string | null, colorId: string | null) => {
+    if (!size) return null;
+    return variants.find(v =>
+      v.size === size &&
+      (colorId ? v.color_id === colorId : !v.color_id)
+    ) || null;
+  };
+
+  // Handle size selection
+  const handleSizeSelect = (size: string) => {
+    const variantColors = getVariantColors();
+    const hasVariantColors = variantColors.length > 0;
+
+    if (hasVariantColors) {
+      // Find matching variant with current color or first available
+      const matchingVariant = findMatchingVariant(size, selectedColor?.id);
+      if (matchingVariant) {
+        setSelectedVariant(matchingVariant);
+      } else {
+        // Try to find any variant with this size
+        const anyVariantWithSize = variants.find(v => v.size === size) as any;
+        if (anyVariantWithSize) {
+          setSelectedVariant(anyVariantWithSize);
+          // Update selected color to match
+          if (anyVariantWithSize.colors) {
+            setSelectedColor(anyVariantWithSize.colors);
+          }
+        }
+      }
+    } else {
+      // No variant colors - just select by size
+      const variant = variants.find(v => v.size === size);
+      if (variant) {
+        setSelectedVariant(variant);
+      }
+    }
+  };
+
+  // Handle color selection for variants
+  const handleVariantColorSelect = (color: any) => {
+    setSelectedColor(color);
+
+    // If we have a selected size, find the matching variant
+    if (selectedVariant?.size) {
+      const matchingVariant = findMatchingVariant(selectedVariant.size, color.id);
+      if (matchingVariant) {
+        setSelectedVariant(matchingVariant);
+      } else {
+        // Color doesn't have this size - find first variant with this color
+        const firstVariantWithColor = variants.find(v => v.color_id === color.id);
+        if (firstVariantWithColor) {
+          setSelectedVariant(firstVariantWithColor);
+        }
+      }
+    } else {
+      // No size selected - select first variant with this color
+      const firstVariantWithColor = variants.find(v => v.color_id === color.id);
+      if (firstVariantWithColor) {
+        setSelectedVariant(firstVariantWithColor);
+      }
+    }
   };
 
   if (loading) {
@@ -505,8 +628,53 @@ export default function ProductPage() {
                 </div>
               </div>
 
-              {/* Color Selection */}
-              {colors.length > 0 && (
+              {/* Variant Color Selection (colors specific to variants) */}
+              {product.has_variants && getVariantColors().length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-bold text-gray-800 mb-3">בחר צבע</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {getVariantColors().map((color: any) => {
+                      const available = isColorAvailable(color.id);
+                      const isSelected = selectedColor?.id === color.id;
+                      const currentSizeStock = selectedVariant?.size
+                        ? getCombinationStock(selectedVariant.size, color.id)
+                        : 0;
+
+                      return (
+                        <button
+                          key={color.id}
+                          onClick={() => handleVariantColorSelect(color)}
+                          disabled={!available}
+                          className={`p-4 border-2 rounded-lg transition-all ${
+                            isSelected
+                              ? 'border-primary-600 bg-primary-50'
+                              : 'border-gray-300 hover:border-primary-400'
+                          } ${
+                            !available
+                              ? 'opacity-50 cursor-not-allowed bg-gray-100'
+                              : ''
+                          }`}
+                        >
+                          <div className="text-center">
+                            <div className="font-bold text-gray-800">{color.name}</div>
+                            {selectedVariant?.size && (
+                              <div className={`text-xs mt-1 ${currentSizeStock > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                {currentSizeStock > 0 ? `${currentSizeStock} במלאי` : 'אזל במידה זו'}
+                              </div>
+                            )}
+                            {!available && (
+                              <div className="text-xs text-red-600 mt-1">אזל מהמלאי</div>
+                            )}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Product-level Color Selection (for products without variant colors) */}
+              {(!product.has_variants || getVariantColors().length === 0) && colors.length > 0 && (
                 <div className="mb-6">
                   <h3 className="text-lg font-bold text-gray-800 mb-3">בחר צבע</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -529,37 +697,71 @@ export default function ProductPage() {
                 </div>
               )}
 
-              {/* Variant Selection */}
+              {/* Variant Selection (Size) */}
               {product.has_variants && variants.length > 0 && (
                 <div className="mb-6">
                   <h3 className="text-lg font-bold text-gray-800 mb-3">בחר מידה</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {variants.map((variant) => (
-                      <button
-                        key={variant.id}
-                        onClick={() => setSelectedVariant(variant)}
-                        disabled={variant.stock_quantity === 0}
-                        className={`p-4 border-2 rounded-lg transition-all ${
-                          selectedVariant?.id === variant.id
-                            ? 'border-primary-600 bg-primary-50'
-                            : 'border-gray-300 hover:border-primary-400'
-                        } ${
-                          variant.stock_quantity === 0
-                            ? 'opacity-50 cursor-not-allowed'
-                            : ''
-                        }`}
-                      >
-                        <div className="text-center">
-                          <div className="font-bold text-gray-800">{variant.size}</div>
-                          <div className="text-sm text-gray-600 mt-1">
-                            ₪{variant.price.toFixed(2)}
+                    {getUniqueSizes().map((size) => {
+                      const variantColors = getVariantColors();
+                      const hasVariantColors = variantColors.length > 0;
+
+                      // Check availability based on whether we have variant colors
+                      let available: boolean;
+                      let stockCount: number;
+
+                      if (hasVariantColors && selectedColor) {
+                        // Check specific size+color combination
+                        available = isCombinationAvailable(size, selectedColor.id);
+                        stockCount = getCombinationStock(size, selectedColor.id);
+                      } else if (hasVariantColors) {
+                        // No color selected - show if any color has stock for this size
+                        available = isSizeAvailable(size);
+                        stockCount = variants
+                          .filter(v => v.size === size)
+                          .reduce((sum, v) => sum + (v.stock_quantity || 0), 0);
+                      } else {
+                        // No variant colors - check by size only
+                        const variant = variants.find(v => v.size === size);
+                        available = (variant?.stock_quantity || 0) > 0;
+                        stockCount = variant?.stock_quantity || 0;
+                      }
+
+                      const isSelected = selectedVariant?.size === size;
+                      const variant = variants.find(v => v.size === size);
+
+                      return (
+                        <button
+                          key={size}
+                          onClick={() => handleSizeSelect(size)}
+                          disabled={!available}
+                          className={`p-4 border-2 rounded-lg transition-all ${
+                            isSelected
+                              ? 'border-primary-600 bg-primary-50'
+                              : 'border-gray-300 hover:border-primary-400'
+                          } ${
+                            !available
+                              ? 'opacity-50 cursor-not-allowed bg-gray-100'
+                              : ''
+                          }`}
+                        >
+                          <div className="text-center">
+                            <div className="font-bold text-gray-800">{size}</div>
+                            <div className="text-sm text-gray-600 mt-1">
+                              ₪{variant?.price?.toFixed(2) || '0.00'}
+                            </div>
+                            {!available && (
+                              <div className="text-xs text-red-600 mt-1">אזל</div>
+                            )}
+                            {available && stockCount <= 3 && stockCount > 0 && (
+                              <div className="text-xs text-orange-600 mt-1">
+                                נותרו {stockCount} בלבד
+                              </div>
+                            )}
                           </div>
-                          {variant.stock_quantity === 0 && (
-                            <div className="text-xs text-red-600 mt-1">אזל</div>
-                          )}
-                        </div>
-                      </button>
-                    ))}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}

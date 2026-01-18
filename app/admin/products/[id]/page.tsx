@@ -710,6 +710,67 @@ export default function EditProductPage() {
     }
   };
 
+  const generateVariants = () => {
+    // Get unique sizes from existing variants
+    const existingSizes = Array.from(new Set(variants.map(v => v.size).filter(Boolean)));
+
+    if (existingSizes.length === 0) {
+      alert('יש להוסיף לפחות וריאנט אחד עם מידה לפני יצירת שילובים');
+      return;
+    }
+
+    if (selectedColors.length === 0) {
+      alert('יש לבחור צבעים למוצר לפני יצירת שילובים');
+      return;
+    }
+
+    // Create a set of existing size+color combinations
+    const existingCombinations = new Set(
+      variants.map(v => `${v.size}|${v.color_id || ''}`)
+    );
+
+    // Find the first variant with price to use as template
+    const templateVariant = variants.find(v => v.price > 0) || variants[0];
+
+    // Generate missing combinations
+    const newVariants: ProductVariant[] = [];
+    existingSizes.forEach(size => {
+      selectedColors.forEach(colorId => {
+        const combinationKey = `${size}|${colorId}`;
+        if (!existingCombinations.has(combinationKey)) {
+          newVariants.push({
+            id: `temp-${Date.now()}-${newVariants.length}`,
+            product_id: productId,
+            size,
+            color_id: colorId,
+            sku: `VAR-${Date.now()}-${newVariants.length}`,
+            price: templateVariant?.price || 0,
+            compare_at_price: templateVariant?.compare_at_price || 0,
+            stock_quantity: 0,
+            is_active: true,
+            sort_order: variants.length + newVariants.length,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          } as ProductVariant);
+        }
+      });
+    });
+
+    if (newVariants.length === 0) {
+      alert('כל השילובים כבר קיימים');
+      return;
+    }
+
+    setVariants([...variants, ...newVariants]);
+    alert(`נוספו ${newVariants.length} וריאנטים חדשים. לחץ "שמור" על כל וריאנט לשמירה.`);
+  };
+
+  const getColorName = (colorId: string | null) => {
+    if (!colorId) return null;
+    const color = colors.find(c => c.id === colorId);
+    return color?.name || null;
+  };
+
   const saveVariant = async (index: number) => {
     const variant = variants[index];
 
@@ -1243,25 +1304,36 @@ export default function EditProductPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-xl font-semibold text-gray-800">
-              מידות וגדלים
+              מידות וצבעים
             </h2>
             <p className="text-gray-600 text-sm mt-1">
-              הוסף מספר מידות למוצר זה (לדוגמה: 160×230, 200×290)
+              הוסף וריאנטים של מידה+צבע למוצר זה (כל שילוב מידה וצבע הוא וריאנט נפרד עם מלאי משלו)
             </p>
           </div>
-          <button
-            onClick={addVariant}
-            className="bg-terracotta text-white px-4 py-2 rounded-lg hover:bg-terracotta-dark transition-colors flex items-center gap-2"
-          >
-            <FaPlus />
-            הוסף מידה
-          </button>
+          <div className="flex gap-2">
+            {selectedColors.length > 0 && (
+              <button
+                onClick={generateVariants}
+                className="bg-sage text-white px-4 py-2 rounded-lg hover:opacity-90 transition-colors flex items-center gap-2"
+              >
+                <FaPlus />
+                צור וריאנטים לכל השילובים
+              </button>
+            )}
+            <button
+              onClick={addVariant}
+              className="bg-terracotta text-white px-4 py-2 rounded-lg hover:bg-terracotta-dark transition-colors flex items-center gap-2"
+            >
+              <FaPlus />
+              הוסף וריאנט
+            </button>
+          </div>
         </div>
 
         {variants.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
-            <p>טרם הוספו מידות למוצר זה</p>
-            <p className="text-sm mt-2">לחץ על "הוסף מידה" כדי להתחיל</p>
+            <p>טרם הוספו וריאנטים למוצר זה</p>
+            <p className="text-sm mt-2">לחץ על "הוסף וריאנט" כדי להתחיל</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -1270,7 +1342,15 @@ export default function EditProductPage() {
                 key={variant.id}
                 className="border border-gray-200 rounded-lg p-4"
               >
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                {/* Color badge */}
+                {variant.color_id && (
+                  <div className="mb-3">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-100 text-primary-800">
+                      {getColorName(variant.color_id)}
+                    </span>
+                  </div>
+                )}
+                <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
                   {/* Size */}
                   <div>
                     <label className="block text-gray-700 text-sm font-medium mb-1">
@@ -1285,6 +1365,27 @@ export default function EditProductPage() {
                       placeholder="160×230"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                     />
+                  </div>
+
+                  {/* Color */}
+                  <div>
+                    <label className="block text-gray-700 text-sm font-medium mb-1">
+                      צבע
+                    </label>
+                    <select
+                      value={variant.color_id || ''}
+                      onChange={(e) =>
+                        updateVariant(index, 'color_id', e.target.value || null)
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    >
+                      <option value="">ללא צבע</option>
+                      {colors.map((color) => (
+                        <option key={color.id} value={color.id}>
+                          {color.name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   {/* Price */}
@@ -1307,7 +1408,7 @@ export default function EditProductPage() {
                   {/* Compare Price */}
                   <div>
                     <label className="block text-gray-700 text-sm font-medium mb-1">
-                      מחיר לפני הנחה (₪)
+                      מחיר השוואה (₪)
                     </label>
                     <input
                       type="number"

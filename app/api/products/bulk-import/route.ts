@@ -13,6 +13,7 @@ type CSVRow = {
   prices: string;
   compare_prices?: string;
   stock_quantities?: string;
+  variant_colors?: string;
   categories?: string;
   colors?: string;
   shapes?: string;
@@ -198,6 +199,9 @@ export async function POST(request: NextRequest) {
         const stockQuantities = row.stock_quantities
           ? row.stock_quantities.split('|').map(s => s.trim()).filter(Boolean)
           : [];
+        const variantColors = row.variant_colors
+          ? row.variant_colors.split('|').map(c => c.trim().toLowerCase()).filter(Boolean)
+          : [];
 
         // Validate variants match
         if (sizes.length !== prices.length) {
@@ -215,6 +219,16 @@ export async function POST(request: NextRequest) {
             row: rowNumber,
             field: 'stock_quantities',
             message: `מספר כמויות המלאי (${stockQuantities.length}) חייב להתאים למספר המידות (${sizes.length})`
+          });
+          errorCount++;
+          continue;
+        }
+
+        if (variantColors.length > 0 && variantColors.length !== sizes.length) {
+          errors.push({
+            row: rowNumber,
+            field: 'variant_colors',
+            message: `מספר צבעי הוריאנטים (${variantColors.length}) חייב להתאים למספר המידות (${sizes.length})`
           });
           errorCount++;
           continue;
@@ -281,16 +295,25 @@ export async function POST(request: NextRequest) {
         }
 
         // Create variants
-        const variantsToInsert = sizes.map((size, idx) => ({
-          product_id: productData.id,
-          size,
-          sku: `${baseSku}-${idx + 1}`,
-          price: parseFloat(prices[idx]),
-          compare_at_price: comparePrices[idx] ? parseFloat(comparePrices[idx]) : null,
-          stock_quantity: stockQuantities[idx] ? parseInt(stockQuantities[idx]) : 0,
-          is_active: true,
-          sort_order: idx,
-        }));
+        const variantsToInsert = sizes.map((size, idx) => {
+          // Look up color_id from variant_colors if provided
+          let colorId = null;
+          if (variantColors[idx]) {
+            colorId = slugMaps.colors.get(variantColors[idx]) || null;
+          }
+
+          return {
+            product_id: productData.id,
+            size,
+            color_id: colorId,
+            sku: `${baseSku}-${idx + 1}`,
+            price: parseFloat(prices[idx]),
+            compare_at_price: comparePrices[idx] ? parseFloat(comparePrices[idx]) : null,
+            stock_quantity: stockQuantities[idx] ? parseInt(stockQuantities[idx]) : 0,
+            is_active: true,
+            sort_order: idx,
+          };
+        });
 
         const { error: variantsError } = await supabaseAdmin
           .from('product_variants')
@@ -331,9 +354,17 @@ export async function POST(request: NextRequest) {
 
         // Associate all attributes based on product type
         if (productType === 'carpet') {
+          // If colors field is empty but variant_colors has values, auto-extract unique colors
+          let colorsToAssociate = row.colors;
+          if ((!colorsToAssociate || !colorsToAssociate.trim()) && variantColors.length > 0) {
+            // Extract unique colors from variant_colors
+            const uniqueColors = Array.from(new Set(variantColors));
+            colorsToAssociate = uniqueColors.join(',');
+          }
+
           await Promise.all([
             associateAttributes(row.categories, slugMaps.categories, 'product_categories', 'category_id'),
-            associateAttributes(row.colors, slugMaps.colors, 'product_colors', 'color_id'),
+            associateAttributes(colorsToAssociate, slugMaps.colors, 'product_colors', 'color_id'),
             associateAttributes(row.shapes, slugMaps.shapes, 'product_shapes', 'shape_id'),
             associateAttributes(row.spaces, slugMaps.spaces, 'product_spaces', 'space_id'),
           ]);

@@ -9,6 +9,7 @@ import { supabase, ProductVariant, Category, Color, Shape, Space, ProductType, P
 type TempVariant = {
   id: string;
   size: string;
+  color_id: string | null;
   price: number | string;
   compare_at_price: number | string;
   stock_quantity: number | string;
@@ -58,6 +59,7 @@ export default function NewProductPage() {
     {
       id: 'temp-1',
       size: '',
+      color_id: null,
       price: '',
       compare_at_price: '',
       stock_quantity: '',
@@ -307,6 +309,7 @@ export default function NewProductPage() {
       {
         id: `temp-${Date.now()}`,
         size: '',
+        color_id: null,
         price: '',
         compare_at_price: '',
         stock_quantity: '',
@@ -323,10 +326,60 @@ export default function NewProductPage() {
 
   const removeVariant = (index: number) => {
     if (variants.length === 1) {
-      alert('חייב להיות לפחות מידה אחת');
+      alert('חייב להיות לפחות וריאנט אחד');
       return;
     }
     setVariants(variants.filter((_, i) => i !== index));
+  };
+
+  const generateVariants = () => {
+    // Get unique sizes from existing variants
+    const existingSizes = Array.from(new Set(variants.map(v => v.size).filter(Boolean)));
+
+    if (existingSizes.length === 0) {
+      alert('יש להוסיף לפחות וריאנט אחד עם מידה לפני יצירת שילובים');
+      return;
+    }
+
+    if (selectedColors.length === 0) {
+      alert('יש לבחור צבעים למוצר לפני יצירת שילובים');
+      return;
+    }
+
+    // Create a set of existing size+color combinations
+    const existingCombinations = new Set(
+      variants.map(v => `${v.size}|${v.color_id || ''}`)
+    );
+
+    // Find the first variant with price to use as template
+    const templateVariant = variants.find(v => v.price) || variants[0];
+
+    // Generate missing combinations
+    const newVariants: any[] = [];
+    existingSizes.forEach(size => {
+      selectedColors.forEach(colorId => {
+        const combinationKey = `${size}|${colorId}`;
+        if (!existingCombinations.has(combinationKey)) {
+          newVariants.push({
+            id: `temp-${Date.now()}-${newVariants.length}`,
+            size,
+            color_id: colorId,
+            price: templateVariant?.price || '',
+            compare_at_price: templateVariant?.compare_at_price || '',
+            stock_quantity: '0',
+            sort_order: variants.length + newVariants.length,
+          });
+        }
+      });
+    });
+
+    if (newVariants.length === 0) {
+      alert('כל השילובים כבר קיימים');
+      return;
+    }
+
+    setVariants([...variants, ...newVariants]);
+    alert(`נוספו ${newVariants.length} וריאנטים חדשים`);
   };
 
   const generateSlug = (name: string) => {
@@ -409,6 +462,7 @@ export default function NewProductPage() {
         const variantsToInsert = variants.map((variant, index) => ({
           product_id: productData.id,
           size: variant.size,
+          color_id: variant.color_id || null,
           sku: `${baseSku}-${index + 1}`,
           price: parseFloat(variant.price.toString()),
           compare_at_price: variant.compare_at_price
@@ -965,20 +1019,32 @@ export default function NewProductPage() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-xl font-semibold text-gray-800">
-                מידות וגדלים <span className="text-red-500">*</span>
+                מידות וצבעים <span className="text-red-500">*</span>
               </h2>
               <p className="text-gray-600 text-sm mt-1">
-                הוסף את כל המידות הזמינות למוצר זה
+                הוסף וריאנטים של מידה+צבע למוצר זה (כל שילוב מידה וצבע הוא וריאנט נפרד עם מלאי משלו)
               </p>
             </div>
-            <button
-              type="button"
-              onClick={addVariant}
-              className="bg-terracotta text-white px-4 py-2 rounded-lg hover:bg-terracotta-dark transition-colors flex items-center gap-2"
-            >
-              <FaPlus />
-              הוסף מידה
-            </button>
+            <div className="flex gap-2">
+              {selectedColors.length > 0 && variants.length > 0 && (
+                <button
+                  type="button"
+                  onClick={generateVariants}
+                  className="bg-sage text-white px-4 py-2 rounded-lg hover:opacity-90 transition-colors flex items-center gap-2"
+                >
+                  <FaPlus />
+                  צור וריאנטים לכל השילובים
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={addVariant}
+                className="bg-terracotta text-white px-4 py-2 rounded-lg hover:bg-terracotta-dark transition-colors flex items-center gap-2"
+              >
+                <FaPlus />
+                הוסף וריאנט
+              </button>
+            </div>
           </div>
 
           <div className="space-y-4">
@@ -988,22 +1054,29 @@ export default function NewProductPage() {
                 className="border border-gray-200 rounded-lg p-4 bg-gray-50"
               >
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-gray-700">
-                    מידה #{index + 1}
-                  </h3>
+                  <div className="flex items-center gap-3">
+                    <h3 className="font-semibold text-gray-700">
+                      וריאנט #{index + 1}
+                    </h3>
+                    {variant.color_id && (
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
+                        {colors.find(c => c.id === variant.color_id)?.name}
+                      </span>
+                    )}
+                  </div>
                   {variants.length > 1 && (
                     <button
                       type="button"
                       onClick={() => removeVariant(index)}
                       className="text-red-600 hover:text-red-800 p-1"
-                      title="מחק מידה"
+                      title="מחק וריאנט"
                     >
                       <FaTrash />
                     </button>
                   )}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                   {/* Size */}
                   <div>
                     <label className="block text-gray-700 text-sm font-medium mb-1">
@@ -1019,6 +1092,27 @@ export default function NewProductPage() {
                       required
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                     />
+                  </div>
+
+                  {/* Color */}
+                  <div>
+                    <label className="block text-gray-700 text-sm font-medium mb-1">
+                      צבע
+                    </label>
+                    <select
+                      value={variant.color_id || ''}
+                      onChange={(e) =>
+                        updateVariant(index, 'color_id', e.target.value || null)
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    >
+                      <option value="">ללא צבע</option>
+                      {colors.map((color) => (
+                        <option key={color.id} value={color.id}>
+                          {color.name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   {/* Price */}
@@ -1043,7 +1137,7 @@ export default function NewProductPage() {
                   {/* Compare Price */}
                   <div>
                     <label className="block text-gray-700 text-sm font-medium mb-1">
-                      מחיר לפני הנחה (₪)
+                      מחיר השוואה (₪)
                     </label>
                     <input
                       type="number"
