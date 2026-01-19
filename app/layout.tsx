@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import AuthSessionProvider from "@/components/SessionProvider";
 import { CartProvider } from "@/contexts/CartContext";
@@ -6,6 +7,8 @@ import StructuredData from "@/components/StructuredData";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import UnderConstructionPopup from "@/components/UnderConstructionPopup";
 import { Alef, Rubik, Montserrat, Playfair_Display } from 'next/font/google';
+
+const GA_MEASUREMENT_ID = 'G-9Z69J4TVPT';
 
 const alef = Alef({
   subsets: ['hebrew'],
@@ -91,6 +94,19 @@ export default function RootLayout({
     <html lang="he" dir="rtl" className={`${alef.variable} ${rubik.variable} ${montserrat.variable} ${playfair.variable}`}>
       <head>
         <StructuredData />
+        {/* Google Analytics */}
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_MEASUREMENT_ID}');
+          `}
+        </Script>
       </head>
       <body className="antialiased font-body">
         <AuthSessionProvider>
