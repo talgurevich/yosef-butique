@@ -251,9 +251,6 @@ export default function ProductsPage() {
                     חלל
                   </th>
                   <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">
-                    מחיר
-                  </th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">
                     מלאי
                   </th>
                   <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">
@@ -320,9 +317,6 @@ export default function ProductsPage() {
                       <div className="text-sm text-gray-700">
                         {spaces.length > 0 ? spaces.join(', ') : '-'}
                       </div>
-                    </td>
-                    <td className="px-6 py-4 text-gray-700 font-semibold">
-                      ₪{product.price.toLocaleString()}
                     </td>
                     <td className="px-6 py-4">
                       <span
