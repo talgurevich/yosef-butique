@@ -649,6 +649,69 @@ export default function EditProductPage() {
         }
       }
 
+      // 7. Save all variants (for carpets)
+      const isCarpetProduct = productTypes.find(pt => pt.id === selectedProductType)?.slug === 'carpets';
+      if (isCarpetProduct && variants.length > 0) {
+        for (let i = 0; i < variants.length; i++) {
+          const variant = variants[i];
+
+          // Skip variants without required fields
+          if (!variant.size || variant.price <= 0) {
+            continue;
+          }
+
+          // Auto-generate SKU if not present
+          const sku = (!variant.sku || variant.sku.startsWith('VAR-'))
+            ? `VAR-${Date.now()}-${i}`
+            : variant.sku;
+
+          if (variant.id.startsWith('temp-')) {
+            // Create new variant
+            const { error: variantError } = await supabase
+              .from('product_variants')
+              .insert([{
+                product_id: productId,
+                size: variant.size,
+                color_id: variant.color_id || null,
+                sku,
+                price: variant.price,
+                compare_at_price: variant.compare_at_price || null,
+                stock_quantity: variant.stock_quantity,
+                is_active: variant.is_active,
+                sort_order: i,
+              }]);
+
+            if (variantError) {
+              console.error('Error creating variant:', variantError);
+            }
+          } else {
+            // Update existing variant
+            const { error: variantError } = await supabase
+              .from('product_variants')
+              .update({
+                size: variant.size,
+                color_id: variant.color_id || null,
+                sku,
+                price: variant.price,
+                compare_at_price: variant.compare_at_price || null,
+                stock_quantity: variant.stock_quantity,
+                is_active: variant.is_active,
+              })
+              .eq('id', variant.id);
+
+            if (variantError) {
+              console.error('Error updating variant:', variantError);
+            }
+          }
+        }
+
+        // Update has_variants flag
+        await supabase
+          .from('products')
+          .update({ has_variants: true })
+          .eq('id', productId);
+      }
+
       alert('המוצר עודכן בהצלחה!');
       router.push('/admin/products');
     } catch (error: any) {
@@ -1307,7 +1370,7 @@ export default function EditProductPage() {
               מידות וצבעים
             </h2>
             <p className="text-gray-600 text-sm mt-1">
-              הוסף וריאנטים של מידה+צבע למוצר זה (כל שילוב מידה וצבע הוא וריאנט נפרד עם מלאי משלו)
+              הוסף וריאנטים של מידה+צבע למוצר זה. לחץ על <strong>"שמור שינויים"</strong> בתחתית העמוד לשמירת כל השינויים.
             </p>
           </div>
           <div className="flex gap-2">
@@ -1447,18 +1510,12 @@ export default function EditProductPage() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-end gap-2">
-                    <button
-                      onClick={() => saveVariant(index)}
-                      type="button"
-                      className="flex-1 bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm"
-                    >
-                      שמור
-                    </button>
+                  <div className="flex items-end">
                     <button
                       onClick={() => removeVariant(index)}
                       type="button"
                       className="bg-red-600 text-white p-2 rounded-lg hover:bg-red-700 transition-colors"
+                      title="מחק וריאנט"
                     >
                       <FaTrash />
                     </button>
