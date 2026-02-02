@@ -60,13 +60,13 @@ export default function ShippingPage() {
                       <li className="flex items-start gap-3">
                         <span className="text-green-600 font-bold text-xl">✓</span>
                         <div>
-                          <strong>משלוח חינם</strong> - להזמנות מעל ₪299 לכל רחבי הארץ
+                          <strong>משלוח חינם</strong> - להזמנות מעל ₪500 לכל רחבי הארץ
                         </div>
                       </li>
                       <li className="flex items-start gap-3">
                         <span className="text-blue-600 font-bold text-xl">•</span>
                         <div>
-                          <strong>משלוח סטנדרטי</strong> - ₪49 להזמנות מתחת ל-₪299
+                          <strong>משלוח סטנדרטי</strong> - ₪49 להזמנות מתחת ל-₪500
                         </div>
                       </li>
                       <li className="flex items-start gap-3">
