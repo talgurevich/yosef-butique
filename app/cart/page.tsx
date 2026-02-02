@@ -246,7 +246,7 @@ export default function CartPage() {
                       </svg>
                     </div>
                     <h3 className="font-bold text-gray-800 mb-1">משלוח מהיר</h3>
-                    <p className="text-sm text-gray-600">עד 10 ימי עסקים</p>
+                    <p className="text-sm text-gray-600">עד 5 ימי עסקים</p>
                   </div>
 
                   {/* Free Returns */}
