@@ -555,7 +555,7 @@ export default function ProductPage() {
                 {isInStock() ? (
                   <span className="inline-flex items-center gap-2 text-green-600 font-semibold">
                     <FaCheck />
-                    במלאי ({getStockQuantity()} יחידות)
+                    במלאי
                   </span>
                 ) : (
                   <span className="text-red-600 font-semibold">
@@ -682,7 +682,7 @@ export default function ProductPage() {
                             <div className="font-bold text-gray-800">{color.name}</div>
                             {selectedVariant?.size && (
                               <div className={`text-xs mt-1 ${currentSizeStock > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                {currentSizeStock > 0 ? `${currentSizeStock} במלאי` : 'אזל במידה זו'}
+                                {currentSizeStock > 0 ? 'במלאי' : 'אזל במידה זו'}
                               </div>
                             )}
                             {!available && (
@@ -775,11 +775,6 @@ export default function ProductPage() {
                             </div>
                             {!available && (
                               <div className="text-xs text-red-600 mt-1">אזל</div>
-                            )}
-                            {available && stockCount <= 3 && stockCount > 0 && (
-                              <div className="text-xs text-orange-600 mt-1">
-                                נותרו {stockCount} בלבד
-                              </div>
                             )}
                           </div>
                         </button>
