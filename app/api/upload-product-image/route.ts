@@ -37,8 +37,8 @@ async function addWatermark(imageBuffer: Buffer): Promise<Buffer> {
     const imageWidth = metadata.width || 800;
     const imageHeight = metadata.height || 600;
 
-    // Calculate logo size (20% of image width)
-    const logoWidth = Math.round(imageWidth * 0.2);
+    // Calculate logo size (60% of image width)
+    const logoWidth = Math.round(imageWidth * 0.6);
 
     // Load and resize the logo
     const logoBuffer = await getLogoBuffer();
