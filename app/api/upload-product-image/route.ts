@@ -1,5 +1,55 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import sharp from 'sharp';
+import path from 'path';
+import fs from 'fs';
+
+// Load logo once at startup
+const logoPath = path.join(process.cwd(), 'public', 'logo-new.png');
+
+async function addWatermark(imageBuffer: Buffer): Promise<Buffer> {
+  try {
+    // Get the original image metadata
+    const image = sharp(imageBuffer);
+    const metadata = await image.metadata();
+    const imageWidth = metadata.width || 800;
+    const imageHeight = metadata.height || 600;
+
+    // Calculate logo size (20% of image width)
+    const logoWidth = Math.round(imageWidth * 0.2);
+
+    // Load and resize the logo
+    const logoBuffer = fs.readFileSync(logoPath);
+    const resizedLogo = await sharp(logoBuffer)
+      .resize(logoWidth)
+      .toBuffer();
+
+    // Get resized logo dimensions
+    const logoMetadata = await sharp(resizedLogo).metadata();
+    const logoHeight = logoMetadata.height || 50;
+
+    // Calculate position: centered horizontally, 50px from bottom
+    const left = Math.round((imageWidth - logoWidth) / 2);
+    const top = imageHeight - logoHeight - 50;
+
+    // Composite the logo onto the image
+    const watermarkedImage = await sharp(imageBuffer)
+      .composite([
+        {
+          input: resizedLogo,
+          top: Math.max(0, top),
+          left: Math.max(0, left),
+        },
+      ])
+      .toBuffer();
+
+    return watermarkedImage;
+  } catch (error) {
+    console.error('Error adding watermark:', error);
+    // Return original if watermarking fails
+    return imageBuffer;
+  }
+}
 
 export async function POST(request: NextRequest) {
   // Server-side admin client with service role key
@@ -26,12 +76,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Create unique filename
-    const fileExt = file.name.split('.').pop();
+    const fileExt = file.name.split('.').pop()?.toLowerCase();
     const fileName = `${productId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
     // Convert file to ArrayBuffer
     const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    let buffer = Buffer.from(arrayBuffer);
+
+    // Add watermark to the image (only for supported formats)
+    if (['jpg', 'jpeg', 'png', 'webp'].includes(fileExt || '')) {
+      buffer = await addWatermark(buffer);
+    }
 
     // Upload to Supabase Storage
     const { error: uploadError } = await supabaseAdmin.storage
