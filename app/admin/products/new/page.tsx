@@ -725,7 +725,7 @@ export default function NewProductPage() {
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-              {categories.filter(cat => cat.parent_id !== null).map((category) => (
+              {categories.map((category) => (
                 <label
                   key={category.id}
                   className={`flex items-center p-3 border-2 rounded-lg cursor-pointer transition-colors ${
