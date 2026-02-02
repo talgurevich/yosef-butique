@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { FaUpload, FaTrash, FaImage, FaStar } from 'react-icons/fa';
 import { supabase, ProductImage } from '@/lib/supabase';
 
@@ -18,18 +18,12 @@ export default function ProductImageUpload({
   const [images, setImages] = useState<ProductImage[]>(existingImages);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
 
   // Sync images when existingImages prop changes (fixes loading issue)
   useEffect(() => {
     setImages(existingImages);
   }, [existingImages]);
-
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    await uploadFiles(Array.from(files));
-  };
 
   const uploadFiles = async (files: File[]) => {
     if (!productId) {
@@ -83,6 +77,53 @@ export default function ProductImageUpload({
       setUploading(false);
       setUploadProgress(0);
     }
+  };
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    await uploadFiles(Array.from(files));
+  };
+
+  // Drag and drop handlers
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!productId || uploading) return;
+    setIsDragging(true);
+  }, [productId, uploading]);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    if (!productId || uploading) return;
+
+    const files = e.dataTransfer.files;
+    if (!files || files.length === 0) return;
+
+    // Filter for image files only
+    const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
+
+    if (imageFiles.length === 0) {
+      alert('נא לגרור קבצי תמונה בלבד');
+      return;
+    }
+
+    await uploadFiles(imageFiles);
   };
 
   const deleteImage = async (image: ProductImage) => {
@@ -165,7 +206,17 @@ export default function ProductImageUpload({
   return (
     <div className="space-y-4">
       {/* Upload Area */}
-      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary-600 transition-colors">
+      <div
+        className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+          isDragging
+            ? 'border-primary-600 bg-primary-50'
+            : 'border-gray-300 hover:border-primary-600'
+        } ${!productId || uploading ? 'opacity-50' : ''}`}
+        onDragEnter={handleDragEnter}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
         <input
           type="file"
           id="image-upload"
@@ -177,11 +228,11 @@ export default function ProductImageUpload({
         />
         <label
           htmlFor="image-upload"
-          className={`cursor-pointer ${!productId || uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`cursor-pointer block ${!productId || uploading ? 'cursor-not-allowed' : ''}`}
         >
-          <FaUpload className="mx-auto text-4xl text-gray-400 mb-4" />
+          <FaUpload className={`mx-auto text-4xl mb-4 ${isDragging ? 'text-primary-600' : 'text-gray-400'}`} />
           <p className="text-gray-700 font-semibold mb-2">
-            לחץ להעלאת תמונות או גרור לכאן
+            {isDragging ? 'שחרר כדי להעלות' : 'לחץ להעלאת תמונות או גרור לכאן'}
           </p>
           <p className="text-gray-500 text-sm">
             {productId
