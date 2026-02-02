@@ -103,11 +103,11 @@ export async function POST(request: NextRequest) {
 
     // Convert file to ArrayBuffer
     const arrayBuffer = await file.arrayBuffer();
-    let buffer = Buffer.from(arrayBuffer);
+    let buffer: Buffer = Buffer.from(arrayBuffer);
 
     // Add watermark to the image (only for supported formats)
     if (['jpg', 'jpeg', 'png', 'webp'].includes(fileExt || '')) {
-      buffer = await addWatermark(buffer);
+      buffer = await addWatermark(buffer) as Buffer;
     }
 
     // Upload to Supabase Storage
