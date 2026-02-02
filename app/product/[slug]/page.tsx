@@ -846,7 +846,7 @@ export default function ProductPage() {
                 <div className="flex items-center gap-3">
                   <FaShieldAlt className="text-2xl text-primary-600" />
                   <div>
-                    <div className="font-semibold text-gray-800">החזרה עד 30 יום</div>
+                    <div className="font-semibold text-gray-800">החזרה עד 14 יום</div>
                     <div className="text-sm text-gray-600">החזר כספי מלא</div>
                   </div>
                 </div>
