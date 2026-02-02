@@ -75,7 +75,7 @@ export default function TermsPage() {
 
               <h3 className="text-xl font-semibold text-gray-800 mb-3">3.2 החזרת מוצרים</h3>
               <ul className="list-disc list-inside text-gray-600 mb-4 space-y-2">
-                <li>החזרה חינם תוך 14 יום מקבלת המוצר</li>
+                <li>החזרה תוך 14 יום מקבלת המוצר</li>
                 <li>יש לתאם איסוף מראש עם שירות הלקוחות</li>
                 <li>החזר כספי יבוצע תוך 14 ימים מקבלת המוצר בחזרה</li>
                 <li>ההחזר יבוצע לאותו אמצעי תשלום בו בוצעה הרכישה</li>

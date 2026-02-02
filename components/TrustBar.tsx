@@ -18,19 +18,6 @@ export default function TrustBar() {
             </div>
           </div>
 
-          {/* Free Returns */}
-          <div className="flex items-center gap-4 justify-center md:justify-start group">
-            <div className="flex-shrink-0">
-              <div className="icon-geometric group-hover:scale-110 transition-transform duration-300">
-                <FaUndo className="text-xl text-green-600" />
-              </div>
-            </div>
-            <div>
-              <h3 className="font-bold text-gray-900 text-sm mb-1">החזרות בחינם</h3>
-              <p className="text-gray-600 text-xs font-light">החזרה חינם תוך 14 יום</p>
-            </div>
-          </div>
-
           {/* Full Warranty */}
           <div className="flex items-center gap-4 justify-center md:justify-start group">
             <div className="flex-shrink-0">

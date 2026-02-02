@@ -35,7 +35,7 @@ export default function ShippingPage() {
               </div>
               <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
                 <FaUndo className="text-4xl text-green-600 mx-auto mb-3" />
-                <h3 className="font-bold text-gray-800 mb-2">החזרות בחינם</h3>
+                <h3 className="font-bold text-gray-800 mb-2">מדיניות החזרה</h3>
                 <p className="text-gray-600 text-sm">תוך 14 יום</p>
               </div>
               <div className="bg-purple-50 border border-purple-200 rounded-lg p-6 text-center">
@@ -181,7 +181,7 @@ export default function ShippingPage() {
                     בהתאם לחוק הגנת הצרכן, יש לך זכות לבטל עסקה תוך <strong>14 יום</strong> ממועד קבלת המוצר, ללא צורך בנימוק.
                   </p>
                   <p className="text-gray-700">
-                    ההחזרה והאיסוף מהבית - <strong className="text-green-700">בחינם!</strong>
+                    ניתן לתאם איסוף מהבית
                   </p>
                 </div>
 

@@ -249,18 +249,6 @@ export default function CartPage() {
                     <p className="text-sm text-gray-600">עד 5 ימי עסקים</p>
                   </div>
 
-                  {/* Free Returns */}
-                  <div className="flex flex-col items-center text-center">
-                    <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mb-3">
-                      <svg className="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-                      </svg>
-                    </div>
-                    <h3 className="font-bold text-gray-800 mb-1">החזרות בחינם</h3>
-                    <Link href="/terms#returns" className="text-sm text-primary-600 hover:text-primary-700 underline">
-                      קרא את מדיניות ההחזרות
-                    </Link>
-                  </div>
                 </div>
               </div>
             </div>

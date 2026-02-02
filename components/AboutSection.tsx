@@ -60,8 +60,8 @@ export default function AboutSection() {
     },
     {
       icon: <ReturnIcon />,
-      title: 'החזרות בחינם',
-      description: 'החזרה חינם תוך 14 יום',
+      title: 'מדיניות החזרה',
+      description: 'החזרה תוך 14 יום',
       gradient: 'from-green-500 to-emerald-500',
       color: 'text-green-500',
     },
