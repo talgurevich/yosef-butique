@@ -94,9 +94,9 @@ export default function Header() {
   return (
     <header className="bg-white shadow-md sticky top-0 z-50 relative">
       <div className="container mx-auto px-4 py-2">
-        <div className="flex items-center justify-between">
-          {/* Logo */}
-          <Link href="/" className="flex items-center">
+        <div className="flex items-center justify-between relative">
+          {/* Logo - centered on mobile */}
+          <Link href="/" className="flex items-center md:static absolute left-1/2 -translate-x-1/2 md:translate-x-0 md:relative md:left-auto">
             <Image
               src="/logo-cropped.png"
               alt="Yossef Boutique"
