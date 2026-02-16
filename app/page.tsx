@@ -54,6 +54,13 @@ async function getFeaturedProducts(): Promise<any[]> {
             id,
             name
           )
+        ),
+        product_variants (
+          id,
+          price,
+          compare_at_price,
+          stock_quantity,
+          is_active
         )
       `)
       .eq('is_featured', true)

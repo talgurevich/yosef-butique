@@ -144,6 +144,15 @@ export default function ProductsPageClient({
                 })));
               }
 
+              // Calculate display price - use lowest variant price if available
+              const activeVariants = (product.product_variants || []).filter((v: any) => v.is_active && v.price > 0);
+              const lowestVariantPrice = activeVariants.length > 0
+                ? Math.min(...activeVariants.map((v: any) => v.price))
+                : null;
+              const displayPrice = lowestVariantPrice || product.price;
+              const hasMultiplePrices = activeVariants.length > 1 &&
+                new Set(activeVariants.map((v: any) => v.price)).size > 1;
+
               return (
                 <Link
                   key={product.id}
@@ -173,7 +182,7 @@ export default function ProductsPageClient({
                       מומלץ
                     </div>
                   )}
-                  {product.compare_at_price && product.compare_at_price > product.price && (
+                  {product.compare_at_price && product.compare_at_price > displayPrice && (
                     <div className="absolute top-4 left-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg backdrop-blur-sm">
                       מבצע!
                     </div>
@@ -209,10 +218,10 @@ export default function ProductsPageClient({
                     {/* Price and Stock */}
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
-                        {product.compare_at_price && product.compare_at_price > product.price ? (
+                        {product.compare_at_price && product.compare_at_price > displayPrice ? (
                           <>
                             <span className="text-2xl font-bold text-white drop-shadow-lg">
-                              ₪{product.price.toLocaleString()}
+                              {hasMultiplePrices ? 'החל מ-' : ''}₪{displayPrice.toLocaleString()}
                             </span>
                             <span className="text-sm text-white/70 line-through">
                               ₪{product.compare_at_price.toLocaleString()}
@@ -220,7 +229,7 @@ export default function ProductsPageClient({
                           </>
                         ) : (
                           <span className="text-2xl font-bold text-white drop-shadow-lg">
-                            ₪{product.price.toLocaleString()}
+                            {hasMultiplePrices ? 'החל מ-' : ''}₪{displayPrice.toLocaleString()}
                           </span>
                         )}
                       </div>
