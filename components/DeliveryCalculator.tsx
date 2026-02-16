@@ -18,7 +18,7 @@ const DELIVERY_TIERS: DeliveryTier[] = [
 ];
 
 const BUSINESS_ADDRESS = 'השקד משק 47, מושב בית עזרא, ישראל';
-const FREE_DELIVERY_THRESHOLD = 500;
+const FREE_DELIVERY_THRESHOLD = 990;
 
 type DeliveryCalculatorProps = {
   cartTotal: number;
