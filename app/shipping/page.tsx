@@ -60,13 +60,13 @@ export default function ShippingPage() {
                       <li className="flex items-start gap-3">
                         <span className="text-green-600 font-bold text-xl">✓</span>
                         <div>
-                          <strong>משלוח חינם</strong> - להזמנות מעל ₪500 לכל רחבי הארץ
+                          <strong>משלוח חינם</strong> - להזמנות מעל ₪990 לכל רחבי הארץ
                         </div>
                       </li>
                       <li className="flex items-start gap-3">
                         <span className="text-blue-600 font-bold text-xl">•</span>
                         <div>
-                          <strong>משלוח סטנדרטי</strong> - ₪49 להזמנות מתחת ל-₪500
+                          <strong>משלוח סטנדרטי</strong> - ₪49 להזמנות מתחת ל-₪990
                         </div>
                       </li>
                       <li className="flex items-start gap-3">
@@ -82,7 +82,7 @@ export default function ShippingPage() {
                 <div>
                   <h3 className="text-xl font-semibold text-gray-800 mb-3">זמני אספקה</h3>
                   <ul className="list-disc list-inside text-gray-600 space-y-2">
-                    <li><strong>משלוח סטנדרטי:</strong> 5-14 ימי עסקים</li>
+                    <li><strong>משלוח סטנדרטי:</strong> 3-5 ימי עסקים</li>
                     <li><strong>משלוח מהיר:</strong> 2-3 ימי עסקים</li>
                     <li><strong>אזורי פריפריה:</strong> עד 21 ימי עסקים</li>
                     <li><strong>מוצרים מיוחדים:</strong> זמן האספקה יצוין בעמוד המוצר</li>

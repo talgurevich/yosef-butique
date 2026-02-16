@@ -188,7 +188,7 @@ export default function AboutPage() {
                 <div>
                   <h3 className="text-xl font-bold text-gray-800 mb-2">משלוח חינם ומהיר</h3>
                   <p className="text-gray-600 leading-relaxed">
-                    משלוח חינם לכל הארץ על הזמנות מעל ₪500. נגיע אליכם תוך 5-14 ימי עסקים, ארוזים ומוגנים בקפידה.
+                    משלוח חינם לכל הארץ על הזמנות מעל ₪990. נגיע אליכם תוך 3-5 ימי עסקים, ארוזים ומוגנים בקפידה.
                   </p>
                 </div>
               </div>

@@ -54,8 +54,8 @@ export default function TermsPage() {
 
               <h3 className="text-xl font-semibold text-gray-800 mb-3">2.3 משלוח</h3>
               <ul className="list-disc list-inside text-gray-600 mb-4 space-y-2">
-                <li>משלוח חינם להזמנות מעל ₪500</li>
-                <li>זמן אספקה משוער: 5-14 ימי עסקים</li>
+                <li>משלוח חינם להזמנות מעל ₪990</li>
+                <li>זמן אספקה משוער: 3-5 ימי עסקים</li>
                 <li>המשלוח יתבצע לכתובת שצוינה בהזמנה בלבד</li>
                 <li>החברה לא תישא באחריות לעיכובים הנובעים מכוח עליון</li>
               </ul>

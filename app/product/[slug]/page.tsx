@@ -840,7 +840,7 @@ export default function ProductPage() {
                   <FaTruck className="text-2xl text-primary-600" />
                   <div>
                     <div className="font-semibold text-gray-800">משלוח חינם</div>
-                    <div className="text-sm text-gray-600">על הזמנות מעל ₪500</div>
+                    <div className="text-sm text-gray-600">על הזמנות מעל ₪990</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
