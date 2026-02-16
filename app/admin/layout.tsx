@@ -18,6 +18,12 @@ export default function AdminLayout({
   };
 
   const isInventoryRoute = pathname?.startsWith('/admin/inventory');
+  const isLoginRoute = pathname === '/admin/login';
+
+  // Login page: render without any layout wrapping
+  if (isLoginRoute) {
+    return <>{children}</>;
+  }
 
   if (isInventoryRoute) {
     return (

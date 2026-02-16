@@ -11,12 +11,12 @@ export default function AdminLoginPage() {
 
   useEffect(() => {
     if (status === 'authenticated') {
-      router.push('/admin');
+      router.push('/admin/inventory');
     }
   }, [status, router]);
 
   const handleGoogleSignIn = async () => {
-    await signIn('google', { callbackUrl: '/admin' });
+    await signIn('google', { callbackUrl: '/admin/inventory' });
   };
 
   if (status === 'loading') {

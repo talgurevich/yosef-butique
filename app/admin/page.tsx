@@ -1,7 +1,27 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FaBox, FaShoppingCart, FaUsers, FaDollarSign } from 'react-icons/fa';
 
 export default function AdminDashboard() {
+  const router = useRouter();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if (window.innerWidth < 768) {
+      router.replace('/admin/inventory');
+    } else {
+      setIsMobile(false);
+    }
+  }, [router]);
+
+  // Show nothing while redirecting on mobile
+  if (typeof window !== 'undefined' && window.innerWidth < 768) {
+    return null;
+  }
+
   // TODO: Fetch real stats from Supabase
   const stats = [
     {
