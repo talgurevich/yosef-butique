@@ -62,21 +62,20 @@ export default function TermsPage() {
             </section>
 
             <section className="mb-8" id="returns">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">3. ביטול עסקה והחזרות</h2>
-              <h3 className="text-xl font-semibold text-gray-800 mb-3">3.1 ביטול עסקה</h3>
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">3. החלפה, החזרה וביטול עסקה</h2>
+              <h3 className="text-xl font-semibold text-gray-800 mb-3">3.1 תנאי החלפה והחזרה</h3>
               <p className="text-gray-600 mb-4">
-                בהתאם לחוק הגנת הצרכן, תשמ״א-1981, ניתן לבטל עסקה תוך 14 ימים ממועד קבלת המוצר, בכפוף לתנאים הבאים:
+                החלפה או החזרה תתאפשר תוך 14 ימים מיום קבלת המוצר, בהצגת חשבונית ובכפוף לתנאים הבאים:
               </p>
               <ul className="list-disc list-inside text-gray-600 mb-4 space-y-2">
-                <li>המוצר לא נפתח ולא נעשה בו שימוש</li>
-                <li>המוצר באריזתו המקורית ובמצב תקין</li>
-                <li>יש להודיע על הביטול בכתב (אימייל או טופס מקוון)</li>
+                <li>יש למסור הודעת ביטול בכתב לדואר האלקטרוני של החברה</li>
+                <li>המוצר חייב להיות ארוז באריזתו המקורית</li>
+                <li>החברה תאשר כי לא נעשה שימוש במוצר והוא ללא פגם או לכלוך</li>
+                <li>יש לתאם איסוף מראש עם שירות הלקוחות</li>
               </ul>
 
-              <h3 className="text-xl font-semibold text-gray-800 mb-3">3.2 החזרת מוצרים</h3>
+              <h3 className="text-xl font-semibold text-gray-800 mb-3">3.2 החזר כספי</h3>
               <ul className="list-disc list-inside text-gray-600 mb-4 space-y-2">
-                <li>החזרה תוך 14 יום מקבלת המוצר</li>
-                <li>יש לתאם איסוף מראש עם שירות הלקוחות</li>
                 <li>החזר כספי יבוצע תוך 14 ימים מקבלת המוצר בחזרה</li>
                 <li>ההחזר יבוצע לאותו אמצעי תשלום בו בוצעה הרכישה</li>
               </ul>
@@ -84,8 +83,8 @@ export default function TermsPage() {
               <h3 className="text-xl font-semibold text-gray-800 mb-3">3.3 מוצרים שאינם ניתנים להחזרה</h3>
               <ul className="list-disc list-inside text-gray-600 mb-4 space-y-2">
                 <li>מוצרים שהוזמנו במיוחד עבור הלקוח</li>
-                <li>מוצרים שנפתחו או נעשה בהם שימוש</li>
-                <li>מוצרים שניזוקו כתוצאה משימוש לקוי</li>
+                <li>מוצרים שנעשה בהם שימוש או שאינם באריזתם המקורית</li>
+                <li>מוצרים שניזוקו או התלכלכו כתוצאה משימוש</li>
               </ul>
             </section>
 

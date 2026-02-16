@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FaSave, FaArrowRight, FaPlus, FaTrash } from 'react-icons/fa';
-import { supabase, ProductVariant, Category, Color, Shape, Space, ProductType, PlantType, PlantSize, PlantLightRequirement, PlantCareLevel, PlantPetSafety } from '@/lib/supabase';
+import { supabase, ProductVariant, Category, Color, Shape, Space, ProductType, PlantType, PlantSize, PlantPetSafety } from '@/lib/supabase';
 
 type TempVariant = {
   id: string;
@@ -37,10 +37,6 @@ export default function NewProductPage() {
   const [selectedPlantTypes, setSelectedPlantTypes] = useState<string[]>([]);
   const [plantSizes, setPlantSizes] = useState<PlantSize[]>([]);
   const [selectedPlantSizes, setSelectedPlantSizes] = useState<string[]>([]);
-  const [plantLightRequirements, setPlantLightRequirements] = useState<PlantLightRequirement[]>([]);
-  const [selectedPlantLightRequirements, setSelectedPlantLightRequirements] = useState<string[]>([]);
-  const [plantCareLevels, setPlantCareLevels] = useState<PlantCareLevel[]>([]);
-  const [selectedPlantCareLevels, setSelectedPlantCareLevels] = useState<string[]>([]);
   const [plantPetSafety, setPlantPetSafety] = useState<PlantPetSafety[]>([]);
   const [selectedPlantPetSafety, setSelectedPlantPetSafety] = useState<string[]>([]);
 
@@ -75,8 +71,6 @@ export default function NewProductPage() {
     fetchSpaces();
     fetchPlantTypes();
     fetchPlantSizes();
-    fetchPlantLightRequirements();
-    fetchPlantCareLevels();
     fetchPlantPetSafety();
   }, []);
 
@@ -127,33 +121,6 @@ export default function NewProductPage() {
     }
   };
 
-  const fetchPlantLightRequirements = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('plant_light_requirements')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order');
-      if (error) throw error;
-      setPlantLightRequirements(data || []);
-    } catch (error: any) {
-      console.error('Error fetching plant light requirements:', error);
-    }
-  };
-
-  const fetchPlantCareLevels = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('plant_care_levels')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order');
-      if (error) throw error;
-      setPlantCareLevels(data || []);
-    } catch (error: any) {
-      console.error('Error fetching plant care levels:', error);
-    }
-  };
 
   const fetchPlantPetSafety = async () => {
     try {
@@ -273,17 +240,6 @@ export default function NewProductPage() {
     );
   };
 
-  const togglePlantLightRequirement = (id: string) => {
-    setSelectedPlantLightRequirements(prev =>
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-    );
-  };
-
-  const togglePlantCareLevel = (id: string) => {
-    setSelectedPlantCareLevels(prev =>
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-    );
-  };
 
   const togglePlantPetSafety = (id: string) => {
     setSelectedPlantPetSafety(prev =>
@@ -403,49 +359,33 @@ export default function NewProductPage() {
       const slug = generateSlug(formData.name);
       const baseSku = `PROD-${Date.now()}`;
 
-      // Validate based on product type
-      if (isPlantProduct) {
-        // Plants: validate simple price fields
-        if (!formData.price || !formData.stock_quantity) {
-          alert('נא למלא את המחיר והמלאי');
-          setLoading(false);
-          return;
-        }
-      } else {
-        // Carpets: validate variants
-        const hasEmptyVariant = variants.some(
-          (v) => !v.size || !v.price || v.price === '' || !v.stock_quantity
-        );
+      // Validate variants
+      const hasEmptyVariant = variants.some(
+        (v) => !v.size || !v.price || v.price === '' || !v.stock_quantity
+      );
 
-        if (hasEmptyVariant) {
-          alert('נא למלא את כל השדות החובה בכל המידות (מידה, מחיר, מלאי)');
-          setLoading(false);
-          return;
-        }
+      if (hasEmptyVariant) {
+        alert('נא למלא את כל השדות החובה בכל המידות (מידה, מחיר, מלאי)');
+        setLoading(false);
+        return;
       }
 
       // 1. Create the product
       const productToInsert = {
         name: formData.name,
         description: formData.description,
-        price: isPlantProduct
-          ? parseFloat(formData.price.toString())
-          : parseFloat(variants[0].price.toString()),
-        compare_at_price: isPlantProduct
-          ? (formData.compare_at_price ? parseFloat(formData.compare_at_price.toString()) : null)
-          : null,
+        price: parseFloat(variants[0].price.toString()),
+        compare_at_price: null,
         sku: baseSku,
-        size: isPlantProduct ? null : variants[0].size,
+        size: variants[0].size,
         material: formData.material,
-        stock_quantity: isPlantProduct
-          ? parseInt(formData.stock_quantity.toString())
-          : 0,
+        stock_quantity: 0,
         is_featured: formData.is_featured,
         is_active: formData.is_active,
         slug,
         style: [],
         color: [],
-        has_variants: isPlantProduct ? false : variants.length > 1,
+        has_variants: variants.length > 1,
         product_type_id: selectedProductType,
       };
 
@@ -457,8 +397,8 @@ export default function NewProductPage() {
 
       if (productError) throw productError;
 
-      // 2. Create variants only for carpets
-      if (!isPlantProduct) {
+      // 2. Create variants
+      {
         const variantsToInsert = variants.map((variant, index) => ({
           product_id: productData.id,
           size: variant.size,
@@ -555,26 +495,6 @@ export default function NewProductPage() {
             plant_size_id: id,
           }));
           const { error } = await supabase.from('product_plant_sizes').insert(relations);
-          if (error) throw error;
-        }
-
-        // Plant light requirements
-        if (selectedPlantLightRequirements.length > 0) {
-          const relations = selectedPlantLightRequirements.map(id => ({
-            product_id: productData.id,
-            plant_light_requirement_id: id,
-          }));
-          const { error } = await supabase.from('product_plant_light_requirements').insert(relations);
-          if (error) throw error;
-        }
-
-        // Plant care levels
-        if (selectedPlantCareLevels.length > 0) {
-          const relations = selectedPlantCareLevels.map(id => ({
-            product_id: productData.id,
-            plant_care_level_id: id,
-          }));
-          const { error } = await supabase.from('product_plant_care_levels').insert(relations);
           if (error) throw error;
         }
 
@@ -936,56 +856,6 @@ export default function NewProductPage() {
           </div>
         </div>
 
-        {/* Plant Light Requirements Section */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-6">דרישות אור</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {plantLightRequirements.map((plantLight) => (
-              <label
-                key={plantLight.id}
-                className={`flex items-center p-3 border-2 rounded-lg cursor-pointer transition-colors ${
-                  selectedPlantLightRequirements.includes(plantLight.id)
-                    ? 'border-primary-600 bg-primary-50'
-                    : 'border-gray-200 hover:border-primary-300'
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedPlantLightRequirements.includes(plantLight.id)}
-                  onChange={() => togglePlantLightRequirement(plantLight.id)}
-                  className="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-                />
-                <span className="mr-3 text-gray-700 font-medium">{plantLight.name}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-
-        {/* Plant Care Levels Section */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-6">רמת טיפול</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {plantCareLevels.map((plantCare) => (
-              <label
-                key={plantCare.id}
-                className={`flex items-center p-3 border-2 rounded-lg cursor-pointer transition-colors ${
-                  selectedPlantCareLevels.includes(plantCare.id)
-                    ? 'border-primary-600 bg-primary-50'
-                    : 'border-gray-200 hover:border-primary-300'
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedPlantCareLevels.includes(plantCare.id)}
-                  onChange={() => togglePlantCareLevel(plantCare.id)}
-                  className="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-                />
-                <span className="mr-3 text-gray-700 font-medium">{plantCare.name}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-
         {/* Plant Pet Safety Section */}
         <div className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-6">בטיחות לחיות מחמד</h2>
@@ -1013,8 +883,8 @@ export default function NewProductPage() {
         </>
         )}
 
-        {/* Carpets: Product Variants / Dimensions */}
-        {selectedProductType && productTypes.find(pt => pt.id === selectedProductType)?.slug === 'carpets' && (
+        {/* Product Variants / Sizes */}
+        {selectedProductType && (
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
@@ -1183,74 +1053,6 @@ export default function NewProductPage() {
         </div>
         )}
 
-        {/* Plants: Simple Pricing */}
-        {selectedProductType && productTypes.find(pt => pt.id === selectedProductType)?.slug === 'plants' && (
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-6">
-            מחיר ומלאי <span className="text-red-500">*</span>
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Price */}
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">
-                מחיר (₪) <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="number"
-                name="price"
-                value={formData.price}
-                onChange={handleChange}
-                step="0.01"
-                min="0"
-                placeholder="299"
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-              />
-            </div>
-
-            {/* Compare Price */}
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">
-                מחיר לפני הנחה (₪)
-              </label>
-              <input
-                type="number"
-                name="compare_at_price"
-                value={formData.compare_at_price}
-                onChange={handleChange}
-                step="0.01"
-                min="0"
-                placeholder="399"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-              />
-            </div>
-
-            {/* Stock */}
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">
-                מלאי <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="number"
-                name="stock_quantity"
-                value={formData.stock_quantity}
-                onChange={handleChange}
-                min="0"
-                placeholder="10"
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-              />
-            </div>
-          </div>
-
-          <div className="mt-4 p-4 bg-sage-light bg-opacity-20 rounded-lg border border-sage">
-            <p className="text-sm text-gray-700">
-              <strong>💡 טיפ:</strong> הגדלים נקבעים דרך המימד "גודל" שנבחר לעיל.
-            </p>
-          </div>
-        </div>
-        )}
 
         {/* Product Images Note */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">

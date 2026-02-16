@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
-import { FaHome, FaBox, FaTags, FaShoppingCart, FaImages, FaTicketAlt, FaEnvelope, FaSignOutAlt, FaUser, FaPalette, FaShapes, FaDoorOpen, FaSeedling, FaRulerVertical, FaSun, FaHandHoldingHeart, FaPaw, FaBullhorn } from 'react-icons/fa';
+import { FaHome, FaBox, FaTags, FaShoppingCart, FaImages, FaTicketAlt, FaEnvelope, FaSignOutAlt, FaUser, FaPalette, FaShapes, FaDoorOpen, FaSeedling, FaRulerVertical, FaPaw, FaBullhorn } from 'react-icons/fa';
 
 export default function AdminLayout({
   children,
@@ -121,22 +121,6 @@ export default function AdminLayout({
             >
               <FaRulerVertical className="ml-3" />
               גדלים
-            </Link>
-
-            <Link
-              href="/admin/plant-light-requirements"
-              className="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
-            >
-              <FaSun className="ml-3" />
-              דרישות אור
-            </Link>
-
-            <Link
-              href="/admin/plant-care-levels"
-              className="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
-            >
-              <FaHandHoldingHeart className="ml-3" />
-              רמות טיפול
             </Link>
 
             <Link

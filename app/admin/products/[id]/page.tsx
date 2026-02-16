@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { FaSave, FaArrowRight, FaPlus, FaTrash } from 'react-icons/fa';
-import { supabase, Product, ProductVariant, Category, ProductImage, Color, Shape, Space, ProductType, PlantType, PlantSize, PlantLightRequirement, PlantCareLevel, PlantPetSafety } from '@/lib/supabase';
+import { supabase, Product, ProductVariant, Category, ProductImage, Color, Shape, Space, ProductType, PlantType, PlantSize, PlantPetSafety } from '@/lib/supabase';
 import ProductImageUpload from '@/components/ProductImageUpload';
 
 export default function EditProductPage() {
@@ -34,10 +34,6 @@ export default function EditProductPage() {
   const [selectedPlantTypes, setSelectedPlantTypes] = useState<string[]>([]);
   const [plantSizes, setPlantSizes] = useState<PlantSize[]>([]);
   const [selectedPlantSizes, setSelectedPlantSizes] = useState<string[]>([]);
-  const [plantLightRequirements, setPlantLightRequirements] = useState<PlantLightRequirement[]>([]);
-  const [selectedPlantLightRequirements, setSelectedPlantLightRequirements] = useState<string[]>([]);
-  const [plantCareLevels, setPlantCareLevels] = useState<PlantCareLevel[]>([]);
-  const [selectedPlantCareLevels, setSelectedPlantCareLevels] = useState<string[]>([]);
   const [plantPetSafety, setPlantPetSafety] = useState<PlantPetSafety[]>([]);
   const [selectedPlantPetSafety, setSelectedPlantPetSafety] = useState<string[]>([]);
 
@@ -67,13 +63,9 @@ export default function EditProductPage() {
     fetchProductSpaces();
     fetchPlantTypes();
     fetchPlantSizes();
-    fetchPlantLightRequirements();
-    fetchPlantCareLevels();
     fetchPlantPetSafety();
     fetchProductPlantTypes();
     fetchProductPlantSizes();
-    fetchProductPlantLightRequirements();
-    fetchProductPlantCareLevels();
     fetchProductPlantPetSafety();
     fetchProductImages();
   }, [productId]);
@@ -281,34 +273,6 @@ export default function EditProductPage() {
     }
   };
 
-  const fetchPlantLightRequirements = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('plant_light_requirements')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order');
-      if (error) throw error;
-      setPlantLightRequirements(data || []);
-    } catch (error: any) {
-      console.error('Error fetching plant light requirements:', error);
-    }
-  };
-
-  const fetchPlantCareLevels = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('plant_care_levels')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order');
-      if (error) throw error;
-      setPlantCareLevels(data || []);
-    } catch (error: any) {
-      console.error('Error fetching plant care levels:', error);
-    }
-  };
-
   const fetchPlantPetSafety = async () => {
     try {
       const { data, error } = await supabase
@@ -346,32 +310,6 @@ export default function EditProductPage() {
       setSelectedPlantSizes(data?.map((ps) => ps.plant_size_id) || []);
     } catch (error: any) {
       console.error('Error fetching product plant sizes:', error);
-    }
-  };
-
-  const fetchProductPlantLightRequirements = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('product_plant_light_requirements')
-        .select('plant_light_requirement_id')
-        .eq('product_id', productId);
-      if (error) throw error;
-      setSelectedPlantLightRequirements(data?.map((pl) => pl.plant_light_requirement_id) || []);
-    } catch (error: any) {
-      console.error('Error fetching product plant light requirements:', error);
-    }
-  };
-
-  const fetchProductPlantCareLevels = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('product_plant_care_levels')
-        .select('plant_care_level_id')
-        .eq('product_id', productId);
-      if (error) throw error;
-      setSelectedPlantCareLevels(data?.map((pc) => pc.plant_care_level_id) || []);
-    } catch (error: any) {
-      console.error('Error fetching product plant care levels:', error);
     }
   };
 
@@ -447,18 +385,6 @@ export default function EditProductPage() {
     );
   };
 
-  const togglePlantLightRequirement = (id: string) => {
-    setSelectedPlantLightRequirements(prev =>
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-    );
-  };
-
-  const togglePlantCareLevel = (id: string) => {
-    setSelectedPlantCareLevels(prev =>
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-    );
-  };
-
   const togglePlantPetSafety = (id: string) => {
     setSelectedPlantPetSafety(prev =>
       prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
@@ -493,15 +419,6 @@ export default function EditProductPage() {
         is_active: formData.is_active,
         has_variants: formData.has_variants,
       };
-
-      // For plants, update simple pricing
-      if (isPlantProduct) {
-        updateData.price = parseFloat(formData.price.toString());
-        updateData.compare_at_price = formData.compare_at_price
-          ? parseFloat(formData.compare_at_price.toString())
-          : null;
-        updateData.stock_quantity = parseInt(formData.stock_quantity.toString());
-      }
 
       const { error } = await supabase
         .from('products')
@@ -618,26 +535,6 @@ export default function EditProductPage() {
           await supabase.from('product_plant_sizes').insert(relations);
         }
 
-        // Sync plant light requirements
-        await supabase.from('product_plant_light_requirements').delete().eq('product_id', productId);
-        if (selectedPlantLightRequirements.length > 0) {
-          const relations = selectedPlantLightRequirements.map(id => ({
-            product_id: productId,
-            plant_light_requirement_id: id,
-          }));
-          await supabase.from('product_plant_light_requirements').insert(relations);
-        }
-
-        // Sync plant care levels
-        await supabase.from('product_plant_care_levels').delete().eq('product_id', productId);
-        if (selectedPlantCareLevels.length > 0) {
-          const relations = selectedPlantCareLevels.map(id => ({
-            product_id: productId,
-            plant_care_level_id: id,
-          }));
-          await supabase.from('product_plant_care_levels').insert(relations);
-        }
-
         // Sync plant pet safety
         await supabase.from('product_plant_pet_safety').delete().eq('product_id', productId);
         if (selectedPlantPetSafety.length > 0) {
@@ -649,9 +546,8 @@ export default function EditProductPage() {
         }
       }
 
-      // 7. Save all variants (for carpets)
-      const isCarpetProduct = productTypes.find(pt => pt.id === selectedProductType)?.slug === 'carpets';
-      if (isCarpetProduct && variants.length > 0) {
+      // 7. Save all variants
+      if (variants.length > 0) {
         for (let i = 0; i < variants.length; i++) {
           const variant = variants[i];
 
@@ -1240,56 +1136,6 @@ export default function EditProductPage() {
           </div>
         </div>
 
-        {/* Plant Light Requirements Section */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-6">דרישות אור</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {plantLightRequirements.map((plantLight) => (
-              <label
-                key={plantLight.id}
-                className={`flex items-center p-3 border-2 rounded-lg cursor-pointer transition-colors ${
-                  selectedPlantLightRequirements.includes(plantLight.id)
-                    ? 'border-primary-600 bg-primary-50'
-                    : 'border-gray-200 hover:border-primary-300'
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedPlantLightRequirements.includes(plantLight.id)}
-                  onChange={() => togglePlantLightRequirement(plantLight.id)}
-                  className="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-                />
-                <span className="mr-3 text-gray-700 font-medium">{plantLight.name}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-
-        {/* Plant Care Levels Section */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-6">רמת טיפול</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {plantCareLevels.map((plantCare) => (
-              <label
-                key={plantCare.id}
-                className={`flex items-center p-3 border-2 rounded-lg cursor-pointer transition-colors ${
-                  selectedPlantCareLevels.includes(plantCare.id)
-                    ? 'border-primary-600 bg-primary-50'
-                    : 'border-gray-200 hover:border-primary-300'
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedPlantCareLevels.includes(plantCare.id)}
-                  onChange={() => togglePlantCareLevel(plantCare.id)}
-                  className="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-                />
-                <span className="mr-3 text-gray-700 font-medium">{plantCare.name}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-
         {/* Plant Pet Safety Section */}
         <div className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-6">בטיחות לחיות מחמד</h2>
@@ -1361,8 +1207,8 @@ export default function EditProductPage() {
         </div>
       </form>
 
-      {/* Carpets: Product Variants / Dimensions */}
-      {selectedProductType && productTypes.find(pt => pt.id === selectedProductType)?.slug === 'carpets' && (
+      {/* Product Variants / Sizes */}
+      {selectedProductType && (
       <div className="mt-8 bg-white rounded-lg shadow-md p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -1528,74 +1374,6 @@ export default function EditProductPage() {
       </div>
       )}
 
-      {/* Plants: Simple Pricing */}
-      {selectedProductType && productTypes.find(pt => pt.id === selectedProductType)?.slug === 'plants' && (
-      <div className="mt-8 bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-semibold text-gray-800 mb-6">
-          מחיר ומלאי
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Price */}
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">
-              מחיר (₪) <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="number"
-              name="price"
-              value={formData.price}
-              onChange={handleChange}
-              step="0.01"
-              min="0"
-              placeholder="299"
-              required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-            />
-          </div>
-
-          {/* Compare Price */}
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">
-              מחיר לפני הנחה (₪)
-            </label>
-            <input
-              type="number"
-              name="compare_at_price"
-              value={formData.compare_at_price}
-              onChange={handleChange}
-              step="0.01"
-              min="0"
-              placeholder="399"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-            />
-          </div>
-
-          {/* Stock */}
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">
-              מלאי <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="number"
-              name="stock_quantity"
-              value={formData.stock_quantity}
-              onChange={handleChange}
-              min="0"
-              placeholder="10"
-              required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-            />
-          </div>
-        </div>
-
-        <div className="mt-4 p-4 bg-sage-light bg-opacity-20 rounded-lg border border-sage">
-          <p className="text-sm text-gray-700">
-            <strong>💡 טיפ:</strong> הגדלים נקבעים דרך המימד "גודל" שנבחר לעיל.
-          </p>
-        </div>
-      </div>
-      )}
 
       {/* Actions - At the Bottom */}
       <div className="mt-8 flex justify-end gap-4">
