@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
-import { FaHome, FaBox, FaTags, FaShoppingCart, FaImages, FaTicketAlt, FaEnvelope, FaSignOutAlt, FaUser, FaPalette, FaShapes, FaDoorOpen, FaSeedling, FaRulerVertical, FaPaw, FaBullhorn } from 'react-icons/fa';
+import { FaHome, FaBox, FaTags, FaShoppingCart, FaImages, FaTicketAlt, FaEnvelope, FaSignOutAlt, FaUser, FaPalette, FaShapes, FaDoorOpen, FaSeedling, FaRulerVertical, FaPaw, FaBullhorn, FaArrowRight, FaClipboardList } from 'react-icons/fa';
 
 export default function AdminLayout({
   children,
@@ -10,10 +11,61 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const { data: session } = useSession();
+  const pathname = usePathname();
 
   const handleSignOut = async () => {
     await signOut({ callbackUrl: '/admin/login' });
   };
+
+  const isInventoryRoute = pathname?.startsWith('/admin/inventory');
+
+  if (isInventoryRoute) {
+    return (
+      <div className="min-h-screen bg-gray-100" dir="rtl">
+        {/* Mobile-friendly sticky header */}
+        <header className="sticky top-0 z-50 bg-gray-900 text-white px-4 py-3 flex items-center justify-between shadow-lg">
+          <div className="flex items-center gap-3">
+            <Link
+              href="/admin"
+              className="p-2 rounded-lg hover:bg-gray-800 transition-colors"
+              aria-label="חזרה ללוח בקרה"
+            >
+              <FaArrowRight className="text-lg" />
+            </Link>
+            <div className="flex items-center gap-2">
+              <FaClipboardList className="text-lg text-primary-400" />
+              <h1 className="text-lg font-bold">ניהול מלאי</h1>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            {session?.user && (
+              <>
+                {session.user.image ? (
+                  <img
+                    src={session.user.image}
+                    alt={session.user.name || 'User'}
+                    className="w-8 h-8 rounded-full"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-sm">
+                    <FaUser />
+                  </div>
+                )}
+              </>
+            )}
+            <button
+              onClick={handleSignOut}
+              className="p-2 rounded-lg hover:bg-red-600 transition-colors"
+              aria-label="התנתק"
+            >
+              <FaSignOutAlt />
+            </button>
+          </div>
+        </header>
+        <main className="w-full">{children}</main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 flex" dir="rtl">
@@ -147,6 +199,14 @@ export default function AdminLayout({
             >
               <FaShoppingCart className="ml-3" />
               הזמנות
+            </Link>
+
+            <Link
+              href="/admin/inventory"
+              className="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+            >
+              <FaClipboardList className="ml-3" />
+              ניהול מלאי
             </Link>
 
             <Link
