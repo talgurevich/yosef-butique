@@ -123,10 +123,84 @@ async function getSpaces(): Promise<any[]> {
   }
 }
 
+async function getCategoryImages(): Promise<Record<string, string>> {
+  if (!supabase) return {};
+  try {
+    const { data, error } = await supabase
+      .from('product_categories')
+      .select(`
+        category_id,
+        products!inner (
+          is_active,
+          product_images (
+            image_url,
+            sort_order
+          )
+        )
+      `)
+      .eq('products.is_active', true);
+    if (error) {
+      console.error('Error fetching category images:', error);
+      return {};
+    }
+    const imageMap: Record<string, string> = {};
+    (data || []).forEach((row: any) => {
+      if (imageMap[row.category_id]) return;
+      const images = row.products?.product_images?.sort((a: any, b: any) => a.sort_order - b.sort_order) || [];
+      if (images.length > 0) {
+        imageMap[row.category_id] = images[0].image_url;
+      }
+    });
+    return imageMap;
+  } catch (error) {
+    console.error('Error:', error);
+    return {};
+  }
+}
+
+async function getSpaceImages(): Promise<Record<string, string>> {
+  if (!supabase) return {};
+  try {
+    const { data, error } = await supabase
+      .from('product_spaces')
+      .select(`
+        space_id,
+        products!inner (
+          is_active,
+          product_images (
+            image_url,
+            sort_order
+          )
+        )
+      `)
+      .eq('products.is_active', true);
+    if (error) {
+      console.error('Error fetching space images:', error);
+      return {};
+    }
+    const imageMap: Record<string, string> = {};
+    (data || []).forEach((row: any) => {
+      if (imageMap[row.space_id]) return;
+      const images = row.products?.product_images?.sort((a: any, b: any) => a.sort_order - b.sort_order) || [];
+      if (images.length > 0) {
+        imageMap[row.space_id] = images[0].image_url;
+      }
+    });
+    return imageMap;
+  } catch (error) {
+    console.error('Error:', error);
+    return {};
+  }
+}
+
 export default async function Home() {
-  const featuredProducts = await getFeaturedProducts();
-  const categories = await getCategories();
-  const spaces = await getSpaces();
+  const [featuredProducts, categories, spaces, categoryImages, spaceImages] = await Promise.all([
+    getFeaturedProducts(),
+    getCategories(),
+    getSpaces(),
+    getCategoryImages(),
+    getSpaceImages(),
+  ]);
 
   return (
     <main className="min-h-screen">
@@ -138,6 +212,8 @@ export default async function Home() {
       <AttributesPreview
         categories={categories}
         spaces={spaces}
+        categoryImages={categoryImages}
+        spaceImages={spaceImages}
       />
       <AboutSection />
       <Reviews />

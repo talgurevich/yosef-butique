@@ -14,31 +14,13 @@ interface Attribute {
 interface AttributesPreviewProps {
   categories: Attribute[];
   spaces: Attribute[];
+  categoryImages?: Record<string, string>;
+  spaceImages?: Record<string, string>;
 }
 
-export default function AttributesPreview({ categories, spaces }: AttributesPreviewProps) {
-  // Attribute-specific images
-  const attributeImages: { [key: string]: string } = {
-    // Categories (סגנונות)
-    'modern-rugs': 'https://images.unsplash.com/photo-1600607687644-c7171b42498f?w=800&q=80', // Modern minimalist rug
-    'ethnic-rugs': 'https://images.unsplash.com/photo-1600210491892-03d54c0aaf87?w=800&q=80', // Ethnic/bohemian rug
-    '-1762999289423': 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&q=80', // Classic traditional carpet
-    'loop-rugs': 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=80', // Textured loop carpet
-    'designer-carpets': 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=800&q=80', // Designer artistic rug
+const fallbackImage = 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=800&q=80';
 
-    // Spaces (חללים)
-    'living-room': 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&q=80', // Living room with carpet
-    'bedroom': 'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?w=800&q=80', // Bedroom with rug
-    'kids-room': 'https://images.unsplash.com/photo-1628744448840-55bdb2497bd4?w=800&q=80', // Kids room colorful
-    'dining-room': 'https://images.unsplash.com/photo-1600210491369-e753d80a41f3?w=800&q=80', // Dining room with rug
-    'hallway': 'https://images.unsplash.com/photo-1600607687644-aac4c3eac7f4?w=800&q=80', // Hallway runner
-    'office': 'https://images.unsplash.com/photo-1600210492493-0946911123ea?w=800&q=80', // Office with carpet
-    'bathroom': 'https://images.unsplash.com/photo-1600566752355-35792bedcfea?w=800&q=80', // Bathroom rug
-    'balcony': 'https://images.unsplash.com/photo-1600210491892-03d54c0aaf87?w=800&q=80', // Balcony outdoor rug
-
-    // Fallback
-    'default': 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=800&q=80',
-  };
+export default function AttributesPreview({ categories, spaces, categoryImages = {}, spaceImages = {} }: AttributesPreviewProps) {
 
   // Filter out parent categories for display
   const displayCategories = categories.filter(cat => !cat.parent_id).slice(0, 4);
@@ -88,7 +70,7 @@ export default function AttributesPreview({ categories, spaces }: AttributesPrev
                 {/* Background Image */}
                 <div className="absolute inset-0">
                   <img
-                    src={attributeImages[category.slug] || 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=800&q=80'}
+                    src={categoryImages[category.id] || fallbackImage}
                     alt={category.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />
@@ -149,7 +131,7 @@ export default function AttributesPreview({ categories, spaces }: AttributesPrev
                 {/* Background Image */}
                 <div className="absolute inset-0">
                   <img
-                    src={attributeImages[space.slug] || 'https://images.unsplash.com/photo-1540574163026-643ea20ade25?w=800&q=80'}
+                    src={spaceImages[space.id] || fallbackImage}
                     alt={space.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />
