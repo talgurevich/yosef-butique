@@ -40,6 +40,7 @@ export default function InventoryPage() {
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [stockFilter, setStockFilter] = useState<string>('all');
   const [expandedProducts, setExpandedProducts] = useState<Set<string>>(new Set());
+  const [expandedSizes, setExpandedSizes] = useState<Set<string>>(new Set());
   const [editingVariants, setEditingVariants] = useState<Map<string, number>>(new Map());
   const [editingProducts, setEditingProducts] = useState<Map<string, number>>(new Map());
   const [savingIds, setSavingIds] = useState<Set<string>>(new Set());
@@ -156,6 +157,35 @@ export default function InventoryPage() {
       }
       return next;
     });
+  };
+
+  const toggleSize = (key: string) => {
+    setExpandedSizes(prev => {
+      const next = new Set(prev);
+      if (next.has(key)) {
+        next.delete(key);
+      } else {
+        next.add(key);
+      }
+      return next;
+    });
+  };
+
+  const groupVariantsBySize = (variants: InventoryVariant[]) => {
+    const sizeOrder: string[] = [];
+    const sizeMap: Record<string, InventoryVariant[]> = {};
+    variants.forEach(v => {
+      if (!sizeMap[v.size]) {
+        sizeMap[v.size] = [];
+        sizeOrder.push(v.size);
+      }
+      sizeMap[v.size].push(v);
+    });
+    return sizeOrder.map(size => ({
+      size,
+      variants: sizeMap[size],
+      totalStock: sizeMap[size].reduce((sum, v) => sum + (v.stock_quantity || 0), 0),
+    }));
   };
 
   // Variant stock editing
@@ -469,67 +499,89 @@ export default function InventoryPage() {
               {expandedProducts.has(product.id) && (
                 <div className="border-t border-gray-100 bg-gray-50">
                   {product.has_variants && product.variants.length > 0 ? (
-                    // Variant rows
-                    <div className="divide-y divide-gray-100">
-                      {product.variants.map(variant => {
-                        const colorName = getColorName(variant.color_id);
-                        const label = colorName
-                          ? `${variant.size} - ${colorName}`
-                          : variant.size;
-                        const editValue = getVariantEditValue(variant.id, variant.stock_quantity);
-                        const changed = isVariantChanged(variant.id, variant.stock_quantity);
-                        const saving = savingIds.has(variant.id);
+                    // Grouped by size
+                    <div className="divide-y divide-gray-200">
+                      {groupVariantsBySize(product.variants).map(group => {
+                        const sizeKey = `${product.id}:${group.size}`;
+                        const isSizeExpanded = expandedSizes.has(sizeKey);
+                        const hasColors = group.variants.some(v => v.color_id);
 
-                        return (
-                          <div key={variant.id} className="px-4 py-3">
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="text-sm text-gray-700 font-medium">{label}</span>
-                              {!variant.is_active && (
-                                <span className="text-xs text-gray-400 bg-gray-200 px-2 py-0.5 rounded">לא פעיל</span>
-                              )}
-                            </div>
-                            <div className="flex items-center gap-2">
-                              {/* Stepper */}
-                              <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden bg-white">
-                                <button
-                                  onClick={() => setVariantEditValue(variant.id, editValue - 1)}
-                                  className="w-11 h-11 flex items-center justify-center text-gray-600 hover:bg-gray-100 active:bg-gray-200 transition-colors"
-                                  aria-label="הפחת"
-                                >
-                                  <FaMinus className="text-xs" />
-                                </button>
-                                <input
-                                  type="number"
-                                  value={editValue}
-                                  onChange={e => {
-                                    const val = parseInt(e.target.value);
-                                    if (!isNaN(val)) {
-                                      setVariantEditValue(variant.id, val);
-                                    }
-                                  }}
-                                  className="w-14 h-11 text-center border-x border-gray-300 text-base font-medium focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                  min={0}
-                                />
-                                <button
-                                  onClick={() => setVariantEditValue(variant.id, editValue + 1)}
-                                  className="w-11 h-11 flex items-center justify-center text-gray-600 hover:bg-gray-100 active:bg-gray-200 transition-colors"
-                                  aria-label="הוסף"
-                                >
-                                  <FaPlus className="text-xs" />
-                                </button>
+                        // Single variant per size (no colors) — show stepper directly
+                        if (group.variants.length === 1 && !hasColors) {
+                          const variant = group.variants[0];
+                          const editValue = getVariantEditValue(variant.id, variant.stock_quantity);
+                          const changed = isVariantChanged(variant.id, variant.stock_quantity);
+                          const saving = savingIds.has(variant.id);
+                          return (
+                            <div key={sizeKey} className="px-4 py-3">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-sm text-gray-700 font-medium">{group.size}</span>
+                                <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${stockBadgeColor(variant.stock_quantity)}`}>
+                                  {variant.stock_quantity}
+                                </span>
                               </div>
-
-                              {/* Save button */}
-                              {changed && (
-                                <button
-                                  onClick={() => saveVariantStock(variant.id, product.id)}
-                                  disabled={saving}
-                                  className="px-4 h-11 bg-green-600 text-white rounded-lg font-medium text-sm hover:bg-green-700 active:bg-green-800 transition-colors disabled:opacity-50"
-                                >
-                                  {saving ? '...' : 'שמור'}
-                                </button>
-                              )}
+                              <div className="flex items-center gap-2">
+                                <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden bg-white">
+                                  <button onClick={() => setVariantEditValue(variant.id, editValue - 1)} className="w-11 h-11 flex items-center justify-center text-gray-600 hover:bg-gray-100 active:bg-gray-200 transition-colors" aria-label="הפחת"><FaMinus className="text-xs" /></button>
+                                  <input type="number" value={editValue} onChange={e => { const val = parseInt(e.target.value); if (!isNaN(val)) setVariantEditValue(variant.id, val); }} className="w-14 h-11 text-center border-x border-gray-300 text-base font-medium focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" min={0} />
+                                  <button onClick={() => setVariantEditValue(variant.id, editValue + 1)} className="w-11 h-11 flex items-center justify-center text-gray-600 hover:bg-gray-100 active:bg-gray-200 transition-colors" aria-label="הוסף"><FaPlus className="text-xs" /></button>
+                                </div>
+                                {changed && (
+                                  <button onClick={() => saveVariantStock(variant.id, product.id)} disabled={saving} className="px-4 h-11 bg-green-600 text-white rounded-lg font-medium text-sm hover:bg-green-700 active:bg-green-800 transition-colors disabled:opacity-50">{saving ? '...' : 'שמור'}</button>
+                                )}
+                              </div>
                             </div>
+                          );
+                        }
+
+                        // Multiple variants per size (colors) — collapsible size group
+                        return (
+                          <div key={sizeKey}>
+                            <button
+                              onClick={() => toggleSize(sizeKey)}
+                              className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-100 active:bg-gray-200 transition-colors"
+                            >
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-semibold text-gray-800">{group.size}</span>
+                                <span className="text-xs text-gray-500">({group.variants.length} צבעים)</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${stockBadgeColor(group.totalStock)}`}>
+                                  {group.totalStock}
+                                </span>
+                                {isSizeExpanded ? <FaChevronUp className="text-xs text-gray-400" /> : <FaChevronDown className="text-xs text-gray-400" />}
+                              </div>
+                            </button>
+                            {isSizeExpanded && (
+                              <div className="bg-white divide-y divide-gray-50 border-t border-gray-100">
+                                {group.variants.map(variant => {
+                                  const colorName = getColorName(variant.color_id) || '—';
+                                  const editValue = getVariantEditValue(variant.id, variant.stock_quantity);
+                                  const changed = isVariantChanged(variant.id, variant.stock_quantity);
+                                  const saving = savingIds.has(variant.id);
+                                  return (
+                                    <div key={variant.id} className="px-4 py-3 pr-8">
+                                      <div className="flex items-center justify-between mb-2">
+                                        <span className="text-sm text-gray-700">{colorName}</span>
+                                        {!variant.is_active && (
+                                          <span className="text-xs text-gray-400 bg-gray-200 px-2 py-0.5 rounded">לא פעיל</span>
+                                        )}
+                                      </div>
+                                      <div className="flex items-center gap-2">
+                                        <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden bg-white">
+                                          <button onClick={() => setVariantEditValue(variant.id, editValue - 1)} className="w-11 h-11 flex items-center justify-center text-gray-600 hover:bg-gray-100 active:bg-gray-200 transition-colors" aria-label="הפחת"><FaMinus className="text-xs" /></button>
+                                          <input type="number" value={editValue} onChange={e => { const val = parseInt(e.target.value); if (!isNaN(val)) setVariantEditValue(variant.id, val); }} className="w-14 h-11 text-center border-x border-gray-300 text-base font-medium focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" min={0} />
+                                          <button onClick={() => setVariantEditValue(variant.id, editValue + 1)} className="w-11 h-11 flex items-center justify-center text-gray-600 hover:bg-gray-100 active:bg-gray-200 transition-colors" aria-label="הוסף"><FaPlus className="text-xs" /></button>
+                                        </div>
+                                        {changed && (
+                                          <button onClick={() => saveVariantStock(variant.id, product.id)} disabled={saving} className="px-4 h-11 bg-green-600 text-white rounded-lg font-medium text-sm hover:bg-green-700 active:bg-green-800 transition-colors disabled:opacity-50">{saving ? '...' : 'שמור'}</button>
+                                        )}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
                           </div>
                         );
                       })}
