@@ -86,6 +86,19 @@ export default function DeliveryCalculator({ cartTotal, onDeliveryChange }: Deli
     };
   }, [isLoaded]);
 
+  // Recalculate delivery cost when cartTotal changes
+  useEffect(() => {
+    if (distance !== null && deliveryCost !== null) {
+      const tier = DELIVERY_TIERS.find(t => distance <= t.maxDistance);
+      const baseCost = tier?.price || DELIVERY_TIERS[DELIVERY_TIERS.length - 1].price;
+      const finalCost = cartTotal >= FREE_DELIVERY_THRESHOLD ? 0 : baseCost;
+      if (finalCost !== deliveryCost) {
+        setDeliveryCost(finalCost);
+        onDeliveryChange(finalCost, distance, address);
+      }
+    }
+  }, [cartTotal]);
+
   const handlePlaceSelect = () => {
     const place = autocompleteRef.current?.getPlace();
     if (place?.formatted_address) {
