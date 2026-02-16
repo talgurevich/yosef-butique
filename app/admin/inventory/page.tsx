@@ -37,7 +37,7 @@ export default function InventoryPage() {
   const [productTypes, setProductTypes] = useState<ProductType[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [activeTab, setActiveTab] = useState<'carpets' | 'plants'>('carpets');
   const [stockFilter, setStockFilter] = useState<string>('all');
   const [expandedProducts, setExpandedProducts] = useState<Set<string>>(new Set());
   const [expandedSizes, setExpandedSizes] = useState<Set<string>>(new Set());
@@ -320,11 +320,9 @@ export default function InventoryPage() {
     if (searchTerm && !p.name.toLowerCase().includes(searchTerm.toLowerCase())) {
       return false;
     }
-    // Type filter
-    if (typeFilter !== 'all') {
-      const slug = getTypeSlug(p.product_type_id);
-      if (slug !== typeFilter) return false;
-    }
+    // Tab filter
+    const slug = getTypeSlug(p.product_type_id);
+    if (slug !== activeTab) return false;
     // Stock filter
     if (stockFilter === 'out') {
       if (p.totalStock > 0) return false;
@@ -340,11 +338,9 @@ export default function InventoryPage() {
     return 'bg-green-100 text-green-800';
   };
 
-  // Build type filter options from actual product types
-  const typeFilterOptions = productTypes.map(t => ({
-    slug: t.slug,
-    label: t.name,
-  }));
+  // Count products per tab
+  const carpetCount = products.filter(p => getTypeSlug(p.product_type_id) === 'carpets').length;
+  const plantCount = products.filter(p => getTypeSlug(p.product_type_id) === 'plants').length;
 
   if (loading) {
     return (
@@ -359,8 +355,36 @@ export default function InventoryPage() {
 
   return (
     <div className="pb-20">
+      {/* Tab Bar */}
+      <div className="sticky top-[52px] z-40 bg-white border-b border-gray-200 shadow-sm">
+        <div className="flex">
+          <button
+            onClick={() => { setActiveTab('carpets'); setSearchTerm(''); setStockFilter('all'); }}
+            className={`flex-1 py-3 text-center text-sm font-bold transition-colors relative ${
+              activeTab === 'carpets'
+                ? 'text-primary-600'
+                : 'text-gray-500'
+            }`}
+          >
+            שטיחים ({carpetCount})
+            {activeTab === 'carpets' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600" />}
+          </button>
+          <button
+            onClick={() => { setActiveTab('plants'); setSearchTerm(''); setStockFilter('all'); }}
+            className={`flex-1 py-3 text-center text-sm font-bold transition-colors relative ${
+              activeTab === 'plants'
+                ? 'text-green-600'
+                : 'text-gray-500'
+            }`}
+          >
+            עציצים ({plantCount})
+            {activeTab === 'plants' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-green-600" />}
+          </button>
+        </div>
+      </div>
+
       {/* Sticky Filter Bar */}
-      <div className="sticky top-[52px] z-40 bg-gray-100 px-4 pt-3 pb-2 space-y-3 border-b border-gray-200 shadow-sm">
+      <div className="sticky top-[96px] z-30 bg-gray-100 px-4 pt-3 pb-2 space-y-3 border-b border-gray-200 shadow-sm">
         {/* Search */}
         <div className="relative">
           <FaSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -371,33 +395,6 @@ export default function InventoryPage() {
             onChange={e => setSearchTerm(e.target.value)}
             className="w-full h-12 pr-10 pl-4 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 text-base"
           />
-        </div>
-
-        {/* Type pills */}
-        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
-          <button
-            onClick={() => setTypeFilter('all')}
-            className={`flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-              typeFilter === 'all'
-                ? 'bg-primary-600 text-white'
-                : 'bg-white text-gray-700 border border-gray-300'
-            }`}
-          >
-            הכל
-          </button>
-          {typeFilterOptions.map(opt => (
-            <button
-              key={opt.slug}
-              onClick={() => setTypeFilter(opt.slug)}
-              className={`flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                typeFilter === opt.slug
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-white text-gray-700 border border-gray-300'
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
         </div>
 
         {/* Stock filter pills */}
