@@ -34,8 +34,6 @@ export default function ProductPage() {
   const [spaces, setSpaces] = useState<any[]>([]);
   const [plantTypes, setPlantTypes] = useState<any[]>([]);
   const [plantSizes, setPlantSizes] = useState<any[]>([]);
-  const [plantLightRequirements, setPlantLightRequirements] = useState<any[]>([]);
-  const [plantCareLevels, setPlantCareLevels] = useState<any[]>([]);
   const [plantPetSafety, setPlantPetSafety] = useState<any[]>([]);
   const [productType, setProductType] = useState<any>(null);
 
@@ -217,24 +215,6 @@ export default function ProductPage() {
         setPlantSizes(productPlantSizes.map((ps: any) => ps.plant_sizes));
       }
 
-      // Fetch plant light requirements
-      const { data: productPlantLights } = await supabase
-        .from('product_plant_light_requirements')
-        .select('plant_light_requirements (*)')
-        .eq('product_id', productId);
-      if (productPlantLights) {
-        setPlantLightRequirements(productPlantLights.map((pl: any) => pl.plant_light_requirements));
-      }
-
-      // Fetch plant care levels
-      const { data: productPlantCares } = await supabase
-        .from('product_plant_care_levels')
-        .select('plant_care_levels (*)')
-        .eq('product_id', productId);
-      if (productPlantCares) {
-        setPlantCareLevels(productPlantCares.map((pc: any) => pc.plant_care_levels));
-      }
-
       // Fetch plant pet safety
       const { data: productPlantPetSafety } = await supabase
         .from('product_plant_pet_safety')
@@ -257,15 +237,16 @@ export default function ProductPage() {
       return;
     }
 
-    // For products with variant colors, require a color selection
+    // For products with variant colors, require a color selection (skip for plants)
     const variantColors = getVariantColors();
-    if (product.has_variants && variantColors.length > 0 && !selectedColor) {
+    const isPlant = productType?.slug === 'plants';
+    if (!isPlant && product.has_variants && variantColors.length > 0 && !selectedColor) {
       alert('אנא בחר צבע');
       return;
     }
 
-    // For products with product-level colors (no variant colors), require a color selection
-    if ((!product.has_variants || variantColors.length === 0) && colors.length > 0 && !selectedColor) {
+    // For products with product-level colors (no variant colors), require a color selection (skip for plants)
+    if (!isPlant && (!product.has_variants || variantColors.length === 0) && colors.length > 0 && !selectedColor) {
       alert('אנא בחר צבע');
       return;
     }
@@ -630,18 +611,6 @@ export default function ProductPage() {
                       <span className="font-semibold text-gray-800">{plantSizes.map(ps => ps.name).join(', ')}</span>
                     </div>
                   )}
-                  {plantLightRequirements.length > 0 && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">דרישות אור:</span>
-                      <span className="font-semibold text-gray-800">{plantLightRequirements.map(pl => pl.name).join(', ')}</span>
-                    </div>
-                  )}
-                  {plantCareLevels.length > 0 && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">רמת טיפול:</span>
-                      <span className="font-semibold text-gray-800">{plantCareLevels.map(pc => pc.name).join(', ')}</span>
-                    </div>
-                  )}
                   {plantPetSafety.length > 0 && (
                     <div className="flex justify-between">
                       <span className="text-gray-600">בטיחות לחיות:</span>
@@ -651,8 +620,8 @@ export default function ProductPage() {
                 </div>
               </div>
 
-              {/* Variant Color Selection (colors specific to variants) */}
-              {product.has_variants && getVariantColors().length > 0 && (
+              {/* Variant Color Selection (colors specific to variants) - hide for plants */}
+              {product.has_variants && getVariantColors().length > 0 && productType?.slug !== 'plants' && (
                 <div className="mb-6">
                   <h3 className="text-lg font-bold text-gray-800 mb-3">בחר צבע</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -696,8 +665,8 @@ export default function ProductPage() {
                 </div>
               )}
 
-              {/* Product-level Color Selection (for products without variant colors) */}
-              {(!product.has_variants || getVariantColors().length === 0) && colors.length > 0 && (
+              {/* Product-level Color Selection (for products without variant colors) - hide for plants */}
+              {(!product.has_variants || getVariantColors().length === 0) && colors.length > 0 && productType?.slug !== 'plants' && (
                 <div className="mb-6">
                   <h3 className="text-lg font-bold text-gray-800 mb-3">בחר צבע</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">

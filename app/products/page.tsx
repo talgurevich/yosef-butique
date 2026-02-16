@@ -15,8 +15,6 @@ type FilterParams = {
   space?: string;
   plantType?: string;
   plantSize?: string;
-  plantLight?: string;
-  plantCare?: string;
   plantPetSafety?: string;
 };
 
@@ -230,46 +228,6 @@ async function getProducts(filters: FilterParams = {}) {
     }
   }
 
-  // Filter by plant light requirements (junction table) - supports multiple values
-  if (filters.plantLight) {
-    const plantLightSlugs = filters.plantLight.split(',');
-    const { data: plantLightData } = await supabase
-      .from('plant_light_requirements')
-      .select('id')
-      .in('slug', plantLightSlugs);
-
-    if (plantLightData && plantLightData.length > 0) {
-      const plantLightIds = plantLightData.map(pl => pl.id);
-      const { data: productPlantLights } = await supabase
-        .from('product_plant_light_requirements')
-        .select('product_id')
-        .in('plant_light_requirement_id', plantLightIds);
-
-      const productIds = new Set(productPlantLights?.map(pl => pl.product_id) || []);
-      filteredProducts = filteredProducts.filter(p => productIds.has(p.id));
-    }
-  }
-
-  // Filter by plant care level (junction table) - supports multiple values
-  if (filters.plantCare) {
-    const plantCareSlugs = filters.plantCare.split(',');
-    const { data: plantCareData } = await supabase
-      .from('plant_care_levels')
-      .select('id')
-      .in('slug', plantCareSlugs);
-
-    if (plantCareData && plantCareData.length > 0) {
-      const plantCareIds = plantCareData.map(pc => pc.id);
-      const { data: productPlantCares } = await supabase
-        .from('product_plant_care_levels')
-        .select('product_id')
-        .in('plant_care_level_id', plantCareIds);
-
-      const productIds = new Set(productPlantCares?.map(pc => pc.product_id) || []);
-      filteredProducts = filteredProducts.filter(p => productIds.has(p.id));
-    }
-  }
-
   // Filter by plant pet safety (junction table) - supports multiple values
   if (filters.plantPetSafety) {
     const plantPetSafetySlugs = filters.plantPetSafety.split(',');
@@ -377,26 +335,6 @@ async function getPlantSizes() {
   return data || [];
 }
 
-async function getPlantLightRequirements() {
-  if (!supabase) return [];
-  const { data } = await supabase
-    .from('plant_light_requirements')
-    .select('*')
-    .eq('is_active', true)
-    .order('sort_order');
-  return data || [];
-}
-
-async function getPlantCareLevels() {
-  if (!supabase) return [];
-  const { data } = await supabase
-    .from('plant_care_levels')
-    .select('*')
-    .eq('is_active', true)
-    .order('sort_order');
-  return data || [];
-}
-
 async function getPlantPetSafety() {
   if (!supabase) return [];
   const { data } = await supabase
@@ -421,8 +359,6 @@ export default async function ProductsPage({
     space: searchParams.space as string,
     plantType: searchParams.plantType as string,
     plantSize: searchParams.plantSize as string,
-    plantLight: searchParams.plantLight as string,
-    plantCare: searchParams.plantCare as string,
     plantPetSafety: searchParams.plantPetSafety as string,
   };
 
@@ -434,8 +370,6 @@ export default async function ProductsPage({
   const spaces = await getSpaces();
   const plantTypes = await getPlantTypes();
   const plantSizes = await getPlantSizes();
-  const plantLightRequirements = await getPlantLightRequirements();
-  const plantCareLevels = await getPlantCareLevels();
   const plantPetSafety = await getPlantPetSafety();
 
   return (
@@ -517,8 +451,6 @@ export default async function ProductsPage({
           spaces={spaces}
           plantTypes={plantTypes}
           plantSizes={plantSizes}
-          plantLightRequirements={plantLightRequirements}
-          plantCareLevels={plantCareLevels}
           plantPetSafety={plantPetSafety}
           filters={filters}
         />

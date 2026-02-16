@@ -7,8 +7,6 @@ import { supabase } from '@/lib/supabase';
 export default function PlantsDropdown({ onClose }: { onClose?: () => void }) {
   const [plantTypes, setPlantTypes] = useState<any[]>([]);
   const [plantSizes, setPlantSizes] = useState<any[]>([]);
-  const [plantLightRequirements, setPlantLightRequirements] = useState<any[]>([]);
-  const [plantCareLevels, setPlantCareLevels] = useState<any[]>([]);
   const [plantPetSafety, setPlantPetSafety] = useState<any[]>([]);
 
   useEffect(() => {
@@ -31,20 +29,6 @@ export default function PlantsDropdown({ onClose }: { onClose?: () => void }) {
       .eq('is_active', true)
       .order('sort_order');
     setPlantSizes(plantSizesData || []);
-
-    const { data: plantLightData } = await supabase
-      .from('plant_light_requirements')
-      .select('*')
-      .eq('is_active', true)
-      .order('sort_order');
-    setPlantLightRequirements(plantLightData || []);
-
-    const { data: plantCareData } = await supabase
-      .from('plant_care_levels')
-      .select('*')
-      .eq('is_active', true)
-      .order('sort_order');
-    setPlantCareLevels(plantCareData || []);
 
     const { data: plantPetData } = await supabase
       .from('plant_pet_safety')
@@ -92,44 +76,6 @@ export default function PlantsDropdown({ onClose }: { onClose?: () => void }) {
                     className="block px-3 py-2 rounded-lg text-sm hover:bg-green-50 text-gray-700 transition-colors"
                   >
                     {size.name}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Plant Light Requirements */}
-          {plantLightRequirements.length > 0 && (
-            <div>
-              <h4 className="text-sm font-semibold text-gray-700 mb-3">דרישות אור</h4>
-              <div className="space-y-2">
-                {plantLightRequirements.map((light) => (
-                  <Link
-                    key={light.id}
-                    href={`/products?type=plants&plantLight=${light.slug}`}
-                    onClick={onClose}
-                    className="block px-3 py-2 rounded-lg text-sm hover:bg-green-50 text-gray-700 transition-colors"
-                  >
-                    {light.name}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Plant Care Levels */}
-          {plantCareLevels.length > 0 && (
-            <div>
-              <h4 className="text-sm font-semibold text-gray-700 mb-3">רמת טיפול</h4>
-              <div className="space-y-2">
-                {plantCareLevels.map((care) => (
-                  <Link
-                    key={care.id}
-                    href={`/products?type=plants&plantCare=${care.slug}`}
-                    onClick={onClose}
-                    className="block px-3 py-2 rounded-lg text-sm hover:bg-green-50 text-gray-700 transition-colors"
-                  >
-                    {care.name}
                   </Link>
                 ))}
               </div>

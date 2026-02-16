@@ -11,8 +11,6 @@ type FilterData = {
   spaces: any[];
   plantTypes: any[];
   plantSizes: any[];
-  plantLightRequirements: any[];
-  plantCareLevels: any[];
   plantPetSafety: any[];
   filters: {
     category?: string;
@@ -22,8 +20,6 @@ type FilterData = {
     space?: string;
     plantType?: string;
     plantSize?: string;
-    plantLight?: string;
-    plantCare?: string;
     plantPetSafety?: string;
   };
   productsCount: number;
@@ -38,8 +34,6 @@ export default function ProductFilters({
   spaces,
   plantTypes,
   plantSizes,
-  plantLightRequirements,
-  plantCareLevels,
   plantPetSafety,
   filters,
   productsCount,
@@ -57,8 +51,6 @@ export default function ProductFilters({
     spaces: filters.space ? filters.space.split(',') : [],
     plantTypes: filters.plantType ? filters.plantType.split(',') : [],
     plantSizes: filters.plantSize ? filters.plantSize.split(',') : [],
-    plantLights: filters.plantLight ? filters.plantLight.split(',') : [],
-    plantCares: filters.plantCare ? filters.plantCare.split(',') : [],
     plantPetSafety: filters.plantPetSafety ? filters.plantPetSafety.split(',') : [],
   });
 
@@ -115,12 +107,6 @@ export default function ProductFilters({
     if (selectedFilters.plantSizes.length > 0) {
       params.set('plantSize', selectedFilters.plantSizes.join(','));
     }
-    if (selectedFilters.plantLights.length > 0) {
-      params.set('plantLight', selectedFilters.plantLights.join(','));
-    }
-    if (selectedFilters.plantCares.length > 0) {
-      params.set('plantCare', selectedFilters.plantCares.join(','));
-    }
     if (selectedFilters.plantPetSafety.length > 0) {
       params.set('plantPetSafety', selectedFilters.plantPetSafety.join(','));
     }
@@ -139,8 +125,6 @@ export default function ProductFilters({
       spaces: [],
       plantTypes: [],
       plantSizes: [],
-      plantLights: [],
-      plantCares: [],
       plantPetSafety: [],
     });
     router.push('/products');
@@ -154,8 +138,6 @@ export default function ProductFilters({
     selectedFilters.spaces.length > 0 ||
     selectedFilters.plantTypes.length > 0 ||
     selectedFilters.plantSizes.length > 0 ||
-    selectedFilters.plantLights.length > 0 ||
-    selectedFilters.plantCares.length > 0 ||
     selectedFilters.plantPetSafety.length > 0;
 
   // Prevent body scroll when panel is open
@@ -403,52 +385,6 @@ export default function ProductFilters({
                           className="ml-2 w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
                         />
                         <span className="text-sm text-gray-700">{size.name}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Plant Light Requirements */}
-              {plantLightRequirements.length > 0 && (
-                <div>
-                  <h4 className="text-sm font-semibold text-gray-700 mb-2 px-2">דרישות אור</h4>
-                  <div className="space-y-1">
-                    {plantLightRequirements.map((light) => (
-                      <label
-                        key={light.id}
-                        className="flex items-center px-3 py-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedFilters.plantLights.includes(light.slug)}
-                          onChange={() => toggleFilter('plantLights', light.slug)}
-                          className="ml-2 w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
-                        />
-                        <span className="text-sm text-gray-700">{light.name}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Plant Care Levels */}
-              {plantCareLevels.length > 0 && (
-                <div>
-                  <h4 className="text-sm font-semibold text-gray-700 mb-2 px-2">רמת טיפול</h4>
-                  <div className="space-y-1">
-                    {plantCareLevels.map((care) => (
-                      <label
-                        key={care.id}
-                        className="flex items-center px-3 py-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedFilters.plantCares.includes(care.slug)}
-                          onChange={() => toggleFilter('plantCares', care.slug)}
-                          className="ml-2 w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
-                        />
-                        <span className="text-sm text-gray-700">{care.name}</span>
                       </label>
                     ))}
                   </div>
