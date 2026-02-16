@@ -2,9 +2,11 @@
 
 import { FaWhatsapp } from 'react-icons/fa';
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 
 export default function FloatingWhatsApp() {
   const [isVisible, setIsVisible] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     // Show button after a short delay for smooth entrance
@@ -14,6 +16,11 @@ export default function FloatingWhatsApp() {
 
     return () => clearTimeout(timer);
   }, []);
+
+  // Hide on admin pages
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
 
   return (
     <a
