@@ -9,7 +9,7 @@ import Link from 'next/link';
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { cartItems, getFinalTotal, clearCart } = useCart();
+  const { cartItems, getFinalTotal, getCartTotal, getDiscountAmount, getDeliveryCost, appliedCoupon, clearCart } = useCart();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [isClient, setIsClient] = useState(false);
@@ -46,12 +46,32 @@ export default function CheckoutPage() {
 
     try {
       // Prepare items for PayPlus
-      const items = cartItems.map(item => ({
+      const items: { name: string; price: number; quantity: number; vat_type: number }[] = cartItems.map(item => ({
         name: `${item.productName} - ${item.variantSize}`,
         price: item.price,
         quantity: item.quantity,
         vat_type: 0, // 0 = VAT included
       }));
+
+      // Add delivery as a line item if not free
+      if (getDeliveryCost() > 0) {
+        items.push({
+          name: 'משלוח',
+          price: getDeliveryCost(),
+          quantity: 1,
+          vat_type: 0,
+        });
+      }
+
+      // Add discount as a negative line item if applicable
+      if (getDiscountAmount() > 0) {
+        items.push({
+          name: `הנחה${appliedCoupon ? ` (${appliedCoupon.code})` : ''}`,
+          price: -getDiscountAmount(),
+          quantity: 1,
+          vat_type: 0,
+        });
+      }
 
       // Prepare customer data
       const customer = {
@@ -151,8 +171,24 @@ export default function CheckoutPage() {
                 ))}
               </div>
 
-              <div className="border-t border-gray-300 pt-4">
-                <div className="flex justify-between items-center text-xl font-bold text-gray-800">
+              <div className="border-t border-gray-300 pt-4 space-y-2">
+                <div className="flex justify-between text-gray-600">
+                  <span>סכום ביניים</span>
+                  <span>₪{getCartTotal().toLocaleString()}</span>
+                </div>
+                {getDiscountAmount() > 0 && (
+                  <div className="flex justify-between text-green-600">
+                    <span>הנחה{appliedCoupon ? ` (${appliedCoupon.code})` : ''}</span>
+                    <span>-₪{getDiscountAmount().toLocaleString()}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-gray-600">
+                  <span>משלוח</span>
+                  <span className={getDeliveryCost() === 0 ? 'text-green-600 font-semibold' : ''}>
+                    {getDeliveryCost() === 0 ? 'חינם!' : `₪${getDeliveryCost().toLocaleString()}`}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-xl font-bold text-gray-800 pt-2 border-t border-gray-200">
                   <span>סה"כ לתשלום:</span>
                   <span>₪{getFinalTotal().toLocaleString()}</span>
                 </div>
