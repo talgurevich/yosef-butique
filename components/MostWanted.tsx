@@ -94,8 +94,13 @@ function ProductCard({ product, index }: { product: any; index: number }) {
     });
   }
 
+  // Calculate stock: check variant stock first, fall back to product-level stock
+  const allVariants = product.product_variants || [];
+  const totalVariantStock = allVariants.reduce((sum: number, v: any) => sum + (v.stock_quantity || 0), 0);
+  const inStock = allVariants.length > 0 ? totalVariantStock > 0 : product.stock_quantity > 0;
+
   // Calculate display price - use lowest variant price if available
-  const activeVariants = (product.product_variants || []).filter((v: any) => v.is_active && v.price > 0);
+  const activeVariants = allVariants.filter((v: any) => v.is_active && v.price > 0);
   const lowestVariantPrice = activeVariants.length > 0
     ? Math.min(...activeVariants.map((v: any) => v.price))
     : null;
@@ -184,7 +189,7 @@ function ProductCard({ product, index }: { product: any; index: number }) {
               </span>
             )}
           </div>
-          {product.stock_quantity > 0 ? (
+          {inStock ? (
             <span className="flex items-center gap-1 text-sm text-green-300 font-semibold bg-green-500/30 backdrop-blur-sm px-3 py-1 rounded-full">
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
