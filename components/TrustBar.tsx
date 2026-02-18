@@ -13,8 +13,8 @@ export default function TrustBar() {
               </div>
             </div>
             <div>
-              <h3 className="font-bold text-gray-900 text-sm mb-1">משלוח חינם</h3>
-              <p className="text-gray-600 text-xs font-light">משלוח חינם בקנייה מעל ₪990</p>
+              <h3 className="font-bold text-gray-900 text-sm mb-1">משלוח מהיר</h3>
+              <p className="text-gray-600 text-xs font-light">3-5 ימי עסקים</p>
             </div>
           </div>
 
