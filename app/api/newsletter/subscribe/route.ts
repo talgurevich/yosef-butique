@@ -89,36 +89,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Use fixed promo code for all subscribers
-    const promoCode = 'WELCOME123456';
-
-    // Ensure the promo code exists in database (create if doesn't exist)
-    const { data: existingPromo } = await supabaseAdmin
-      .from('promo_codes')
-      .select('id')
-      .eq('code', promoCode)
-      .single();
-
-    if (!existingPromo) {
-      const { error: promoError } = await supabaseAdmin
-        .from('promo_codes')
-        .insert([{
-          code: promoCode,
-          discount_type: 'percentage',
-          discount_value: 10,
-          min_purchase_amount: 0,
-          max_uses: null, // Unlimited uses
-          uses_per_customer: 1, // Each customer can use once
-          is_active: true,
-          expires_at: null, // Never expires
-        }]);
-
-      if (promoError) {
-        console.error('Error creating promo code:', promoError);
-        // Continue even if promo code creation fails
-      }
-    }
-
     // Add subscriber to database
     const { data: subscriber, error: insertError } = await supabaseAdmin
       .from('newsletter_subscribers')
@@ -173,7 +143,7 @@ export async function POST(request: NextRequest) {
         const msg = {
           to: email,
           from: process.env.SENDGRID_FROM_EMAIL || 'info@boutique-yossef.co.il',
-          subject: 'ברוכים הבאים לשטיחי בוטיק יוסף - קוד הנחה בפנים! 🎁',
+          subject: 'ברוכים הבאים לשטיחי בוטיק יוסף! 🏡',
           html: `
             <!DOCTYPE html>
             <html dir="rtl" lang="he">
@@ -184,8 +154,6 @@ export async function POST(request: NextRequest) {
                 .container { max-width: 600px; margin: 0 auto; padding: 20px; }
                 .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
                 .content { background: #ffffff; padding: 30px; border: 1px solid #e0e0e0; }
-                .promo-box { background: #f8f9fa; border: 2px dashed #667eea; padding: 20px; margin: 20px 0; text-align: center; border-radius: 8px; }
-                .promo-code { font-size: 28px; font-weight: bold; color: #667eea; letter-spacing: 2px; margin: 10px 0; }
                 .button { display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
                 .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
               </style>
@@ -193,42 +161,35 @@ export async function POST(request: NextRequest) {
             <body>
               <div class="container">
                 <div class="header">
-                  <h1>🎉 ברוכים הבאים לשטיחי בוטיק יוסף!</h1>
+                  <h1>ברוכים הבאים לשטיחי בוטיק יוסף!</h1>
                 </div>
                 <div class="content">
                   <h2>שלום ${full_name || 'לקוח יקר'},</h2>
                   <p>תודה שהצטרפת לניוזלטר שלנו! אנחנו שמחים שבחרת להצטרף למשפחת שטיחי בוטיק יוסף.</p>
 
-                  <div class="promo-box">
-                    <h3>🎁 מתנה מיוחדת בשבילך!</h3>
-                    <p>קבל <strong>10% הנחה</strong> על הרכישה הראשונה שלך</p>
-                    <div class="promo-code">${promoCode}</div>
-                    <p style="font-size: 14px; color: #666;">העתק את הקוד והשתמש בו בקופה</p>
-                  </div>
-
                   <p>בניוזלטר שלנו תקבל:</p>
                   <ul>
-                    <li>✨ עדכונים על מוצרים חדשים</li>
-                    <li>🎯 הצעות בלעדיות וקודי הנחה</li>
-                    <li>💡 טיפים לעיצוב הבית</li>
-                    <li>🎁 מבצעים מיוחדים רק למנויים</li>
+                    <li>עדכונים על מוצרים חדשים</li>
+                    <li>הצעות בלעדיות והטבות</li>
+                    <li>טיפים לעיצוב הבית</li>
+                    <li>מבצעים מיוחדים רק למנויים</li>
                   </ul>
 
                   <div style="text-align: center;">
-                    <a href="https://boutique-yossef.co.il/products" class="button">התחל לקנות עכשיו</a>
+                    <a href="https://boutique-yossef.co.il/products" class="button">צפו במוצרים שלנו</a>
                   </div>
 
                   <p>נשמח לעמוד לשירותך בכל שאלה!</p>
                   <p>
                     <strong>שטיחי בוטיק יוסף</strong><br>
-                    📞 051-509-2208<br>
-                    📍 השקד משק 47, מושב בית עזרא
+                    051-509-2208<br>
+                    השקד משק 47, מושב בית עזרא
                   </p>
                 </div>
                 <div class="footer">
                   <p>קיבלת מייל זה כי נרשמת לניוזלטר שלנו</p>
                   <p><a href="https://boutique-yossef.co.il/newsletter/unsubscribe?email=${encodeURIComponent(email)}">בטל הירשמות</a></p>
-                  <p>© ${new Date().getFullYear()} שטיחי בוטיק יוסף. כל הזכויות שמורות.</p>
+                  <p>&copy; ${new Date().getFullYear()} שטיחי בוטיק יוסף. כל הזכויות שמורות.</p>
                 </div>
               </div>
             </body>
@@ -241,32 +202,23 @@ export async function POST(request: NextRequest) {
 
 תודה שהצטרפת לניוזלטר שלנו!
 
-קוד הנחה מיוחד בשבילך: ${promoCode}
-קבל 10% הנחה על הרכישה הראשונה שלך
-
 בניוזלטר שלנו תקבל:
 - עדכונים על מוצרים חדשים
-- הצעות בלעדיות וקודי הנחה
+- הצעות בלעדיות והטבות
 - טיפים לעיצוב הבית
 - מבצעים מיוחדים רק למנויים
 
-התחל לקנות: https://boutique-yossef.co.il/products
+צפו במוצרים שלנו: https://boutique-yossef.co.il/products
 
 שטיחי בוטיק יוסף
-📞 051-509-2208
-📍 השקד משק 47, מושב בית עזרא
+051-509-2208
+השקד משק 47, מושב בית עזרא
 
 לביטול הירשמות: https://boutique-yossef.co.il/newsletter/unsubscribe?email=${encodeURIComponent(email)}
           `,
         };
 
         await sgMail.send(msg);
-
-        // Mark promo code as sent
-        await supabaseAdmin
-          .from('newsletter_subscribers')
-          .update({ promo_code_sent: true })
-          .eq('id', subscriber.id);
 
       } catch (emailError: any) {
         console.error('Error sending welcome email:', emailError);
@@ -276,8 +228,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: 'תודה על ההרשמה! בדוק את המייל שלך לקוד הנחה של 10%',
-      promoCode // Return the promo code for immediate display
+      message: 'תודה על ההרשמה! נשמח לעדכן אותך במבצעים והטבות'
     });
 
   } catch (error: any) {

@@ -33,12 +33,7 @@ export default function Footer() {
       setMessage(data.message);
       setEmail('');
 
-      // Show promo code if available
-      if (data.promoCode) {
-        alert(`🎉 ${data.message}\n\nקוד ההנחה שלך: ${data.promoCode}\n\nהעתק אותו ושמור לרכישה הבאה!`);
-      } else {
-        alert(data.message);
-      }
+      alert(data.message);
     } catch (error: any) {
       setMessage(error.message);
       alert('❌ ' + error.message);
@@ -58,8 +53,7 @@ export default function Footer() {
                 הצטרפו לניוזלטר שלנו
               </h3>
               <p className="text-primary-100 text-lg font-light">
-                קבלו הנחה של 10% על הרכישה הראשונה שלכם
-                <span className="font-serif italic"> והישארו מעודכנים</span>
+                הישארו מעודכנים עם <span className="font-serif italic">מבצעים והטבות בלעדיות</span>
               </p>
             </div>
             <form
