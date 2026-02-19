@@ -6,13 +6,13 @@
 - Automatically includes all active products
 - Updates when products are added/removed
 - Includes static pages with proper priorities
-- **Access:** https://yossef-boutique.co.il/sitemap.xml
+- **Access:** https://boutique-yossef.co.il/sitemap.xml
 
 ### 2. **Robots.txt** (`/robots.txt`)
 - Allows search engine crawling
 - Blocks admin and API routes
 - Points to sitemap
-- **Access:** https://yossef-boutique.co.il/robots.txt
+- **Access:** https://boutique-yossef.co.il/robots.txt
 
 ### 3. **Enhanced Metadata**
 - Open Graph tags for social sharing
@@ -41,7 +41,7 @@
 
 1. **Submit Sitemap:**
    - Go to Search Console → Sitemaps
-   - Add: `https://yossef-boutique.co.il/sitemap.xml`
+   - Add: `https://boutique-yossef.co.il/sitemap.xml`
    - Click "Submit"
 
 2. **Get Verification Code:**

@@ -14,6 +14,6 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    sitemap: 'https://yossef-boutique.co.il/sitemap.xml',
+    sitemap: 'https://boutique-yossef.co.il/sitemap.xml',
   };
 }

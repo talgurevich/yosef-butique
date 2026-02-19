@@ -37,7 +37,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://yossef-boutique.co.il'),
+  metadataBase: new URL('https://boutique-yossef.co.il'),
   title: {
     default: "שטיחי בוטיק יוסף | שטיחים איכותיים לבית",
     template: "%s | שטיחי בוטיק יוסף",
@@ -59,12 +59,12 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: 'https://yossef-boutique.co.il',
+    canonical: 'https://boutique-yossef.co.il',
   },
   openGraph: {
     type: 'website',
     locale: 'he_IL',
-    url: 'https://yossef-boutique.co.il',
+    url: 'https://boutique-yossef.co.il',
     siteName: 'שטיחי בוטיק יוסף',
     title: 'שטיחי בוטיק יוסף | שטיחים איכותיים לבית',
     description: 'שטיחים איכותיים לכל בית - מבחר רחב של שטיחים מודרניים, קלאסיים ומעוצבים. משלוח מהיר לכל הארץ',

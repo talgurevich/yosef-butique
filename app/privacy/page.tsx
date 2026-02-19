@@ -197,7 +197,7 @@ export default function PrivacyPage() {
               <div className="bg-gray-50 p-6 rounded-lg mb-4">
                 <p className="text-gray-800 font-semibold mb-3">רכז הפרטיות - יוסף בוטיק בע״מ</p>
                 <ul className="list-none text-gray-600 space-y-2">
-                  <li>📧 אימייל: privacy@yossef-boutique.co.il</li>
+                  <li>📧 אימייל: privacy@boutique-yossef.co.il</li>
                   <li>📞 טלפון: 051-509-2208</li>
                   <li>📍 כתובת: השקד משק 47, מושב בית עזרא, ישראל</li>
                   <li>⏰ שעות פעילות: ראשון-חמישי 9:00-17:00</li>

@@ -150,7 +150,7 @@ export default function TermsPage() {
                 לשאלות או הבהרות בנוגע לתנאי השימוש, ניתן ליצור קשר:
               </p>
               <ul className="list-none text-gray-600 space-y-2">
-                <li>📧 אימייל: info@yossef-boutique.co.il</li>
+                <li>📧 אימייל: info@boutique-yossef.co.il</li>
                 <li>📞 טלפון: 051-509-2208</li>
                 <li>📍 כתובת: השקד משק 47, מושב בית עזרא</li>
               </ul>

@@ -5,7 +5,7 @@ export default function StructuredData() {
     name: 'שטיחי בוטיק יוסף',
     alternateName: 'Boutique Joseph Carpets',
     description: 'שטיחים איכותיים לכל בית - מבחר רחב של שטיחים מודרניים, קלאסיים ומעוצבים',
-    url: 'https://yossef-boutique.co.il',
+    url: 'https://boutique-yossef.co.il',
     telephone: '+972-51-509-2208',
     email: 'info@boutique-yossef.co.il',
     address: {
@@ -39,20 +39,20 @@ export default function StructuredData() {
       'https://www.tiktok.com/@butiqyossef1',
     ],
     priceRange: '₪₪',
-    image: 'https://yossef-boutique.co.il/og-image.jpg',
-    '@id': 'https://yossef-boutique.co.il/#organization',
+    image: 'https://boutique-yossef.co.il/og-image.jpg',
+    '@id': 'https://boutique-yossef.co.il/#organization',
   };
 
   const websiteSchema = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: 'שטיחי בוטיק יוסף',
-    url: 'https://yossef-boutique.co.il',
+    url: 'https://boutique-yossef.co.il',
     potentialAction: {
       '@type': 'SearchAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: 'https://yossef-boutique.co.il/products?search={search_term_string}',
+        urlTemplate: 'https://boutique-yossef.co.il/products?search={search_term_string}',
       },
       'query-input': 'required name=search_term_string',
     },

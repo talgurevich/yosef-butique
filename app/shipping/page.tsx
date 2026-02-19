@@ -220,7 +220,7 @@ export default function ShippingPage() {
                         </p>
                         <ul className="text-sm text-gray-600 space-y-1">
                           <li>📞 טלפון: 051-509-2208</li>
-                          <li>📧 אימייל: returns@yossef-boutique.co.il</li>
+                          <li>📧 אימייל: returns@boutique-yossef.co.il</li>
                         </ul>
                       </div>
                     </div>
@@ -307,8 +307,8 @@ export default function ShippingPage() {
                       </li>
                       <li className="flex items-center gap-2">
                         <span>📧</span>
-                        <a href="mailto:info@yossef-boutique.co.il" className="hover:text-primary-600">
-                          info@yossef-boutique.co.il
+                        <a href="mailto:info@boutique-yossef.co.il" className="hover:text-primary-600">
+                          info@boutique-yossef.co.il
                         </a>
                       </li>
                       <li className="flex items-center gap-2">
