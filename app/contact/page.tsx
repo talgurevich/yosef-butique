@@ -7,6 +7,8 @@ import Breadcrumbs from '@/components/Breadcrumbs';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
+// Note: metadata is exported from layout.tsx for this route since this is a client component
+
 export default function ContactPage() {
   const [formData, setFormData] = useState({
     name: '',

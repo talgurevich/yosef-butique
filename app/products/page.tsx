@@ -1,3 +1,4 @@
+import { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -6,6 +7,20 @@ import Breadcrumbs from '@/components/Breadcrumbs';
 
 // Revalidate every 60 seconds
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: 'כל המוצרים | שטיחים ועציצים',
+  description: 'מבחר רחב של שטיחים איכותיים ועציצים מעוצבים לבית. סגנונות מודרניים וקלאסיים, משלוח מהיר לכל הארץ. שטיחי בוטיק יוסף.',
+  alternates: {
+    canonical: '/products',
+  },
+  openGraph: {
+    title: 'כל המוצרים | שטיחי בוטיק יוסף',
+    description: 'מבחר רחב של שטיחים איכותיים ועציצים מעוצבים לבית. סגנונות מודרניים וקלאסיים, משלוח מהיר לכל הארץ.',
+    type: 'website',
+    locale: 'he_IL',
+  },
+};
 
 type FilterParams = {
   category?: string;

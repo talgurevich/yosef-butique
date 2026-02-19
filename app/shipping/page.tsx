@@ -1,6 +1,13 @@
+import { Metadata } from 'next';
 import Link from 'next/link';
 import { FaTruck, FaUndo, FaBoxOpen, FaPhone } from 'react-icons/fa';
 import Breadcrumbs from '@/components/Breadcrumbs';
+
+export const metadata: Metadata = {
+  title: 'משלוחים והחזרות',
+  description: 'מדיניות משלוחים והחזרות של שטיחי בוטיק יוסף. משלוח מהיר 3-5 ימי עסקים, החזרה עד 14 יום, החזר כספי מלא.',
+  alternates: { canonical: '/shipping' },
+};
 
 export default function ShippingPage() {
   return (

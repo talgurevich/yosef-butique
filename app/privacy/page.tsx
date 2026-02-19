@@ -1,5 +1,12 @@
+import { Metadata } from 'next';
 import Link from 'next/link';
 import Breadcrumbs from '@/components/Breadcrumbs';
+
+export const metadata: Metadata = {
+  title: 'מדיניות פרטיות',
+  description: 'מדיניות הפרטיות של שטיחי בוטיק יוסף. כיצד אנו אוספים, משתמשים ומגנים על המידע האישי שלכם.',
+  alternates: { canonical: '/privacy' },
+};
 
 export default function PrivacyPage() {
   return (

@@ -1,5 +1,12 @@
+import { Metadata } from 'next';
 import Link from 'next/link';
 import Breadcrumbs from '@/components/Breadcrumbs';
+
+export const metadata: Metadata = {
+  title: 'תנאי שימוש',
+  description: 'תנאי השימוש באתר שטיחי בוטיק יוסף. מידע על מדיניות רכישה, תשלום, משלוח, החזרות ואחריות.',
+  alternates: { canonical: '/terms' },
+};
 
 export default function TermsPage() {
   return (

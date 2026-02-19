@@ -1,8 +1,23 @@
+import { Metadata } from 'next';
 import Link from 'next/link';
 import { FaHeart, FaLeaf, FaStar, FaUsers, FaHome, FaTruck, FaAward, FaHandshake } from 'react-icons/fa';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+
+export const metadata: Metadata = {
+  title: 'אודות | הסיפור שלנו',
+  description: 'שטיחי בוטיק יוסף - עסק משפחתי מאז 1987. למעלה מ-35 שנה של מסירות, איכות ואהבה לעיצוב הבית. מושב בית עזרא.',
+  alternates: {
+    canonical: '/about',
+  },
+  openGraph: {
+    title: 'אודות | שטיחי בוטיק יוסף',
+    description: 'עסק משפחתי מאז 1987. למעלה מ-35 שנה של מסירות, איכות ואהבה לעיצוב הבית.',
+    type: 'website',
+    locale: 'he_IL',
+  },
+};
 
 export default function AboutPage() {
   return (
