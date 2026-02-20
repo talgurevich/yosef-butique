@@ -42,10 +42,24 @@ export default function ProductPageClient({
 
   const [product] = useState<any>(initialProduct);
   const [variants, setVariants] = useState<ProductVariant[]>(initialVariants);
-  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
-  const [selectedColor, setSelectedColor] = useState<any>(
-    initialColors.length > 0 ? initialColors[0] : null
-  );
+
+  // Auto-select first in-stock variant (or first variant if none in stock)
+  const getInitialVariant = (): ProductVariant | null => {
+    if (!initialProduct.has_variants || initialVariants.length === 0) return null;
+    const inStockVariant = initialVariants.find((v: any) => v.stock_quantity > 0);
+    return inStockVariant || initialVariants[0];
+  };
+
+  // Auto-select color: prefer the initial variant's color, then first product color
+  const getInitialColor = () => {
+    const initVariant = getInitialVariant() as any;
+    if (initVariant?.colors) return initVariant.colors;
+    if (initialColors.length > 0) return initialColors[0];
+    return null;
+  };
+
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(getInitialVariant());
+  const [selectedColor, setSelectedColor] = useState<any>(getInitialColor());
   const [productImages] = useState<any[]>(initialImages);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
