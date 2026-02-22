@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     if (!apiKey || !secretKey || !paymentPageUid) {
       console.error('Missing PayPlus credentials:', { apiKey: !!apiKey, secretKey: !!secretKey, paymentPageUid: !!paymentPageUid });
       return NextResponse.json(
-        { error: 'Payment system not configured' },
+        { error: 'Payment system not configured', debug: { hasApiKey: !!apiKey, hasSecretKey: !!secretKey, hasPageUid: !!paymentPageUid, envKeys: Object.keys(process.env).filter(k => k.includes('PAYPLUS')).join(',') } },
         { status: 500 }
       );
     }
