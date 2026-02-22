@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     const apiUrl = process.env.PAYPLUS_API_URL || 'https://restapi.payplus.co.il/api/v1.0';
 
     if (!apiKey || !secretKey || !paymentPageUid) {
-      console.error('Missing PayPlus credentials');
+      console.error('Missing PayPlus credentials:', { apiKey: !!apiKey, secretKey: !!secretKey, paymentPageUid: !!paymentPageUid });
       return NextResponse.json(
         { error: 'Payment system not configured' },
         { status: 500 }
