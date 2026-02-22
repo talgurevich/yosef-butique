@@ -1,4 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+
+type CartItemPayload = {
+  productId: string;
+  variantId: string;
+  productName: string;
+  variantSize: string;
+  variantColor?: string;
+  price: number;
+  quantity: number;
+  slug: string;
+};
+
+function generateOrderNumber(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return `BYS-${code}`;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,6 +30,10 @@ export async function POST(request: NextRequest) {
       customer,
       items,
       more_info,
+      cartItems,
+      deliveryCost = 0,
+      discountAmount = 0,
+      couponCode,
     } = body;
 
     // Validate required fields
@@ -33,6 +58,79 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Create Supabase admin client for DB writes
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+
+    // Generate order number and compute tax
+    const orderNumber = generateOrderNumber();
+    const total = parseFloat(amount);
+    const subtotal = (cartItems as CartItemPayload[] | undefined)?.reduce(
+      (sum: number, item: CartItemPayload) => sum + item.price * item.quantity,
+      0
+    ) ?? total;
+    const tax = Math.round((total * 18 / 118) * 100) / 100;
+
+    // Create pending order
+    const { data: orderData, error: orderError } = await supabaseAdmin
+      .from('orders')
+      .insert({
+        order_number: orderNumber,
+        status: 'pending',
+        payment_status: 'pending',
+        customer_name: customer?.customer_name || '',
+        customer_email: customer?.email || '',
+        customer_phone: customer?.phone || '',
+        subtotal,
+        delivery_cost: deliveryCost,
+        discount_amount: discountAmount,
+        coupon_code: couponCode || null,
+        total,
+        tax,
+        notes: more_info || null,
+        currency: currency_code,
+        created_at: new Date().toISOString(),
+      })
+      .select('id')
+      .single();
+
+    if (orderError) {
+      console.error('Error creating order:', orderError);
+      return NextResponse.json(
+        { error: 'Failed to create order' },
+        { status: 500 }
+      );
+    }
+
+    const orderId = orderData.id;
+
+    // Create order items
+    if (cartItems && Array.isArray(cartItems) && cartItems.length > 0) {
+      const orderItems = (cartItems as CartItemPayload[]).map((item) => ({
+        order_id: orderId,
+        product_id: item.productId,
+        variant_id: item.variantId,
+        product_name: item.productName,
+        variant_size: item.variantSize,
+        variant_color: item.variantColor || null,
+        price: item.price,
+        quantity: item.quantity,
+        slug: item.slug,
+      }));
+
+      const { error: itemsError } = await supabaseAdmin
+        .from('order_items')
+        .insert(orderItems);
+
+      if (itemsError) {
+        console.error('Error creating order items:', itemsError);
+        // Non-fatal: order exists but items failed - log and continue
+      }
+    }
+
     // Get the base URL for callbacks
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://boutique-yossef.co.il';
 
@@ -40,7 +138,7 @@ export async function POST(request: NextRequest) {
     const payPlusRequest = {
       payment_page_uid: paymentPageUid,
       charge_method: 1, // 1 = Charge (J4) - immediate payment
-      amount: parseFloat(amount),
+      amount: total,
       currency_code,
       sendEmailApproval: true,
       sendEmailFailure: false,
@@ -79,12 +177,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('Payment link generated successfully');
+    // Update order with PayPlus page_request_uid
+    const { error: updateError } = await supabaseAdmin
+      .from('orders')
+      .update({ payplus_transaction_id: data.data.page_request_uid })
+      .eq('id', orderId);
+
+    if (updateError) {
+      console.error('Error updating order with page_request_uid:', updateError);
+    }
+
+    console.log('Payment link generated successfully, order:', orderNumber);
 
     return NextResponse.json({
       success: true,
       payment_link: data.data.payment_page_link,
       page_request_uid: data.data.page_request_uid,
+      order_number: orderNumber,
     });
 
   } catch (error: any) {

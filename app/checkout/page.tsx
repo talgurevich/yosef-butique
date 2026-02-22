@@ -45,6 +45,10 @@ export default function CheckoutPage() {
     setError('');
 
     try {
+      // Test product rule: zero delivery if any item is a test product
+      const isTestOrder = cartItems.some(item => item.productName.includes('ניסיון'));
+      const effectiveDeliveryCost = isTestOrder ? 0 : getDeliveryCost();
+
       // Prepare items for PayPlus
       const items: { name: string; price: number; quantity: number; vat_type: number }[] = cartItems.map(item => ({
         name: `${item.productName} - ${item.variantSize}`,
@@ -54,10 +58,10 @@ export default function CheckoutPage() {
       }));
 
       // Add delivery as a line item if not free
-      if (getDeliveryCost() > 0) {
+      if (effectiveDeliveryCost > 0) {
         items.push({
           name: 'משלוח',
-          price: getDeliveryCost(),
+          price: effectiveDeliveryCost,
           quantity: 1,
           vat_type: 0,
         });
@@ -80,6 +84,9 @@ export default function CheckoutPage() {
         phone: formData.phone,
       };
 
+      // Compute final total with effective delivery cost
+      const finalTotal = Math.max(0, getCartTotal() - getDiscountAmount() + effectiveDeliveryCost);
+
       // Call our API to generate payment link
       const response = await fetch('/api/payment/generate-link', {
         method: 'POST',
@@ -87,11 +94,24 @@ export default function CheckoutPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          amount: getFinalTotal(),
+          amount: finalTotal,
           currency_code: 'ILS',
           customer,
           items,
           more_info: formData.notes || undefined,
+          cartItems: cartItems.map(item => ({
+            productId: item.productId,
+            variantId: item.variantId,
+            productName: item.productName,
+            variantSize: item.variantSize,
+            variantColor: item.variantColor,
+            price: item.price,
+            quantity: item.quantity,
+            slug: item.slug,
+          })),
+          deliveryCost: effectiveDeliveryCost,
+          discountAmount: getDiscountAmount(),
+          couponCode: appliedCoupon?.code || undefined,
         }),
       });
 
@@ -101,9 +121,12 @@ export default function CheckoutPage() {
         throw new Error(data.error || 'Failed to generate payment link');
       }
 
-      // Store cart info in session storage for post-payment processing
+      // Store cart info and order number in session storage
       sessionStorage.setItem('checkout_cart', JSON.stringify(cartItems));
       sessionStorage.setItem('checkout_customer', JSON.stringify(customer));
+      if (data.order_number) {
+        sessionStorage.setItem('order_number', data.order_number);
+      }
 
       // Redirect to PayPlus payment page
       window.location.href = data.payment_link;

@@ -12,6 +12,7 @@ export default function PaymentSuccessPage() {
   const searchParams = useSearchParams();
   const { clearCart } = useCart();
   const [transactionData, setTransactionData] = useState<any>(null);
+  const [orderNumber, setOrderNumber] = useState<string | null>(null);
 
   useEffect(() => {
     // Clear cart on successful payment
@@ -29,9 +30,16 @@ export default function PaymentSuccessPage() {
 
     setTransactionData(data);
 
+    // Get order number from session storage
+    const storedOrderNumber = sessionStorage.getItem('order_number');
+    if (storedOrderNumber) {
+      setOrderNumber(storedOrderNumber);
+    }
+
     // Clear checkout session storage
     sessionStorage.removeItem('checkout_cart');
     sessionStorage.removeItem('checkout_customer');
+    sessionStorage.removeItem('order_number');
   }, [clearCart, searchParams]);
 
   return (
@@ -64,9 +72,15 @@ export default function PaymentSuccessPage() {
             <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
               התשלום בוצע בהצלחה!
             </h1>
-            <p className="text-xl text-gray-600 mb-8">
+            <p className="text-xl text-gray-600 mb-2">
               תודה רבה על הרכישה שלך
             </p>
+            {orderNumber && (
+              <p className="text-lg font-semibold text-primary-600 mb-8">
+                מספר הזמנה: {orderNumber}
+              </p>
+            )}
+            {!orderNumber && <div className="mb-8" />}
 
             {/* Transaction Details */}
             {transactionData && (
