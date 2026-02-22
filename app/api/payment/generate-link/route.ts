@@ -174,10 +174,15 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       console.error('PayPlus API error:', data);
-      return NextResponse.json(
-        { error: 'Failed to generate payment link', details: data },
-        { status: response.status }
-      );
+      // Return order info with fallback flag so checkout can redirect to demo page
+      return NextResponse.json({
+        success: false,
+        fallback: true,
+        order_number: orderNumber,
+        order_id: orderId,
+        error: 'PayPlus API unavailable',
+        details: data,
+      }, { status: 200 });
     }
 
     // Update order with PayPlus page_request_uid

@@ -128,6 +128,14 @@ export default function CheckoutPage() {
         sessionStorage.setItem('order_number', data.order_number);
       }
 
+      // If PayPlus is unavailable, fall back to demo payment page
+      if (data.fallback) {
+        sessionStorage.setItem('demo_order_id', data.order_id);
+        sessionStorage.setItem('demo_amount', String(finalTotal));
+        router.push('/payment/demo');
+        return;
+      }
+
       // Redirect to PayPlus payment page
       window.location.href = data.payment_link;
 
