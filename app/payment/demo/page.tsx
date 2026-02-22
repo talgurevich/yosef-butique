@@ -217,6 +217,16 @@ export default function DemoPaymentPage() {
             </svg>
             <span>העסקה מוצפנת ומאובטחת | SSL 256-bit</span>
           </div>
+
+          {/* Policy links */}
+          <p className="text-xs text-gray-500 text-center leading-relaxed pt-2">
+            בלחיצה על &quot;שלם&quot; אני מאשר/ת שקראתי את{' '}
+            <a href="/terms" target="_blank" className="underline hover:text-gray-700">תנאי השימוש</a>
+            ,{' '}
+            <a href="/privacy" target="_blank" className="underline hover:text-gray-700">מדיניות הפרטיות</a>
+            {' '}ו
+            <a href="/terms#returns" target="_blank" className="underline hover:text-gray-700">מדיניות החזרות והביטולים</a>
+          </p>
         </form>
       </div>
     </div>
