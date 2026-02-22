@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if payment was successful
-    // PayPlus status codes: 000 = success, or status_code can be a string "000"
+    // PayPlus status codes: 000 = success
     const isSuccess = status_code === '000' || status_code === 0 || status_code === '0' || String(status_code) === '000';
 
     if (isSuccess) {
@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
         .update({
           status: 'processing',
           payment_status: 'paid',
-          paid_at: new Date().toISOString(),
+          payment_method: 'payplus',
         })
         .eq('id', order.id);
 
@@ -149,27 +149,21 @@ export async function POST(request: NextRequest) {
       // Deduct inventory
       if (orderItems && orderItems.length > 0) {
         for (const item of orderItems) {
+          // product_sku stores the variant_id
+          const variantId = item.product_sku;
+
           // Deduct from product_variants
-          const { error: variantStockError } = await supabaseAdmin.rpc('decrement_stock', {
-            p_variant_id: item.variant_id,
-            p_quantity: item.quantity,
-          });
+          const { data: variant } = await supabaseAdmin
+            .from('product_variants')
+            .select('stock_quantity')
+            .eq('id', variantId)
+            .single();
 
-          if (variantStockError) {
-            // Fallback: direct update on product_variants
-            console.error('RPC decrement_stock failed, trying direct update:', variantStockError);
-            const { data: variant } = await supabaseAdmin
+          if (variant) {
+            await supabaseAdmin
               .from('product_variants')
-              .select('stock_quantity')
-              .eq('id', item.variant_id)
-              .single();
-
-            if (variant) {
-              await supabaseAdmin
-                .from('product_variants')
-                .update({ stock_quantity: Math.max(0, variant.stock_quantity - item.quantity) })
-                .eq('id', item.variant_id);
-            }
+              .update({ stock_quantity: Math.max(0, variant.stock_quantity - item.quantity) })
+              .eq('id', variantId);
           }
 
           // Also deduct from products.stock_quantity
@@ -191,29 +185,34 @@ export async function POST(request: NextRequest) {
 
       // Send emails
       try {
+        // Extract customer name and extra data from billing_address JSON
+        const billing = order.billing_address || {};
+        const customerName = billing.name || order.customer_email;
+        const discountAmount = billing.discount_amount || 0;
+        const couponCode = billing.coupon_code || null;
+
         const emailItems = (orderItems || []).map((item: any) => ({
           product_name: item.product_name,
-          variant_size: item.variant_size,
-          variant_color: item.variant_color,
-          price: item.price,
+          variant_size: '',
+          price: item.unit_price,
           quantity: item.quantity,
         }));
 
         const orderData = {
           order_number: order.order_number,
           subtotal: order.subtotal,
-          delivery_cost: order.delivery_cost,
-          discount_amount: order.discount_amount,
-          coupon_code: order.coupon_code,
+          delivery_cost: order.shipping_cost || 0,
+          discount_amount: discountAmount,
+          coupon_code: couponCode,
           total: order.total,
-          tax: order.tax,
+          tax: order.tax || 0,
           notes: order.notes,
         };
 
         const customerData = {
-          customer_name: order.customer_name,
+          customer_name: customerName,
           email: order.customer_email,
-          phone: order.customer_phone,
+          phone: order.customer_phone || billing.phone || '',
         };
 
         // Send both emails in parallel
@@ -225,7 +224,6 @@ export async function POST(request: NextRequest) {
         console.log('Order emails sent for:', order.order_number);
       } catch (emailError) {
         console.error('Error sending order emails:', emailError);
-        // Non-fatal: order is still processed even if emails fail
       }
     } else {
       // Payment failed - update order

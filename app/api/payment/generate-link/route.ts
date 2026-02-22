@@ -74,24 +74,30 @@ export async function POST(request: NextRequest) {
     ) ?? total;
     const tax = Math.round((total * 18 / 118) * 100) / 100;
 
-    // Create pending order
+    // Store extra data in billing_address JSON (existing jsonb column)
+    const billingAddress = {
+      name: customer?.customer_name || '',
+      phone: customer?.phone || '',
+      discount_amount: discountAmount,
+      coupon_code: couponCode || null,
+      currency: currency_code,
+    };
+
+    // Create pending order (using existing table schema)
     const { data: orderData, error: orderError } = await supabaseAdmin
       .from('orders')
       .insert({
         order_number: orderNumber,
         status: 'pending',
         payment_status: 'pending',
-        customer_name: customer?.customer_name || '',
         customer_email: customer?.email || '',
         customer_phone: customer?.phone || '',
         subtotal,
-        delivery_cost: deliveryCost,
-        discount_amount: discountAmount,
-        coupon_code: couponCode || null,
+        shipping_cost: deliveryCost,
         total,
         tax,
         notes: more_info || null,
-        currency: currency_code,
+        billing_address: billingAddress,
         created_at: new Date().toISOString(),
       })
       .select('id')
@@ -107,18 +113,16 @@ export async function POST(request: NextRequest) {
 
     const orderId = orderData.id;
 
-    // Create order items
+    // Create order items (using existing table schema)
     if (cartItems && Array.isArray(cartItems) && cartItems.length > 0) {
       const orderItems = (cartItems as CartItemPayload[]).map((item) => ({
         order_id: orderId,
         product_id: item.productId,
-        variant_id: item.variantId,
         product_name: item.productName,
-        variant_size: item.variantSize,
-        variant_color: item.variantColor || null,
-        price: item.price,
+        product_sku: item.variantId,
         quantity: item.quantity,
-        slug: item.slug,
+        unit_price: item.price,
+        total_price: item.price * item.quantity,
       }));
 
       const { error: itemsError } = await supabaseAdmin
@@ -127,7 +131,6 @@ export async function POST(request: NextRequest) {
 
       if (itemsError) {
         console.error('Error creating order items:', itemsError);
-        // Non-fatal: order exists but items failed - log and continue
       }
     }
 
