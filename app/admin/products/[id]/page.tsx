@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import { FaSave, FaArrowRight, FaPlus, FaTrash } from 'react-icons/fa';
+import { FaSave, FaArrowRight, FaPlus, FaTrash, FaChevronDown } from 'react-icons/fa';
 import { supabase, Product, ProductVariant, Category, ProductImage, Color, Shape, Space, ProductType, PlantType, PlantSize, PlantPetSafety } from '@/lib/supabase';
 import ProductImageUpload from '@/components/ProductImageUpload';
+import SizeCombobox from '@/components/admin/SizeCombobox';
 
 export default function EditProductPage() {
   const router = useRouter();
@@ -36,6 +37,8 @@ export default function EditProductPage() {
   const [selectedPlantSizes, setSelectedPlantSizes] = useState<string[]>([]);
   const [plantPetSafety, setPlantPetSafety] = useState<PlantPetSafety[]>([]);
   const [selectedPlantPetSafety, setSelectedPlantPetSafety] = useState<string[]>([]);
+  const [existingSizes, setExistingSizes] = useState<string[]>([]);
+  const [collapsedColors, setCollapsedColors] = useState<Set<string>>(new Set());
 
   const [formData, setFormData] = useState({
     name: '',
@@ -68,6 +71,7 @@ export default function EditProductPage() {
     fetchProductPlantSizes();
     fetchProductPlantPetSafety();
     fetchProductImages();
+    fetchExistingSizes();
   }, [productId]);
 
   const fetchProductTypes = async () => {
@@ -338,6 +342,16 @@ export default function EditProductPage() {
       setProductImages(data || []);
     } catch (error: any) {
       console.error('Error fetching product images:', error);
+    }
+  };
+
+  const fetchExistingSizes = async () => {
+    try {
+      const res = await fetch('/api/products/attribute-reference');
+      const data = await res.json();
+      setExistingSizes(data.sizes || []);
+    } catch (error) {
+      console.error('Error fetching existing sizes:', error);
     }
   };
 
@@ -728,6 +742,42 @@ export default function EditProductPage() {
     if (!colorId) return null;
     const color = colors.find(c => c.id === colorId);
     return color?.name || null;
+  };
+
+  const variantsByColor = useMemo(() => {
+    const groups: { colorKey: string; colorId: string | null; colorName: string; items: { variant: ProductVariant; originalIndex: number }[] }[] = [];
+    const groupMap = new Map<string, typeof groups[number]>();
+
+    variants.forEach((variant, index) => {
+      const colorId = variant.color_id || null;
+      const colorKey = colorId || '__none__';
+
+      if (!groupMap.has(colorKey)) {
+        const group = {
+          colorKey,
+          colorId,
+          colorName: colorId ? (colors.find(c => c.id === colorId)?.name || 'לא ידוע') : 'ללא צבע',
+          items: [] as { variant: ProductVariant; originalIndex: number }[],
+        };
+        groupMap.set(colorKey, group);
+        groups.push(group);
+      }
+      groupMap.get(colorKey)!.items.push({ variant, originalIndex: index });
+    });
+
+    return groups;
+  }, [variants, colors]);
+
+  const toggleColorCollapse = (colorKey: string) => {
+    setCollapsedColors(prev => {
+      const next = new Set(prev);
+      if (next.has(colorKey)) {
+        next.delete(colorKey);
+      } else {
+        next.add(colorKey);
+      }
+      return next;
+    });
   };
 
   const saveVariant = async (index: number) => {
@@ -1244,131 +1294,141 @@ export default function EditProductPage() {
             <p>טרם הוספו וריאנטים למוצר זה</p>
             <p className="text-sm mt-2">לחץ על "הוסף וריאנט" כדי להתחיל</p>
           </div>
-        ) : (
+        ) : variantsByColor.length <= 1 && !variantsByColor[0]?.colorId ? (
+          /* Flat list when no colors are assigned */
           <div className="space-y-4">
             {variants.map((variant, index) => (
-              <div
-                key={variant.id}
-                className="border border-gray-200 rounded-lg p-4"
-              >
-                {/* Color badge */}
-                {variant.color_id && (
-                  <div className="mb-3">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-100 text-primary-800">
-                      {getColorName(variant.color_id)}
-                    </span>
-                  </div>
-                )}
+              <div key={variant.id} className="border border-gray-200 rounded-lg p-4">
                 <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-                  {/* Size */}
                   <div>
                     <label className="block text-gray-700 text-sm font-medium mb-1">
                       מידה <span className="text-red-500">*</span>
                     </label>
-                    <input
-                      type="text"
+                    <SizeCombobox
                       value={variant.size}
-                      onChange={(e) =>
-                        updateVariant(index, 'size', e.target.value)
-                      }
+                      onChange={(val) => updateVariant(index, 'size', val)}
+                      sizes={existingSizes}
                       placeholder="160×230"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                     />
                   </div>
-
-                  {/* Color */}
                   <div>
-                    <label className="block text-gray-700 text-sm font-medium mb-1">
-                      צבע
-                    </label>
+                    <label className="block text-gray-700 text-sm font-medium mb-1">צבע</label>
                     <select
                       value={variant.color_id || ''}
-                      onChange={(e) =>
-                        updateVariant(index, 'color_id', e.target.value || null)
-                      }
+                      onChange={(e) => updateVariant(index, 'color_id', e.target.value || null)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                     >
                       <option value="">ללא צבע</option>
                       {colors.map((color) => (
-                        <option key={color.id} value={color.id}>
-                          {color.name}
-                        </option>
+                        <option key={color.id} value={color.id}>{color.name}</option>
                       ))}
                     </select>
                   </div>
-
-                  {/* Price */}
                   <div>
                     <label className="block text-gray-700 text-sm font-medium mb-1">
                       מחיר (₪) <span className="text-red-500">*</span>
                     </label>
-                    <input
-                      type="number"
-                      value={variant.price}
-                      onChange={(e) =>
-                        updateVariant(index, 'price', parseFloat(e.target.value))
-                      }
-                      step="0.01"
-                      min="0"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    />
+                    <input type="number" value={variant.price} onChange={(e) => updateVariant(index, 'price', parseFloat(e.target.value))} step="0.01" min="0" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500" />
                   </div>
-
-                  {/* Compare Price */}
                   <div>
-                    <label className="block text-gray-700 text-sm font-medium mb-1">
-                      מחיר השוואה (₪)
-                    </label>
-                    <input
-                      type="number"
-                      value={variant.compare_at_price || ''}
-                      onChange={(e) =>
-                        updateVariant(
-                          index,
-                          'compare_at_price',
-                          e.target.value ? parseFloat(e.target.value) : null
-                        )
-                      }
-                      step="0.01"
-                      min="0"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    />
+                    <label className="block text-gray-700 text-sm font-medium mb-1">מחיר השוואה (₪)</label>
+                    <input type="number" value={variant.compare_at_price || ''} onChange={(e) => updateVariant(index, 'compare_at_price', e.target.value ? parseFloat(e.target.value) : null)} step="0.01" min="0" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500" />
                   </div>
-
-                  {/* Stock */}
                   <div>
-                    <label className="block text-gray-700 text-sm font-medium mb-1">
-                      מלאי
-                    </label>
-                    <input
-                      type="number"
-                      value={variant.stock_quantity}
-                      onChange={(e) =>
-                        updateVariant(
-                          index,
-                          'stock_quantity',
-                          parseInt(e.target.value)
-                        )
-                      }
-                      min="0"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    />
+                    <label className="block text-gray-700 text-sm font-medium mb-1">מלאי</label>
+                    <input type="number" value={variant.stock_quantity} onChange={(e) => updateVariant(index, 'stock_quantity', parseInt(e.target.value))} min="0" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500" />
                   </div>
-
-                  {/* Actions */}
                   <div className="flex items-end">
-                    <button
-                      onClick={() => removeVariant(index)}
-                      type="button"
-                      className="bg-red-600 text-white p-2 rounded-lg hover:bg-red-700 transition-colors"
-                      title="מחק וריאנט"
-                    >
+                    <button onClick={() => removeVariant(index)} type="button" className="bg-red-600 text-white p-2 rounded-lg hover:bg-red-700 transition-colors" title="מחק וריאנט">
                       <FaTrash />
                     </button>
                   </div>
                 </div>
               </div>
             ))}
+          </div>
+        ) : (
+          /* Grouped by color with collapsible sections */
+          <div className="space-y-3">
+            {variantsByColor.map((group) => {
+              const isCollapsed = collapsedColors.has(group.colorKey);
+              const prices = group.items.map(i => i.variant.price);
+              const minPrice = Math.min(...prices);
+              const maxPrice = Math.max(...prices);
+              return (
+                <div key={group.colorKey} className="border border-gray-200 rounded-lg overflow-hidden">
+                  {/* Color Group Header */}
+                  <button
+                    type="button"
+                    onClick={() => toggleColorCollapse(group.colorKey)}
+                    className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <FaChevronDown
+                        className={`text-gray-500 transition-transform duration-200 ${isCollapsed ? '-rotate-90' : ''}`}
+                        size={12}
+                      />
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-100 text-primary-800">
+                        {group.colorName}
+                      </span>
+                      <span className="text-sm text-gray-500">
+                        {group.items.length} {group.items.length === 1 ? 'וריאנט' : 'וריאנטים'}
+                      </span>
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      {prices.length > 0 && (
+                        <span>
+                          ₪{minPrice}
+                          {minPrice !== maxPrice && <> - ₪{maxPrice}</>}
+                        </span>
+                      )}
+                    </div>
+                  </button>
+
+                  {/* Variants within group */}
+                  {!isCollapsed && (
+                    <div className="divide-y divide-gray-100">
+                      {group.items.map(({ variant, originalIndex }) => (
+                        <div key={variant.id} className="px-4 py-3">
+                          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                            <div>
+                              <label className="block text-gray-700 text-sm font-medium mb-1">
+                                מידה <span className="text-red-500">*</span>
+                              </label>
+                              <SizeCombobox
+                                value={variant.size}
+                                onChange={(val) => updateVariant(originalIndex, 'size', val)}
+                                sizes={existingSizes}
+                                placeholder="160×230"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-gray-700 text-sm font-medium mb-1">
+                                מחיר (₪) <span className="text-red-500">*</span>
+                              </label>
+                              <input type="number" value={variant.price} onChange={(e) => updateVariant(originalIndex, 'price', parseFloat(e.target.value))} step="0.01" min="0" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500" />
+                            </div>
+                            <div>
+                              <label className="block text-gray-700 text-sm font-medium mb-1">מחיר השוואה (₪)</label>
+                              <input type="number" value={variant.compare_at_price || ''} onChange={(e) => updateVariant(originalIndex, 'compare_at_price', e.target.value ? parseFloat(e.target.value) : null)} step="0.01" min="0" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500" />
+                            </div>
+                            <div>
+                              <label className="block text-gray-700 text-sm font-medium mb-1">מלאי</label>
+                              <input type="number" value={variant.stock_quantity} onChange={(e) => updateVariant(originalIndex, 'stock_quantity', parseInt(e.target.value))} min="0" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500" />
+                            </div>
+                            <div className="flex items-end">
+                              <button onClick={() => removeVariant(originalIndex)} type="button" className="bg-red-600 text-white p-2 rounded-lg hover:bg-red-700 transition-colors" title="מחק וריאנט">
+                                <FaTrash />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
