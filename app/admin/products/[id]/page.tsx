@@ -1356,7 +1356,7 @@ export default function EditProductPage() {
               const minPrice = Math.min(...prices);
               const maxPrice = Math.max(...prices);
               return (
-                <div key={group.colorKey} className="border border-gray-200 rounded-lg overflow-hidden">
+                <div key={group.colorKey} className="border border-gray-200 rounded-lg">
                   {/* Color Group Header */}
                   <button
                     type="button"
