@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Breadcrumbs from '@/components/Breadcrumbs';
@@ -288,10 +289,13 @@ export default function ProductPageClient({
                           : 'ring-1 ring-gray-200'
                       }`}
                     >
-                      <img
+                      <Image
                         src={image.image_url}
                         alt={image.alt_text || `${product.name} - ${index + 1}`}
+                        width={200}
+                        height={200}
                         className="w-full h-full object-cover"
+                        loading="lazy"
                       />
                     </div>
                   ))}

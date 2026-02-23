@@ -55,6 +55,8 @@ export default function ImageMagnifier({
         src={src}
         alt={alt}
         className="w-full h-full object-cover"
+        loading="eager"
+        decoding="async"
       />
 
       {/* Magnifier glass */}
