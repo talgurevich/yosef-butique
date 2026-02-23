@@ -415,42 +415,21 @@ export default function ProductPageClient({
                 <div className="mb-6">
                   <h3 className="text-lg font-bold text-gray-800 mb-3">בחר צבע</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {getVariantColors().map((color: any) => {
-                      const available = isColorAvailable(color.id);
-                      const isSelected = selectedColor?.id === color.id;
-                      const currentSizeStock = selectedVariant?.size
-                        ? getCombinationStock(selectedVariant.size, color.id)
-                        : 0;
-
-                      return (
-                        <button
-                          key={color.id}
-                          onClick={() => handleVariantColorSelect(color)}
-                          disabled={!available}
-                          className={`p-4 border-2 rounded-lg transition-all ${
-                            isSelected
-                              ? 'border-primary-600 bg-primary-50'
-                              : 'border-gray-300 hover:border-primary-400'
-                          } ${
-                            !available
-                              ? 'opacity-50 cursor-not-allowed bg-gray-100'
-                              : ''
-                          }`}
-                        >
-                          <div className="text-center">
-                            <div className="font-bold text-gray-800">{color.name}</div>
-                            {selectedVariant?.size && (
-                              <div className={`text-xs mt-1 ${currentSizeStock > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                {currentSizeStock > 0 ? 'במלאי' : 'אזל במידה זו'}
-                              </div>
-                            )}
-                            {!available && (
-                              <div className="text-xs text-red-600 mt-1">אזל מהמלאי</div>
-                            )}
-                          </div>
-                        </button>
-                      );
-                    })}
+                    {getVariantColors().map((color: any) => (
+                      <button
+                        key={color.id}
+                        onClick={() => handleVariantColorSelect(color)}
+                        className={`p-4 border-2 rounded-lg transition-all ${
+                          selectedColor?.id === color.id
+                            ? 'border-primary-600 bg-primary-50'
+                            : 'border-gray-300 hover:border-primary-400'
+                        }`}
+                      >
+                        <div className="text-center">
+                          <div className="font-bold text-gray-800">{color.name}</div>
+                        </div>
+                      </button>
+                    ))}
                   </div>
                 </div>
               )}
