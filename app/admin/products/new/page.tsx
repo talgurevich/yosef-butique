@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FaSave, FaArrowRight, FaPlus, FaTrash } from 'react-icons/fa';
 import { supabase, ProductVariant, Category, Color, Shape, Space, ProductType, PlantType, PlantSize, PlantPetSafety } from '@/lib/supabase';
+import SizeCombobox from '@/components/admin/SizeCombobox';
 
 type TempVariant = {
   id: string;
@@ -39,6 +40,7 @@ export default function NewProductPage() {
   const [selectedPlantSizes, setSelectedPlantSizes] = useState<string[]>([]);
   const [plantPetSafety, setPlantPetSafety] = useState<PlantPetSafety[]>([]);
   const [selectedPlantPetSafety, setSelectedPlantPetSafety] = useState<string[]>([]);
+  const [existingSizes, setExistingSizes] = useState<string[]>([]);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -72,6 +74,7 @@ export default function NewProductPage() {
     fetchPlantTypes();
     fetchPlantSizes();
     fetchPlantPetSafety();
+    fetchExistingSizes();
   }, []);
 
   const fetchProductTypes = async () => {
@@ -133,6 +136,16 @@ export default function NewProductPage() {
       setPlantPetSafety(data || []);
     } catch (error: any) {
       console.error('Error fetching plant pet safety:', error);
+    }
+  };
+
+  const fetchExistingSizes = async () => {
+    try {
+      const res = await fetch('/api/products/attribute-reference');
+      const data = await res.json();
+      setExistingSizes(data.sizes || []);
+    } catch (error) {
+      console.error('Error fetching existing sizes:', error);
     }
   };
 
@@ -952,15 +965,12 @@ export default function NewProductPage() {
                     <label className="block text-gray-700 text-sm font-medium mb-1">
                       מידה <span className="text-red-500">*</span>
                     </label>
-                    <input
-                      type="text"
+                    <SizeCombobox
                       value={variant.size}
-                      onChange={(e) =>
-                        updateVariant(index, 'size', e.target.value)
-                      }
+                      onChange={(val) => updateVariant(index, 'size', val)}
+                      sizes={existingSizes}
                       placeholder="160×230"
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                     />
                   </div>
 
