@@ -89,6 +89,7 @@ export async function POST(request: NextRequest) {
     const file = formData.get('file') as File;
     const productId = formData.get('productId') as string;
     const sortOrder = parseInt(formData.get('sortOrder') as string);
+    const colorId = formData.get('colorId') as string | null;
 
     if (!file || !productId) {
       return NextResponse.json(
@@ -140,6 +141,7 @@ export async function POST(request: NextRequest) {
           image_url: urlData.publicUrl,
           alt_text: file.name,
           sort_order: sortOrder,
+          color_id: colorId || null,
         },
       ])
       .select()

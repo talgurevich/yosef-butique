@@ -63,6 +63,7 @@ export type ProductImage = {
   image_url: string;
   alt_text: string;
   sort_order: number;
+  color_id: string | null;
   created_at: string;
 };
 

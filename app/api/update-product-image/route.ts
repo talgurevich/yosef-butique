@@ -12,19 +12,23 @@ export async function POST(request: NextRequest) {
     }
   });
   try {
-    const { imageId, sortOrder } = await request.json();
+    const { imageId, sortOrder, colorId } = await request.json();
 
-    if (!imageId || sortOrder === undefined) {
+    if (!imageId || (sortOrder === undefined && colorId === undefined)) {
       return NextResponse.json(
-        { error: 'Missing imageId or sortOrder' },
+        { error: 'Missing imageId or update fields' },
         { status: 400 }
       );
     }
 
-    // Update sort order
+    // Build update object dynamically
+    const updateData: Record<string, any> = {};
+    if (sortOrder !== undefined) updateData.sort_order = sortOrder;
+    if (colorId !== undefined) updateData.color_id = colorId || null;
+
     const { error: dbError } = await supabaseAdmin
       .from('product_images')
-      .update({ sort_order: sortOrder })
+      .update(updateData)
       .eq('id', imageId);
 
     if (dbError) {

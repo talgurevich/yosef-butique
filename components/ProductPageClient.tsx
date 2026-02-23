@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -72,6 +72,19 @@ export default function ProductPageClient({
   const [plantSizes] = useState<any[]>(initialPlantSizes);
   const [plantPetSafety] = useState<any[]>(initialPlantPetSafety);
   const [productType] = useState<any>(initialProductType);
+
+  // Filter images by selected color
+  const filteredImages = useMemo(() => {
+    if (!selectedColor) return productImages;
+    return productImages.filter(
+      (img: any) => img.color_id === null || img.color_id === selectedColor.id
+    );
+  }, [productImages, selectedColor]);
+
+  // Reset selected image index when color changes
+  useEffect(() => {
+    setSelectedImageIndex(0);
+  }, [selectedColor]);
 
   // Refetch variant stock when page becomes visible (handles tab switching)
   useEffect(() => {
@@ -250,10 +263,10 @@ export default function ProductPageClient({
             {/* Product Image */}
             <div className="bg-white rounded-lg shadow-lg p-8">
               <div className="aspect-square bg-gradient-to-br from-gray-200 to-gray-300 rounded-lg flex items-center justify-center overflow-hidden relative">
-                {productImages.length > 0 ? (
+                {filteredImages.length > 0 ? (
                   <ImageMagnifier
-                    src={productImages[selectedImageIndex]?.image_url}
-                    alt={productImages[selectedImageIndex]?.alt_text || product.name}
+                    src={filteredImages[selectedImageIndex]?.image_url}
+                    alt={filteredImages[selectedImageIndex]?.alt_text || product.name}
                     magnifierHeight={200}
                     magnifierWidth={200}
                     zoomLevel={2.5}
@@ -263,9 +276,9 @@ export default function ProductPageClient({
                 )}
               </div>
 
-              {productImages.length > 1 && (
+              {filteredImages.length > 1 && (
                 <div className="grid grid-cols-4 gap-4 mt-4">
-                  {productImages.map((image: any, index: number) => (
+                  {filteredImages.map((image: any, index: number) => (
                     <div
                       key={image.id}
                       onClick={() => setSelectedImageIndex(index)}

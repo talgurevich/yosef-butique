@@ -2,18 +2,20 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { FaUpload, FaTrash, FaImage, FaStar } from 'react-icons/fa';
-import { supabase, ProductImage } from '@/lib/supabase';
+import { supabase, ProductImage, Color } from '@/lib/supabase';
 
 type ProductImageUploadProps = {
   productId: string | null;
   existingImages?: ProductImage[];
   onImagesChange?: (images: ProductImage[]) => void;
+  colors?: Color[];
 };
 
 export default function ProductImageUpload({
   productId,
   existingImages = [],
   onImagesChange,
+  colors = [],
 }: ProductImageUploadProps) {
   const [images, setImages] = useState<ProductImage[]>(existingImages);
   const [uploading, setUploading] = useState(false);
@@ -203,6 +205,32 @@ export default function ProductImageUpload({
     }
   };
 
+  const updateImageColor = async (image: ProductImage, colorId: string | null) => {
+    try {
+      const response = await fetch('/api/update-product-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageId: image.id, colorId }),
+      });
+
+      const result = await response.json();
+      if (!response.ok || result.error) {
+        throw new Error(result.error || 'Failed to update image color');
+      }
+
+      const updatedImages = images.map((img) =>
+        img.id === image.id ? { ...img, color_id: colorId } : img
+      );
+      setImages(updatedImages);
+      if (onImagesChange) {
+        onImagesChange(updatedImages);
+      }
+    } catch (error: any) {
+      console.error('Error updating image color:', error);
+      alert(`שגיאה בעדכון צבע התמונה: ${error.message}`);
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Upload Area */}
@@ -289,6 +317,22 @@ export default function ProductImageUpload({
                   alt={image.alt_text || 'Product image'}
                   className="w-full h-40 object-cover"
                 />
+
+                {/* Color Dropdown */}
+                {colors.length > 0 && (
+                  <div className="bg-white border-t border-gray-200 px-2 pt-2">
+                    <select
+                      value={image.color_id || ''}
+                      onChange={(e) => updateImageColor(image, e.target.value || null)}
+                      className="w-full px-2 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    >
+                      <option value="">כללי</option>
+                      {colors.map((color) => (
+                        <option key={color.id} value={color.id}>{color.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
                 {/* Action Buttons - Always Visible */}
                 <div className="bg-white border-t border-gray-200 p-2 flex gap-2">

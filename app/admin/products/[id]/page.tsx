@@ -1253,6 +1253,7 @@ export default function EditProductPage() {
             productId={productId}
             existingImages={productImages}
             onImagesChange={(images) => setProductImages(images)}
+            colors={colors.filter(c => selectedColors.includes(c.id))}
           />
         </div>
       </form>
