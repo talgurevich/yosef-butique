@@ -9,7 +9,7 @@ import Breadcrumbs from '@/components/Breadcrumbs';
 import ProductFAQ from '@/components/ProductFAQ';
 import ImageMagnifier from '@/components/ImageMagnifier';
 import { supabase, Product, ProductVariant } from '@/lib/supabase';
-import { FaShoppingCart, FaArrowRight, FaCheck, FaTruck, FaShieldAlt } from 'react-icons/fa';
+import { FaShoppingCart, FaArrowRight, FaCheck, FaTruck, FaShieldAlt, FaTimes, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { useCart } from '@/contexts/CartContext';
 
 type ProductPageClientProps = {
@@ -65,6 +65,7 @@ export default function ProductPageClient({
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   const [categories] = useState<any[]>(initialCategories);
   const [colors] = useState<any[]>(initialColors);
   const [shapes] = useState<any[]>(initialShapes);
@@ -86,6 +87,22 @@ export default function ProductPageClient({
   useEffect(() => {
     setSelectedImageIndex(0);
   }, [selectedColor]);
+
+  // Lightbox keyboard navigation
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setLightboxOpen(false);
+      if (e.key === 'ArrowLeft') setSelectedImageIndex((i) => (i + 1) % filteredImages.length);
+      if (e.key === 'ArrowRight') setSelectedImageIndex((i) => (i - 1 + filteredImages.length) % filteredImages.length);
+    };
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKey);
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', handleKey);
+    };
+  }, [lightboxOpen, filteredImages.length]);
 
   // Refetch variant stock when page becomes visible (handles tab switching)
   useEffect(() => {
@@ -263,7 +280,10 @@ export default function ProductPageClient({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Product Image */}
             <div className="bg-white rounded-lg shadow-lg p-8">
-              <div className="aspect-square bg-gradient-to-br from-gray-200 to-gray-300 rounded-lg flex items-center justify-center overflow-hidden relative">
+              <div
+                className="aspect-square bg-gradient-to-br from-gray-200 to-gray-300 rounded-lg flex items-center justify-center overflow-hidden relative cursor-zoom-in"
+                onClick={() => filteredImages.length > 0 && setLightboxOpen(true)}
+              >
                 {filteredImages.length > 0 ? (
                   <ImageMagnifier
                     src={filteredImages[selectedImageIndex]?.image_url}
@@ -607,6 +627,66 @@ export default function ProductPageClient({
       </div>
 
       <Footer />
+
+      {/* Lightbox */}
+      {lightboxOpen && filteredImages.length > 0 && (
+        <div
+          className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center"
+          onClick={() => setLightboxOpen(false)}
+        >
+          {/* Close button */}
+          <button
+            onClick={() => setLightboxOpen(false)}
+            className="absolute top-4 right-4 text-white/80 hover:text-white p-2 z-10"
+            aria-label="סגור"
+          >
+            <FaTimes className="text-2xl" />
+          </button>
+
+          {/* Previous */}
+          {filteredImages.length > 1 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedImageIndex((i) => (i - 1 + filteredImages.length) % filteredImages.length);
+              }}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white p-3 z-10"
+              aria-label="תמונה קודמת"
+            >
+              <FaChevronRight className="text-3xl" />
+            </button>
+          )}
+
+          {/* Image */}
+          <img
+            src={filteredImages[selectedImageIndex]?.image_url}
+            alt={filteredImages[selectedImageIndex]?.alt_text || product.name}
+            className="max-h-[90vh] max-w-[90vw] object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+
+          {/* Next */}
+          {filteredImages.length > 1 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedImageIndex((i) => (i + 1) % filteredImages.length);
+              }}
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white p-3 z-10"
+              aria-label="תמונה הבאה"
+            >
+              <FaChevronLeft className="text-3xl" />
+            </button>
+          )}
+
+          {/* Counter */}
+          {filteredImages.length > 1 && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/70 text-sm">
+              {selectedImageIndex + 1} / {filteredImages.length}
+            </div>
+          )}
+        </div>
+      )}
     </>
   );
 }
