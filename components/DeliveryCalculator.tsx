@@ -18,7 +18,6 @@ const DELIVERY_TIERS: DeliveryTier[] = [
 ];
 
 const BUSINESS_ADDRESS = 'השקד משק 47, מושב בית עזרא, ישראל';
-const FREE_DELIVERY_THRESHOLD = 990;
 
 type DeliveryCalculatorProps = {
   cartTotal: number;
@@ -91,10 +90,9 @@ export default function DeliveryCalculator({ cartTotal, onDeliveryChange }: Deli
     if (distance !== null && deliveryCost !== null) {
       const tier = DELIVERY_TIERS.find(t => distance <= t.maxDistance);
       const baseCost = tier?.price || DELIVERY_TIERS[DELIVERY_TIERS.length - 1].price;
-      const finalCost = cartTotal >= FREE_DELIVERY_THRESHOLD ? 0 : baseCost;
-      if (finalCost !== deliveryCost) {
-        setDeliveryCost(finalCost);
-        onDeliveryChange(finalCost, distance, address);
+      if (baseCost !== deliveryCost) {
+        setDeliveryCost(baseCost);
+        onDeliveryChange(baseCost, distance, address);
       }
     }
   }, [cartTotal]);
@@ -134,10 +132,7 @@ export default function DeliveryCalculator({ cartTotal, onDeliveryChange }: Deli
 
         // Calculate delivery cost based on tiers
         const tier = DELIVERY_TIERS.find(t => distanceInKm <= t.maxDistance);
-        const baseCost = tier?.price || DELIVERY_TIERS[DELIVERY_TIERS.length - 1].price;
-
-        // Free delivery for orders over threshold
-        const finalCost = cartTotal >= FREE_DELIVERY_THRESHOLD ? 0 : baseCost;
+        const finalCost = tier?.price || DELIVERY_TIERS[DELIVERY_TIERS.length - 1].price;
 
         setDeliveryCost(finalCost);
         onDeliveryChange(finalCost, distanceInKm, destinationAddress);
@@ -230,21 +225,10 @@ export default function DeliveryCalculator({ cartTotal, onDeliveryChange }: Deli
               <span className="font-semibold">{distance.toFixed(1)} ק״מ</span>
             </div>
 
-            {cartTotal >= FREE_DELIVERY_THRESHOLD && deliveryCost === 0 ? (
-              <div className="bg-green-50 border border-green-200 rounded p-2">
-                <p className="text-sm font-semibold text-green-800 text-center">
-                  🎉 משלוח חינם!
-                </p>
-                <p className="text-xs text-green-600 text-center">
-                  הזמנות מעל {formatPrice(FREE_DELIVERY_THRESHOLD)}
-                </p>
-              </div>
-            ) : (
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">עלות משלוח:</span>
-                <span className="font-semibold text-primary-600">{formatPrice(deliveryCost)}</span>
-              </div>
-            )}
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">עלות משלוח:</span>
+              <span className="font-semibold text-primary-600">{formatPrice(deliveryCost)}</span>
+            </div>
           </div>
         )}
 
@@ -258,11 +242,6 @@ export default function DeliveryCalculator({ cartTotal, onDeliveryChange }: Deli
                 <span>{formatPrice(tier.price)}</span>
               </div>
             ))}
-            <div className="border-t border-blue-300 pt-1 mt-2">
-              <p className="text-xs text-blue-800 font-semibold">
-                משלוח חינם מעל {formatPrice(FREE_DELIVERY_THRESHOLD)}
-              </p>
-            </div>
           </div>
         </div>
       </div>

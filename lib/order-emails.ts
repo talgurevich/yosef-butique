@@ -116,7 +116,7 @@ export async function sendOrderConfirmationEmail(
               ` : ''}
               <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                 <span>משלוח:</span>
-                <span>${order.delivery_cost === 0 ? 'חינם!' : formatCurrency(order.delivery_cost)}</span>
+                <span>${formatCurrency(order.delivery_cost)}</span>
               </div>
               <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; border-top: 2px solid #667eea; padding-top: 10px; margin-top: 10px;">
                 <span>סה"כ:</span>
@@ -158,7 +158,7 @@ export async function sendOrderConfirmationEmail(
 ${items.map(item => `- ${item.product_name} | מידה: ${item.variant_size} | כמות: ${item.quantity} | ${formatCurrency(item.price * item.quantity)}`).join('\n')}
 
 סכום ביניים: ${formatCurrency(order.subtotal)}
-${order.discount_amount > 0 ? `הנחה${order.coupon_code ? ` (${order.coupon_code})` : ''}: -${formatCurrency(order.discount_amount)}\n` : ''}משלוח: ${order.delivery_cost === 0 ? 'חינם!' : formatCurrency(order.delivery_cost)}
+${order.discount_amount > 0 ? `הנחה${order.coupon_code ? ` (${order.coupon_code})` : ''}: -${formatCurrency(order.discount_amount)}\n` : ''}משלוח: ${formatCurrency(order.delivery_cost)}
 סה"כ: ${formatCurrency(order.total)}
 
 נציג יצור איתך קשר בהקדם לתיאום המשלוח.
@@ -253,7 +253,7 @@ export async function sendAdminOrderNotificationEmail(
             <div style="margin-top: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px;">
               <div style="margin-bottom: 8px;">סכום ביניים: <strong>${formatCurrency(order.subtotal)}</strong></div>
               ${order.discount_amount > 0 ? `<div style="margin-bottom: 8px; color: #4caf50;">הנחה${order.coupon_code ? ` (${order.coupon_code})` : ''}: <strong>-${formatCurrency(order.discount_amount)}</strong></div>` : ''}
-              <div style="margin-bottom: 8px;">משלוח: <strong>${order.delivery_cost === 0 ? 'חינם' : formatCurrency(order.delivery_cost)}</strong></div>
+              <div style="margin-bottom: 8px;">משלוח: <strong>${formatCurrency(order.delivery_cost)}</strong></div>
               <div style="margin-bottom: 8px;">מע"מ (כלול): <strong>${formatCurrency(order.tax)}</strong></div>
               <div style="font-size: 18px; font-weight: bold; border-top: 2px solid #4caf50; padding-top: 10px; margin-top: 10px;">
                 סה"כ: ${formatCurrency(order.total)}
@@ -280,7 +280,7 @@ ${order.notes ? `הערות: ${order.notes}` : ''}
 ${items.map(item => `- ${item.product_name} | מידה: ${item.variant_size} | כמות: ${item.quantity} | ${formatCurrency(item.price * item.quantity)}`).join('\n')}
 
 סכום ביניים: ${formatCurrency(order.subtotal)}
-${order.discount_amount > 0 ? `הנחה${order.coupon_code ? ` (${order.coupon_code})` : ''}: -${formatCurrency(order.discount_amount)}\n` : ''}משלוח: ${order.delivery_cost === 0 ? 'חינם' : formatCurrency(order.delivery_cost)}
+${order.discount_amount > 0 ? `הנחה${order.coupon_code ? ` (${order.coupon_code})` : ''}: -${formatCurrency(order.discount_amount)}\n` : ''}משלוח: ${formatCurrency(order.delivery_cost)}
 מע"מ (כלול): ${formatCurrency(order.tax)}
 סה"כ: ${formatCurrency(order.total)}
     `,

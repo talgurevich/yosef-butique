@@ -37,8 +37,8 @@ export default function ShippingPage() {
             <div className="grid md:grid-cols-3 gap-6 mb-12">
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
                 <FaTruck className="text-4xl text-blue-600 mx-auto mb-3" />
-                <h3 className="font-bold text-gray-800 mb-2">משלוח חינם</h3>
-                <p className="text-gray-600 text-sm">להזמנות מעל ₪299</p>
+                <h3 className="font-bold text-gray-800 mb-2">משלוח מהיר</h3>
+                <p className="text-gray-600 text-sm">3-5 ימי עסקים</p>
               </div>
               <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
                 <FaUndo className="text-4xl text-green-600 mx-auto mb-3" />
@@ -65,15 +65,9 @@ export default function ShippingPage() {
                   <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
                     <ul className="space-y-3 text-gray-600">
                       <li className="flex items-start gap-3">
-                        <span className="text-green-600 font-bold text-xl">✓</span>
-                        <div>
-                          <strong>משלוח חינם</strong> - להזמנות מעל ₪990 לכל רחבי הארץ
-                        </div>
-                      </li>
-                      <li className="flex items-start gap-3">
                         <span className="text-blue-600 font-bold text-xl">•</span>
                         <div>
-                          <strong>משלוח סטנדרטי</strong> - ₪49 להזמנות מתחת ל-₪990
+                          <strong>משלוח סטנדרטי</strong> - עלות המשלוח נקבעת לפי מרחק
                         </div>
                       </li>
                       <li className="flex items-start gap-3">
@@ -279,7 +273,7 @@ export default function ShippingPage() {
                     <li>החלפה ללא עלות תוך 14 יום</li>
                     <li>אפשר להחליף למוצר אחר או למידה שונה</li>
                     <li>אם יש הפרש מחיר - נחייב או נזכה בהתאם</li>
-                    <li>משלוח החלפה - בחינם!</li>
+                    <li>משלוח החלפה - בתיאום עם שירות הלקוחות</li>
                   </ul>
                 </div>
               </div>

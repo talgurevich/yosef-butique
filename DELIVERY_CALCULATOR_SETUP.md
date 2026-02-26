@@ -98,14 +98,6 @@ To change the origin point for distance calculations, edit:
 const BUSINESS_ADDRESS = 'השקד משק 47, מושב בית עזרא, ישראל';
 ```
 
-## Changing Free Delivery Threshold
-
-To change the minimum order value for free delivery:
-
-```typescript
-const FREE_DELIVERY_THRESHOLD = 500; // in ILS
-```
-
 ## Testing
 
 1. Go to `/cart` with items in your cart

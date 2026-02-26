@@ -53,8 +53,8 @@ export default function AboutSection() {
   const features = [
     {
       icon: <DeliveryIcon />,
-      title: 'משלוח חינם',
-      description: 'משלוח חינם בקנייה מעל ₪990',
+      title: 'משלוח מהיר',
+      description: 'משלוח מהיר עד הבית',
       gradient: 'from-blue-500 to-cyan-500',
       color: 'text-blue-500',
     },
