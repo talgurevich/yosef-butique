@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useCart } from '@/contexts/CartContext';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -81,14 +81,6 @@ export default function CartPage() {
     setCouponError('');
   };
 
-  // Test product rule: if any item is a test product, force delivery to 0
-  const isTestOrder = cartItems.some(item => item.productName.includes('ניסיון'));
-
-  useEffect(() => {
-    if (isTestOrder && getDeliveryCost() !== 0) {
-      setDelivery(0, null, '');
-    }
-  }, [isTestOrder]);
 
   if (cartItems.length === 0) {
     return (
@@ -323,16 +315,10 @@ export default function CartPage() {
 
                 {/* Delivery Calculator */}
                 <div className="mb-6 pb-6 border-b border-gray-200">
-                  {isTestOrder ? (
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-                      <p className="text-sm font-semibold text-green-800">משלוח חינם - מוצר ניסיון</p>
-                    </div>
-                  ) : (
-                    <DeliveryCalculator
-                      cartTotal={getCartTotal()}
-                      onDeliveryChange={setDelivery}
-                    />
-                  )}
+                  <DeliveryCalculator
+                    cartTotal={getCartTotal()}
+                    onDeliveryChange={setDelivery}
+                  />
                 </div>
 
                 <div className="space-y-4 mb-6">
@@ -352,8 +338,8 @@ export default function CartPage() {
                   )}
                   <div className="flex justify-between text-gray-600">
                     <span>משלוח</span>
-                    <span className={getDeliveryCost() === 0 ? 'text-green-600 font-semibold' : ''}>
-                      {getDeliveryCost() === 0 ? 'חינם!' : formatPrice(getDeliveryCost())}
+                    <span>
+                      {getDeliveryCost() === 0 ? 'לא חושב' : formatPrice(getDeliveryCost())}
                     </span>
                   </div>
                   <div className="border-t border-gray-200 pt-4">

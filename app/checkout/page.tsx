@@ -45,9 +45,7 @@ export default function CheckoutPage() {
     setError('');
 
     try {
-      // Test product rule: zero delivery if any item is a test product
-      const isTestOrder = cartItems.some(item => item.productName.includes('ניסיון'));
-      const effectiveDeliveryCost = isTestOrder ? 0 : getDeliveryCost();
+      const effectiveDeliveryCost = getDeliveryCost();
 
       // Prepare items for PayPlus
       const items: { name: string; price: number; quantity: number; vat_type: number }[] = cartItems.map(item => ({
@@ -215,8 +213,8 @@ export default function CheckoutPage() {
                 )}
                 <div className="flex justify-between text-gray-600">
                   <span>משלוח</span>
-                  <span className={getDeliveryCost() === 0 ? 'text-green-600 font-semibold' : ''}>
-                    {getDeliveryCost() === 0 ? 'חינם!' : `₪${getDeliveryCost().toLocaleString()}`}
+                  <span>
+                    {getDeliveryCost() === 0 ? 'לא חושב' : `₪${getDeliveryCost().toLocaleString()}`}
                   </span>
                 </div>
                 <div className="flex justify-between items-center text-xl font-bold text-gray-800 pt-2 border-t border-gray-200">
