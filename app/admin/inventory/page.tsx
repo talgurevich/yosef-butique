@@ -40,7 +40,7 @@ export default function InventoryPage() {
   const [activeTab, setActiveTab] = useState<'carpets' | 'plants'>('carpets');
   const [stockFilter, setStockFilter] = useState<string>('all');
   const [expandedProducts, setExpandedProducts] = useState<Set<string>>(new Set());
-  const [expandedSizes, setExpandedSizes] = useState<Set<string>>(new Set());
+  const [expandedColors, setExpandedColors] = useState<Set<string>>(new Set());
   const [editingVariants, setEditingVariants] = useState<Map<string, number>>(new Map());
   const [editingProducts, setEditingProducts] = useState<Map<string, number>>(new Map());
   const [savingIds, setSavingIds] = useState<Set<string>>(new Set());
@@ -159,8 +159,8 @@ export default function InventoryPage() {
     });
   };
 
-  const toggleSize = (key: string) => {
-    setExpandedSizes(prev => {
+  const toggleColor = (key: string) => {
+    setExpandedColors(prev => {
       const next = new Set(prev);
       if (next.has(key)) {
         next.delete(key);
@@ -168,6 +168,28 @@ export default function InventoryPage() {
         next.add(key);
       }
       return next;
+    });
+  };
+
+  const groupVariantsByColor = (variants: InventoryVariant[]) => {
+    const colorOrder: (string | null)[] = [];
+    const colorMap: Record<string, InventoryVariant[]> = {};
+    variants.forEach(v => {
+      const key = v.color_id || '__none__';
+      if (!colorMap[key]) {
+        colorMap[key] = [];
+        colorOrder.push(v.color_id);
+      }
+      colorMap[key].push(v);
+    });
+    return colorOrder.map(colorId => {
+      const key = colorId || '__none__';
+      return {
+        colorId,
+        colorName: colorId ? (getColorName(colorId) || 'ללא שם') : 'ללא צבע',
+        variants: colorMap[key],
+        totalStock: colorMap[key].reduce((sum, v) => sum + (v.stock_quantity || 0), 0),
+      };
     });
   };
 
@@ -496,23 +518,19 @@ export default function InventoryPage() {
               {expandedProducts.has(product.id) && (
                 <div className="border-t border-gray-100 bg-gray-50">
                   {product.has_variants && product.variants.length > 0 ? (
-                    // Grouped by size
-                    <div className="divide-y divide-gray-200">
-                      {groupVariantsBySize(product.variants).map(group => {
-                        const sizeKey = `${product.id}:${group.size}`;
-                        const isSizeExpanded = expandedSizes.has(sizeKey);
-                        const hasColors = group.variants.some(v => v.color_id);
-
-                        // Single variant per size (no colors) — show stepper directly
-                        if (group.variants.length === 1 && !hasColors) {
-                          const variant = group.variants[0];
+                    // Check if product has any colors — if not, fall back to size grouping
+                    product.variants.every(v => !v.color_id) ? (
+                      // Fallback: no colors, group by size directly
+                      <div className="divide-y divide-gray-200">
+                        {groupVariantsBySize(product.variants).map(sizeGroup => {
+                          const variant = sizeGroup.variants[0];
                           const editValue = getVariantEditValue(variant.id, variant.stock_quantity);
                           const changed = isVariantChanged(variant.id, variant.stock_quantity);
                           const saving = savingIds.has(variant.id);
                           return (
-                            <div key={sizeKey} className="px-4 py-3">
+                            <div key={`${product.id}:${sizeGroup.size}`} className="px-4 py-3">
                               <div className="flex items-center justify-between mb-2">
-                                <span className="text-sm text-gray-700 font-medium">{group.size}</span>
+                                <span className="text-sm text-gray-700 font-medium">{sizeGroup.size}</span>
                                 <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${stockBadgeColor(variant.stock_quantity)}`}>
                                   {variant.stock_quantity}
                                 </span>
@@ -529,60 +547,98 @@ export default function InventoryPage() {
                               </div>
                             </div>
                           );
-                        }
+                        })}
+                      </div>
+                    ) : (
+                      // Grouped by color
+                      <div className="divide-y divide-gray-200">
+                        {groupVariantsByColor(product.variants).map(group => {
+                          const colorKey = `${product.id}:${group.colorId || '__none__'}`;
+                          const isColorExpanded = expandedColors.has(colorKey);
 
-                        // Multiple variants per size (colors) — collapsible size group
-                        return (
-                          <div key={sizeKey}>
-                            <button
-                              onClick={() => toggleSize(sizeKey)}
-                              className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-100 active:bg-gray-200 transition-colors"
-                            >
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm font-semibold text-gray-800">{group.size}</span>
-                                <span className="text-xs text-gray-500">({group.variants.length} צבעים)</span>
+                          // Single variant per color — show stepper inline
+                          if (group.variants.length === 1) {
+                            const variant = group.variants[0];
+                            const editValue = getVariantEditValue(variant.id, variant.stock_quantity);
+                            const changed = isVariantChanged(variant.id, variant.stock_quantity);
+                            const saving = savingIds.has(variant.id);
+                            return (
+                              <div key={colorKey} className="px-4 py-3">
+                                <div className="flex items-center justify-between mb-2">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-sm text-gray-700 font-medium">{group.colorName}</span>
+                                    <span className="text-xs text-gray-500">({variant.size})</span>
+                                  </div>
+                                  <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${stockBadgeColor(variant.stock_quantity)}`}>
+                                    {variant.stock_quantity}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden bg-white">
+                                    <button onClick={() => setVariantEditValue(variant.id, editValue - 1)} className="w-11 h-11 flex items-center justify-center text-gray-600 hover:bg-gray-100 active:bg-gray-200 transition-colors" aria-label="הפחת"><FaMinus className="text-xs" /></button>
+                                    <input type="number" value={editValue} onChange={e => { const val = parseInt(e.target.value); if (!isNaN(val)) setVariantEditValue(variant.id, val); }} className="w-14 h-11 text-center border-x border-gray-300 text-base font-medium focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" min={0} />
+                                    <button onClick={() => setVariantEditValue(variant.id, editValue + 1)} className="w-11 h-11 flex items-center justify-center text-gray-600 hover:bg-gray-100 active:bg-gray-200 transition-colors" aria-label="הוסף"><FaPlus className="text-xs" /></button>
+                                  </div>
+                                  {changed && (
+                                    <button onClick={() => saveVariantStock(variant.id, product.id)} disabled={saving} className="px-4 h-11 bg-green-600 text-white rounded-lg font-medium text-sm hover:bg-green-700 active:bg-green-800 transition-colors disabled:opacity-50">{saving ? '...' : 'שמור'}</button>
+                                  )}
+                                </div>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${stockBadgeColor(group.totalStock)}`}>
-                                  {group.totalStock}
-                                </span>
-                                {isSizeExpanded ? <FaChevronUp className="text-xs text-gray-400" /> : <FaChevronDown className="text-xs text-gray-400" />}
-                              </div>
-                            </button>
-                            {isSizeExpanded && (
-                              <div className="bg-white divide-y divide-gray-50 border-t border-gray-100">
-                                {group.variants.map(variant => {
-                                  const colorName = getColorName(variant.color_id) || '—';
-                                  const editValue = getVariantEditValue(variant.id, variant.stock_quantity);
-                                  const changed = isVariantChanged(variant.id, variant.stock_quantity);
-                                  const saving = savingIds.has(variant.id);
-                                  return (
-                                    <div key={variant.id} className="px-4 py-3 pr-8">
-                                      <div className="flex items-center justify-between mb-2">
-                                        <span className="text-sm text-gray-700">{colorName}</span>
-                                        {!variant.is_active && (
-                                          <span className="text-xs text-gray-400 bg-gray-200 px-2 py-0.5 rounded">לא פעיל</span>
-                                        )}
-                                      </div>
-                                      <div className="flex items-center gap-2">
-                                        <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden bg-white">
-                                          <button onClick={() => setVariantEditValue(variant.id, editValue - 1)} className="w-11 h-11 flex items-center justify-center text-gray-600 hover:bg-gray-100 active:bg-gray-200 transition-colors" aria-label="הפחת"><FaMinus className="text-xs" /></button>
-                                          <input type="number" value={editValue} onChange={e => { const val = parseInt(e.target.value); if (!isNaN(val)) setVariantEditValue(variant.id, val); }} className="w-14 h-11 text-center border-x border-gray-300 text-base font-medium focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" min={0} />
-                                          <button onClick={() => setVariantEditValue(variant.id, editValue + 1)} className="w-11 h-11 flex items-center justify-center text-gray-600 hover:bg-gray-100 active:bg-gray-200 transition-colors" aria-label="הוסף"><FaPlus className="text-xs" /></button>
+                            );
+                          }
+
+                          // Multiple variants per color (sizes) — collapsible color group
+                          return (
+                            <div key={colorKey}>
+                              <button
+                                onClick={() => toggleColor(colorKey)}
+                                className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-100 active:bg-gray-200 transition-colors"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm font-semibold text-gray-800">{group.colorName}</span>
+                                  <span className="text-xs text-gray-500">({group.variants.length} מידות)</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${stockBadgeColor(group.totalStock)}`}>
+                                    {group.totalStock}
+                                  </span>
+                                  {isColorExpanded ? <FaChevronUp className="text-xs text-gray-400" /> : <FaChevronDown className="text-xs text-gray-400" />}
+                                </div>
+                              </button>
+                              {isColorExpanded && (
+                                <div className="bg-white divide-y divide-gray-50 border-t border-gray-100">
+                                  {group.variants.map(variant => {
+                                    const editValue = getVariantEditValue(variant.id, variant.stock_quantity);
+                                    const changed = isVariantChanged(variant.id, variant.stock_quantity);
+                                    const saving = savingIds.has(variant.id);
+                                    return (
+                                      <div key={variant.id} className="px-4 py-3 pr-8">
+                                        <div className="flex items-center justify-between mb-2">
+                                          <span className="text-sm text-gray-700">{variant.size}</span>
+                                          {!variant.is_active && (
+                                            <span className="text-xs text-gray-400 bg-gray-200 px-2 py-0.5 rounded">לא פעיל</span>
+                                          )}
                                         </div>
-                                        {changed && (
-                                          <button onClick={() => saveVariantStock(variant.id, product.id)} disabled={saving} className="px-4 h-11 bg-green-600 text-white rounded-lg font-medium text-sm hover:bg-green-700 active:bg-green-800 transition-colors disabled:opacity-50">{saving ? '...' : 'שמור'}</button>
-                                        )}
+                                        <div className="flex items-center gap-2">
+                                          <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden bg-white">
+                                            <button onClick={() => setVariantEditValue(variant.id, editValue - 1)} className="w-11 h-11 flex items-center justify-center text-gray-600 hover:bg-gray-100 active:bg-gray-200 transition-colors" aria-label="הפחת"><FaMinus className="text-xs" /></button>
+                                            <input type="number" value={editValue} onChange={e => { const val = parseInt(e.target.value); if (!isNaN(val)) setVariantEditValue(variant.id, val); }} className="w-14 h-11 text-center border-x border-gray-300 text-base font-medium focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" min={0} />
+                                            <button onClick={() => setVariantEditValue(variant.id, editValue + 1)} className="w-11 h-11 flex items-center justify-center text-gray-600 hover:bg-gray-100 active:bg-gray-200 transition-colors" aria-label="הוסף"><FaPlus className="text-xs" /></button>
+                                          </div>
+                                          {changed && (
+                                            <button onClick={() => saveVariantStock(variant.id, product.id)} disabled={saving} className="px-4 h-11 bg-green-600 text-white rounded-lg font-medium text-sm hover:bg-green-700 active:bg-green-800 transition-colors disabled:opacity-50">{saving ? '...' : 'שמור'}</button>
+                                          )}
+                                        </div>
                                       </div>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )
                   ) : (
                     // Non-variant product: single stock editor
                     <div className="px-4 py-3">
