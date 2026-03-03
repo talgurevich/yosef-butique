@@ -13,12 +13,8 @@ import { supabase, Product } from '@/lib/supabase';
 // Revalidate every 60 seconds
 export const revalidate = 60;
 
-async function getFeaturedProducts(): Promise<any[]> {
-  // Return empty array during build if Supabase is not configured
-  if (!supabase) {
-    console.log('Supabase not configured, returning empty products');
-    return [];
-  }
+async function getAllProducts(): Promise<any[]> {
+  if (!supabase) return [];
 
   try {
     const { data, error } = await supabase
@@ -72,22 +68,18 @@ async function getFeaturedProducts(): Promise<any[]> {
           )
         )
       `)
-      .eq('is_featured', true)
       .eq('is_active', true)
-      .limit(8);
+      .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching products:', error);
+      console.error('Error fetching all products:', error);
       return [];
     }
 
-    // Sort images by sort_order
-    const productsWithSortedImages = data?.map(product => ({
+    return data?.map(product => ({
       ...product,
       product_images: product.product_images?.sort((a: any, b: any) => a.sort_order - b.sort_order) || []
-    }));
-
-    return productsWithSortedImages || [];
+    })) || [];
   } catch (error) {
     console.error('Error:', error);
     return [];
@@ -203,18 +195,18 @@ async function getSpaceImages(): Promise<Record<string, string>> {
 }
 
 export default async function Home() {
-  const [featuredProducts, categories, spaces, categoryImages, spaceImages] = await Promise.all([
-    getFeaturedProducts(),
+  const [allProducts, categories, spaces, categoryImages, spaceImages] = await Promise.all([
+    getAllProducts(),
     getCategories(),
     getSpaces(),
     getCategoryImages(),
     getSpaceImages(),
   ]);
 
-  const carpetProducts = featuredProducts.filter(
+  const allCarpets = allProducts.filter(
     (p) => p.product_types?.slug !== 'plants'
   );
-  const plantProducts = featuredProducts.filter(
+  const allPlants = allProducts.filter(
     (p) => p.product_types?.slug === 'plants'
   );
 
@@ -224,22 +216,28 @@ export default async function Home() {
       <Header />
       <Hero />
       <TrustBar />
-      <MostWanted products={carpetProducts} />
-      {plantProducts.length > 0 && (
-        <MostWanted
-          products={plantProducts}
-          title="העציצים שלנו"
-          subtitle="עציצים מעוצבים לכל פינה בבית"
-          ctaLabel="צפה בכל העציצים"
-          ctaHref="/products?type=plants"
-        />
-      )}
+      <MostWanted
+        products={allCarpets}
+        title="השטיחים שלנו"
+        subtitle="מבחר שטיחים איכותיים לכל חדר בבית"
+        ctaLabel="צפה בכל השטיחים"
+        ctaHref="/products?type=carpets"
+      />
       <AttributesPreview
         categories={categories}
         spaces={spaces}
         categoryImages={categoryImages}
         spaceImages={spaceImages}
       />
+      {allPlants.length > 0 && (
+        <MostWanted
+          products={allPlants}
+          title="העציצים שלנו"
+          subtitle="עציצים מעוצבים לכל פינה בבית"
+          ctaLabel="צפה בכל העציצים"
+          ctaHref="/products?type=plants"
+        />
+      )}
       <AboutSection />
       <Reviews />
       <CustomerGallery />

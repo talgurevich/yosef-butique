@@ -46,7 +46,7 @@ export default function AttributesPreview({ categories, spaces, categoryImages =
             <div className="w-12 h-0.5 bg-gradient-to-l from-transparent to-yellow-600"></div>
           </div>
           <h2 className="text-4xl md:text-6xl font-black text-gray-900 mb-5 font-display tracking-tight">
-            קטגוריות מוצרים
+            קטגוריות שטיחים
           </h2>
           <p className="text-gray-600 text-lg md:text-xl max-w-2xl mx-auto font-light">
             גלה את המגוון הרחב שלנו - שטיחים
