@@ -6,9 +6,25 @@ import { Product } from '@/lib/supabase';
 
 interface MostWantedProps {
   products: any[];
+  title?: string;
+  subtitle?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
 }
 
-export default function MostWanted({ products }: MostWantedProps) {
+export default function MostWanted({
+  products,
+  title = 'המוצרים המבוקשים ביותר',
+  subtitle,
+  ctaLabel = 'צפה בכל המוצרים',
+  ctaHref = '/products',
+}: MostWantedProps) {
+  const defaultSubtitle = (
+    <>
+      הקולקציה הפופולרית ביותר שלנו - מוצרים נבחרים
+      <span className="font-serif italic"> באיכות פרימיום</span>
+    </>
+  );
   return (
     <section className="section-spacing bg-white pattern-chevron-subtle">
       <div className="container mx-auto px-4">
@@ -26,11 +42,10 @@ export default function MostWanted({ products }: MostWantedProps) {
             <div className="w-12 h-0.5 bg-gradient-to-l from-transparent to-yellow-600"></div>
           </div>
           <h2 className="text-4xl md:text-6xl font-black text-gray-900 mb-5 font-display tracking-tight">
-            המוצרים המבוקשים ביותר
+            {title}
           </h2>
           <p className="text-gray-600 text-lg md:text-xl max-w-2xl mx-auto font-light">
-            הקולקציה הפופולרית ביותר שלנו - מוצרים נבחרים
-            <span className="font-serif italic"> באיכות פרימיום</span>
+            {subtitle || defaultSubtitle}
           </p>
         </div>
 
@@ -48,10 +63,10 @@ export default function MostWanted({ products }: MostWantedProps) {
 
         <div className="text-center mt-20">
           <Link
-            href="/products"
+            href={ctaHref}
             className="btn-primary inline-flex items-center gap-3 shadow-luxury text-lg"
           >
-            <span>צפה בכל המוצרים</span>
+            <span>{ctaLabel}</span>
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
@@ -92,6 +107,12 @@ function ProductCard({ product, index }: { product: any; index: number }) {
       label: product.product_spaces[0].spaces.name,
       color: 'purple'
     });
+  }
+  if (product.product_plant_types && product.product_plant_types.length > 0) {
+    attributes.push(...product.product_plant_types.slice(0, 2).map((pt: any) => ({
+      label: pt.plant_types.name,
+      color: 'green'
+    })));
   }
 
   // Calculate stock: check variant stock first, fall back to product-level stock
@@ -163,6 +184,7 @@ function ProductCard({ product, index }: { product: any; index: number }) {
                   ${attr.color === 'gray' ? 'bg-gray-600/80 text-white' : ''}
                   ${attr.color === 'blue' ? 'bg-blue-500/80 text-white' : ''}
                   ${attr.color === 'purple' ? 'bg-purple-500/80 text-white' : ''}
+                  ${attr.color === 'green' ? 'bg-green-500/80 text-white' : ''}
                 `}
               >
                 {attr.label}

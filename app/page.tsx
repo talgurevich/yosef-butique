@@ -61,6 +61,15 @@ async function getFeaturedProducts(): Promise<any[]> {
           compare_at_price,
           stock_quantity,
           is_active
+        ),
+        product_types (
+          slug
+        ),
+        product_plant_types (
+          plant_types (
+            id,
+            name
+          )
         )
       `)
       .eq('is_featured', true)
@@ -202,13 +211,29 @@ export default async function Home() {
     getSpaceImages(),
   ]);
 
+  const carpetProducts = featuredProducts.filter(
+    (p) => p.product_types?.slug !== 'plants'
+  );
+  const plantProducts = featuredProducts.filter(
+    (p) => p.product_types?.slug === 'plants'
+  );
+
   return (
     <main className="min-h-screen">
       <Banner />
       <Header />
       <Hero />
       <TrustBar />
-      <MostWanted products={featuredProducts} />
+      <MostWanted products={carpetProducts} />
+      {plantProducts.length > 0 && (
+        <MostWanted
+          products={plantProducts}
+          title="העציצים שלנו"
+          subtitle="עציצים מעוצבים לכל פינה בבית"
+          ctaLabel="צפה בכל העציצים"
+          ctaHref="/products?type=plants"
+        />
+      )}
       <AttributesPreview
         categories={categories}
         spaces={spaces}
