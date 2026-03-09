@@ -11,9 +11,9 @@ async function getLogoBuffer(): Promise<Buffer> {
   }
 
   // Get the site URL from environment or use production URL
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : 'https://boutique-yossef.co.il';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
+    || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null)
+    || 'https://boutique-yossef.co.il';
 
   const logoUrl = `${siteUrl}/logo-new.png`;
 
