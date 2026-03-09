@@ -51,11 +51,18 @@ export default function ProductPageClient({
     return inStockVariant || initialVariants[0];
   };
 
-  // Auto-select color: prefer the initial variant's color, then first product color
+  // Auto-select color: prefer a color that has in-stock variants
   const getInitialColor = () => {
     const initVariant = getInitialVariant() as any;
+    // If the in-stock variant has a color, use it
     if (initVariant?.colors) return initVariant.colors;
-    if (initialColors.length > 0) return initialColors[0];
+    // For product-level colors, prefer one that has in-stock variants
+    if (initialColors.length > 0) {
+      const inStockColor = initialColors.find((color: any) =>
+        initialVariants.some((v: any) => v.color_id === color.id && v.stock_quantity > 0)
+      );
+      return inStockColor || initialColors[0];
+    }
     return null;
   };
 
@@ -250,15 +257,18 @@ export default function ProductPageClient({
     setSelectedColor(color);
     if (selectedVariant?.size) {
       const matchingVariant = findMatchingVariant(selectedVariant.size, color.id);
-      if (matchingVariant) {
+      if (matchingVariant && matchingVariant.stock_quantity > 0) {
         setSelectedVariant(matchingVariant);
       } else {
-        const firstVariantWithColor = variants.find(v => v.color_id === color.id);
-        if (firstVariantWithColor) setSelectedVariant(firstVariantWithColor);
+        // Prefer an in-stock variant with this color
+        const inStockVariant = variants.find(v => v.color_id === color.id && v.stock_quantity > 0);
+        const fallback = matchingVariant || variants.find(v => v.color_id === color.id);
+        setSelectedVariant(inStockVariant || fallback || null);
       }
     } else {
-      const firstVariantWithColor = variants.find(v => v.color_id === color.id);
-      if (firstVariantWithColor) setSelectedVariant(firstVariantWithColor);
+      const inStockVariant = variants.find(v => v.color_id === color.id && v.stock_quantity > 0);
+      const fallback = variants.find(v => v.color_id === color.id);
+      setSelectedVariant(inStockVariant || fallback || null);
     }
   };
 
