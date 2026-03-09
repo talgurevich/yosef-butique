@@ -1,31 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import sharp from 'sharp';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
 // Cache for logo buffer
 let cachedLogoBuffer: Buffer | null = null;
 
-async function getLogoBuffer(): Promise<Buffer> {
+function getLogoBuffer(): Buffer {
   if (cachedLogoBuffer) {
     return cachedLogoBuffer;
   }
 
-  // Get the site URL from environment or use production URL
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
-    || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null)
-    || 'https://boutique-yossef.co.il';
-
-  const logoUrl = `${siteUrl}/logo-new.png`;
-
-  console.log('Fetching logo from:', logoUrl);
-
-  const response = await fetch(logoUrl);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch logo: ${response.status}`);
-  }
-
-  const arrayBuffer = await response.arrayBuffer();
-  cachedLogoBuffer = Buffer.from(arrayBuffer);
+  // Read logo directly from filesystem (works on both local and Vercel)
+  const logoPath = join(process.cwd(), 'public', 'logo-new.png');
+  cachedLogoBuffer = readFileSync(logoPath);
   return cachedLogoBuffer;
 }
 
@@ -41,7 +30,7 @@ async function addWatermark(imageBuffer: Buffer): Promise<Buffer> {
     const logoWidth = Math.round(imageWidth * 0.6);
 
     // Load and resize the logo
-    const logoBuffer = await getLogoBuffer();
+    const logoBuffer = getLogoBuffer();
     const resizedLogo = await sharp(logoBuffer)
       .resize(logoWidth)
       .toBuffer();
