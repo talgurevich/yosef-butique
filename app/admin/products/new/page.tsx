@@ -365,6 +365,7 @@ export default function NewProductPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return; // Prevent double submission
     setLoading(true);
 
     try {
@@ -398,7 +399,7 @@ export default function NewProductPage() {
         slug,
         style: [],
         color: [],
-        has_variants: variants.length > 1,
+        has_variants: variants.length > 0,
         product_type_id: selectedProductType,
       };
 
