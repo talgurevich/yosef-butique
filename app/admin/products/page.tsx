@@ -49,6 +49,9 @@ export default function ProductsPage() {
           product_variants (
             id,
             stock_quantity
+          ),
+          product_types (
+            slug
           )
         `)
         .order('created_at', { ascending: false });
@@ -147,6 +150,13 @@ export default function ProductsPage() {
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const carpetProducts = filteredProducts.filter(
+    (p) => (p as any).product_types?.slug !== 'plants'
+  );
+  const plantProducts = filteredProducts.filter(
+    (p) => (p as any).product_types?.slug === 'plants'
+  );
+
   return (
     <div>
       {/* Header */}
@@ -154,7 +164,7 @@ export default function ProductsPage() {
         <div>
           <h1 className="text-3xl font-bold text-gray-800">ניהול מוצרים</h1>
           <p className="text-gray-600 mt-2">
-            סך הכל {products.length} מוצרים במערכת
+            סך הכל {products.length} מוצרים במערכת ({carpetProducts.length} שטיחים, {plantProducts.length} עציצים)
           </p>
         </div>
         <div className="flex gap-3">
@@ -203,171 +213,210 @@ export default function ProductsPage() {
         )}
       </div>
 
-      {/* Products Table */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        {loading ? (
-          <div className="p-12 text-center">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
-            <p className="mt-4 text-gray-600">טוען מוצרים...</p>
-          </div>
-        ) : filteredProducts.length === 0 ? (
-          <div className="p-12 text-center">
-            <p className="text-gray-600 text-lg mb-4">לא נמצאו מוצרים</p>
-            <Link
-              href="/admin/products/new"
-              className="inline-block bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors"
-            >
-              הוסף מוצר ראשון
-            </Link>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b">
-                <tr>
-                  <th className="px-4 py-4 text-center w-12">
+      {loading ? (
+        <div className="bg-white rounded-lg shadow-md p-12 text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
+          <p className="mt-4 text-gray-600">טוען מוצרים...</p>
+        </div>
+      ) : filteredProducts.length === 0 ? (
+        <div className="bg-white rounded-lg shadow-md p-12 text-center">
+          <p className="text-gray-600 text-lg mb-4">לא נמצאו מוצרים</p>
+          <Link
+            href="/admin/products/new"
+            className="inline-block bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors"
+          >
+            הוסף מוצר ראשון
+          </Link>
+        </div>
+      ) : (
+        <div className="space-y-8">
+          {/* Carpets Table */}
+          {carpetProducts.length > 0 && (
+            <div>
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">שטיחים ({carpetProducts.length})</h2>
+              <ProductTable
+                products={carpetProducts}
+                selectedIds={selectedIds}
+                toggleSelect={toggleSelect}
+                toggleSelectAll={() => {
+                  const allSelected = carpetProducts.every(p => selectedIds.has(p.id));
+                  setSelectedIds(prev => {
+                    const next = new Set(prev);
+                    carpetProducts.forEach(p => allSelected ? next.delete(p.id) : next.add(p.id));
+                    return next;
+                  });
+                }}
+                allSelected={carpetProducts.length > 0 && carpetProducts.every(p => selectedIds.has(p.id))}
+                handleDelete={handleDelete}
+              />
+            </div>
+          )}
+
+          {/* Plants Table */}
+          {plantProducts.length > 0 && (
+            <div>
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">עציצים ({plantProducts.length})</h2>
+              <ProductTable
+                products={plantProducts}
+                selectedIds={selectedIds}
+                toggleSelect={toggleSelect}
+                toggleSelectAll={() => {
+                  const allSelected = plantProducts.every(p => selectedIds.has(p.id));
+                  setSelectedIds(prev => {
+                    const next = new Set(prev);
+                    plantProducts.forEach(p => allSelected ? next.delete(p.id) : next.add(p.id));
+                    return next;
+                  });
+                }}
+                allSelected={plantProducts.length > 0 && plantProducts.every(p => selectedIds.has(p.id))}
+                handleDelete={handleDelete}
+              />
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ProductTable({
+  products,
+  selectedIds,
+  toggleSelect,
+  toggleSelectAll,
+  allSelected,
+  handleDelete,
+}: {
+  products: Product[];
+  selectedIds: Set<string>;
+  toggleSelect: (id: string) => void;
+  toggleSelectAll: () => void;
+  allSelected: boolean;
+  handleDelete: (id: string) => void;
+}) {
+  return (
+    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead className="bg-gray-50 border-b">
+            <tr>
+              <th className="px-4 py-4 text-center w-12">
+                <button
+                  onClick={toggleSelectAll}
+                  className="text-gray-600 hover:text-primary-600 transition-colors"
+                  title={allSelected ? 'בטל בחירה' : 'בחר הכל'}
+                >
+                  {allSelected ? (
+                    <FaCheckSquare className="text-xl text-primary-600" />
+                  ) : (
+                    <FaSquare className="text-xl" />
+                  )}
+                </button>
+              </th>
+              <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">שם המוצר</th>
+              <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">צבעים</th>
+              <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">סגנון</th>
+              <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">חלל</th>
+              <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">מלאי</th>
+              <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">סטטוס</th>
+              <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">פעולות</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {products.map((product) => {
+              const colors = (product as any).product_colors?.map((pc: any) => pc.colors?.name).filter(Boolean) || [];
+              const categories = (product as any).product_categories?.map((pc: any) => pc.categories?.name).filter(Boolean) || [];
+              const spaces = (product as any).product_spaces?.map((ps: any) => ps.spaces?.name).filter(Boolean) || [];
+
+              return (
+                <tr key={product.id} className={`hover:bg-gray-50 ${selectedIds.has(product.id) ? 'bg-blue-50' : ''}`}>
+                  <td className="px-4 py-4 text-center">
                     <button
-                      onClick={toggleSelectAll}
+                      onClick={() => toggleSelect(product.id)}
                       className="text-gray-600 hover:text-primary-600 transition-colors"
-                      title={selectedIds.size === filteredProducts.length ? 'בטל בחירה' : 'בחר הכל'}
                     >
-                      {selectedIds.size === filteredProducts.length && filteredProducts.length > 0 ? (
+                      {selectedIds.has(product.id) ? (
                         <FaCheckSquare className="text-xl text-primary-600" />
                       ) : (
                         <FaSquare className="text-xl" />
                       )}
                     </button>
-                  </th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">
-                    שם המוצר
-                  </th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">
-                    צבעים
-                  </th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">
-                    סגנון
-                  </th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">
-                    חלל
-                  </th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">
-                    מלאי
-                  </th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">
-                    סטטוס
-                  </th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">
-                    פעולות
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {filteredProducts.map((product) => {
-                  const colors = (product as any).product_colors?.map((pc: any) => pc.colors?.name).filter(Boolean) || [];
-                  const categories = (product as any).product_categories?.map((pc: any) => pc.categories?.name).filter(Boolean) || [];
-                  const spaces = (product as any).product_spaces?.map((ps: any) => ps.spaces?.name).filter(Boolean) || [];
-
-                  return (
-                  <tr key={product.id} className={`hover:bg-gray-50 ${selectedIds.has(product.id) ? 'bg-blue-50' : ''}`}>
-                    <td className="px-4 py-4 text-center">
-                      <button
-                        onClick={() => toggleSelect(product.id)}
-                        className="text-gray-600 hover:text-primary-600 transition-colors"
-                      >
-                        {selectedIds.has(product.id) ? (
-                          <FaCheckSquare className="text-xl text-primary-600" />
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center">
+                      <div className="h-12 w-12 bg-gray-200 rounded flex-shrink-0 ml-4 overflow-hidden">
+                        {(product as any).product_images && (product as any).product_images.length > 0 ? (
+                          <img
+                            src={(product as any).product_images[0].image_url}
+                            alt={(product as any).product_images[0].alt_text || product.name}
+                            className="w-full h-full object-cover"
+                          />
                         ) : (
-                          <FaSquare className="text-xl" />
-                        )}
-                      </button>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center">
-                        <div className="h-12 w-12 bg-gray-200 rounded flex-shrink-0 ml-4 overflow-hidden">
-                          {(product as any).product_images && (product as any).product_images.length > 0 ? (
-                            <img
-                              src={(product as any).product_images[0].image_url}
-                              alt={(product as any).product_images[0].alt_text || product.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
-                              אין תמונה
-                            </div>
-                          )}
-                        </div>
-                        <div>
-                          <div className="font-medium text-gray-900">
-                            {product.name}
+                          <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
+                            אין תמונה
                           </div>
-                        </div>
+                        )}
                       </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-700">
-                        {colors.length > 0 ? colors.join(', ') : '-'}
+                      <div>
+                        <div className="font-medium text-gray-900">{product.name}</div>
                       </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-700">
-                        {categories.length > 0 ? categories.join(', ') : '-'}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-700">
-                        {spaces.length > 0 ? spaces.join(', ') : '-'}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          (product as any).total_stock > 10
-                            ? 'bg-green-100 text-green-800'
-                            : (product as any).total_stock > 0
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-red-100 text-red-800'
-                        }`}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="text-sm text-gray-700">{colors.length > 0 ? colors.join(', ') : '-'}</div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="text-sm text-gray-700">{categories.length > 0 ? categories.join(', ') : '-'}</div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="text-sm text-gray-700">{spaces.length > 0 ? spaces.join(', ') : '-'}</div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        (product as any).total_stock > 10
+                          ? 'bg-green-100 text-green-800'
+                          : (product as any).total_stock > 0
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : 'bg-red-100 text-red-800'
+                      }`}
+                    >
+                      {(product as any).total_stock} יחידות
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        product.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                      }`}
+                    >
+                      {product.is_active ? 'פעיל' : 'לא פעיל'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex gap-2">
+                      <Link
+                        href={`/admin/products/${product.id}`}
+                        className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition-colors flex items-center gap-1 text-sm"
+                        title="ערוך וניהול מידות"
                       >
-                        {(product as any).total_stock} יחידות
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          product.is_active
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-gray-100 text-gray-800'
-                        }`}
+                        <FaEdit />
+                        ערוך
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(product.id)}
+                        className="text-red-600 hover:text-red-800 p-2"
+                        title="מחק"
                       >
-                        {product.is_active ? 'פעיל' : 'לא פעיל'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex gap-2">
-                        <Link
-                          href={`/admin/products/${product.id}`}
-                          className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition-colors flex items-center gap-1 text-sm"
-                          title="ערוך וניהול מידות"
-                        >
-                          <FaEdit />
-                          ערוך
-                        </Link>
-                        <button
-                          onClick={() => handleDelete(product.id)}
-                          className="text-red-600 hover:text-red-800 p-2"
-                          title="מחק"
-                        >
-                          <FaTrash />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
+                        <FaTrash />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
     </div>
   );

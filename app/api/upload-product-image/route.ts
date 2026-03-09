@@ -37,8 +37,8 @@ async function addWatermark(imageBuffer: Buffer): Promise<Buffer> {
     const imageWidth = metadata.width || 800;
     const imageHeight = metadata.height || 600;
 
-    // Calculate logo size (90% of image width)
-    const logoWidth = Math.round(imageWidth * 0.9);
+    // Calculate logo size (60% of image width)
+    const logoWidth = Math.round(imageWidth * 0.6);
 
     // Load and resize the logo
     const logoBuffer = await getLogoBuffer();
@@ -50,9 +50,9 @@ async function addWatermark(imageBuffer: Buffer): Promise<Buffer> {
     const logoMetadata = await sharp(resizedLogo).metadata();
     const logoHeight = logoMetadata.height || 50;
 
-    // Calculate position: centered horizontally, 50px from bottom
+    // Calculate position: centered horizontally and vertically
     const left = Math.round((imageWidth - logoWidth) / 2);
-    const top = imageHeight - logoHeight - 50;
+    const top = Math.round((imageHeight - logoHeight) / 2);
 
     // Composite the logo onto the image
     const watermarkedImage = await sharp(imageBuffer)

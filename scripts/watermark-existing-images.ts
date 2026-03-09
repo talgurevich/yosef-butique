@@ -41,9 +41,9 @@ async function addWatermark(imageBuffer: Buffer, logoBuffer: Buffer): Promise<Bu
   const logoMetadata = await sharp(resizedLogo).metadata();
   const logoHeight = logoMetadata.height || 50;
 
-  // Calculate position: centered horizontally, 50px from bottom
+  // Calculate position: centered horizontally and vertically
   const left = Math.round((imageWidth - logoWidth) / 2);
-  const top = imageHeight - logoHeight - 50;
+  const top = Math.round((imageHeight - logoHeight) / 2);
 
   // Composite the logo onto the image
   const watermarkedImage = await sharp(imageBuffer)
