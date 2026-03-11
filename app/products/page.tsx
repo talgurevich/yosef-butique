@@ -106,12 +106,6 @@ async function getProducts(filters: FilterParams = {}) {
     `)
     .eq('is_active', true);
 
-  // Search by name or description
-  if (filters.search) {
-    const term = `%${filters.search}%`;
-    query = query.or(`name.ilike.${term},description.ilike.${term}`);
-  }
-
   // Filter by product type
   if (filters.productType) {
     const { data: productType } = await supabase
@@ -135,9 +129,21 @@ async function getProducts(filters: FilterParams = {}) {
 
   if (!products) return [];
 
-  // Filter by category (junction table) - supports multiple values
   let filteredProducts = products;
 
+  // Search by name, description, product type name, or category names
+  if (filters.search) {
+    const term = filters.search.toLowerCase();
+    filteredProducts = filteredProducts.filter((p: any) => {
+      if (p.name?.toLowerCase().includes(term)) return true;
+      if (p.description?.toLowerCase().includes(term)) return true;
+      if (p.product_types?.name?.toLowerCase().includes(term)) return true;
+      if (p.product_categories?.some((pc: any) => pc.categories?.name?.toLowerCase().includes(term))) return true;
+      return false;
+    });
+  }
+
+  // Filter by category (junction table) - supports multiple values
   if (filters.category) {
     const categorySlugs = filters.category.split(',');
     const { data: categoryData } = await supabase
