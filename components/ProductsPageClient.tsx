@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { FaShoppingCart, FaEye, FaFilter } from 'react-icons/fa';
+import { useRouter } from 'next/navigation';
+import { FaShoppingCart, FaEye, FaFilter, FaTimes } from 'react-icons/fa';
 import ProductFilters from './ProductFilters';
 
 type Product = any; // Type from parent
@@ -26,7 +27,9 @@ type ProductsPageClientProps = {
     plantType?: string;
     plantSize?: string;
     plantPetSafety?: string;
+    search?: string;
   };
+  search?: string;
 };
 
 export default function ProductsPageClient({
@@ -40,7 +43,9 @@ export default function ProductsPageClient({
   plantSizes,
   plantPetSafety,
   filters,
+  search,
 }: ProductsPageClientProps) {
+  const router = useRouter();
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   // Count active filters
@@ -64,6 +69,22 @@ export default function ProductsPageClient({
       />
 
       <div className="container mx-auto px-4 py-12">
+        {/* Search Banner */}
+        {search && (
+          <div className="flex items-center justify-between bg-primary-50 border border-primary-200 rounded-lg px-4 py-3 mb-6">
+            <span className="text-gray-700">
+              תוצאות חיפוש עבור <strong>&quot;{search}&quot;</strong>
+            </span>
+            <button
+              onClick={() => router.push('/products')}
+              className="flex items-center gap-1 text-gray-500 hover:text-gray-700 transition-colors"
+              aria-label="נקה חיפוש"
+            >
+              <FaTimes />
+            </button>
+          </div>
+        )}
+
         {/* Filter Button & Results Count */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">

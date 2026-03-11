@@ -3,16 +3,32 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FaShoppingCart, FaWhatsapp, FaUser, FaTimes, FaChevronDown, FaFacebook, FaInstagram, FaTiktok } from 'react-icons/fa';
+import { FaShoppingCart, FaWhatsapp, FaUser, FaTimes, FaChevronDown, FaFacebook, FaInstagram, FaTiktok, FaSearch } from 'react-icons/fa';
+import { useRouter, useSearchParams } from 'next/navigation';
 import CarpetsDropdown from './CarpetsDropdown';
 import PlantsDropdown from './PlantsDropdown';
 import { useCart } from '@/contexts/CartContext';
 
 export default function Header() {
   const { getCartItemsCount } = useCart();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [carpetsDropdownOpen, setCarpetsDropdownOpen] = useState(false);
   const [plantsDropdownOpen, setPlantsDropdownOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
+
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      const trimmed = searchQuery.trim();
+      if (trimmed) {
+        router.push(`/products?search=${encodeURIComponent(trimmed)}`);
+      } else {
+        router.push('/products');
+      }
+      setMobileMenuOpen(false);
+    }
+  };
   const carpetsDropdownRef = useRef<HTMLDivElement>(null);
   const plantsDropdownRef = useRef<HTMLDivElement>(null);
   const carpetsCloseTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -159,8 +175,20 @@ export default function Header() {
             </Link>
           </nav>
 
-          {/* Actions */}
+          {/* Search + Actions */}
           <div className="hidden md:flex items-center space-x-4 space-x-reverse">
+            {/* Search Bar */}
+            <div className="relative">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleSearch}
+                placeholder="חיפוש מוצרים..."
+                className="w-44 lg:w-56 pl-9 pr-4 py-2 text-sm border border-gray-300 rounded-full bg-gray-50 focus:bg-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none transition-all"
+              />
+              <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
+            </div>
             {/* Social Media Icons */}
             <div className="flex items-center space-x-3 space-x-reverse border-l border-gray-300 pl-4">
               <a
@@ -257,6 +285,19 @@ export default function Header() {
         {/* Mobile Menu */}
         {mobileMenuOpen && (
           <div className="md:hidden mt-4 pb-4 border-t border-gray-200 pt-4 animate-fade-in">
+            {/* Mobile Search */}
+            <div className="relative mb-4 px-4">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleSearch}
+                placeholder="חיפוש מוצרים..."
+                className="w-full pl-10 pr-4 py-3 text-sm border border-gray-300 rounded-full bg-gray-50 focus:bg-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none transition-all"
+              />
+              <FaSearch className="absolute left-7 top-1/2 -translate-y-1/2 text-gray-400" />
+            </div>
+
             <nav className="flex flex-col space-y-4">
               <Link
                 href="/"

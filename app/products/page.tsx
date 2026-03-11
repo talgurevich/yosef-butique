@@ -31,6 +31,7 @@ type FilterParams = {
   plantType?: string;
   plantSize?: string;
   plantPetSafety?: string;
+  search?: string;
 };
 
 async function getProducts(filters: FilterParams = {}) {
@@ -104,6 +105,12 @@ async function getProducts(filters: FilterParams = {}) {
       )
     `)
     .eq('is_active', true);
+
+  // Search by name or description
+  if (filters.search) {
+    const term = `%${filters.search}%`;
+    query = query.or(`name.ilike.${term},description.ilike.${term}`);
+  }
 
   // Filter by product type
   if (filters.productType) {
@@ -382,6 +389,7 @@ export default async function ProductsPage({
     plantType: searchParams.plantType as string,
     plantSize: searchParams.plantSize as string,
     plantPetSafety: searchParams.plantPetSafety as string,
+    search: searchParams.search as string,
   };
 
   const products = await getProducts(filters);
@@ -475,6 +483,7 @@ export default async function ProductsPage({
           plantSizes={plantSizes}
           plantPetSafety={plantPetSafety}
           filters={filters}
+          search={filters.search}
         />
       </div>
 
