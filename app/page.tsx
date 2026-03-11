@@ -159,6 +159,60 @@ async function getCategoryImages(): Promise<Record<string, string>> {
   }
 }
 
+async function getShapes(): Promise<any[]> {
+  if (!supabase) return [];
+  try {
+    const { data, error } = await supabase
+      .from('shapes')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order');
+    if (error) {
+      console.error('Error fetching shapes:', error);
+      return [];
+    }
+    return data || [];
+  } catch (error) {
+    console.error('Error:', error);
+    return [];
+  }
+}
+
+async function getShapeImages(): Promise<Record<string, string>> {
+  if (!supabase) return {};
+  try {
+    const { data, error } = await supabase
+      .from('product_shapes')
+      .select(`
+        shape_id,
+        products!inner (
+          is_active,
+          product_images (
+            image_url,
+            sort_order
+          )
+        )
+      `)
+      .eq('products.is_active', true);
+    if (error) {
+      console.error('Error fetching shape images:', error);
+      return {};
+    }
+    const imageMap: Record<string, string> = {};
+    (data || []).forEach((row: any) => {
+      if (imageMap[row.shape_id]) return;
+      const images = row.products?.product_images?.sort((a: any, b: any) => a.sort_order - b.sort_order) || [];
+      if (images.length > 0) {
+        imageMap[row.shape_id] = images[0].image_url;
+      }
+    });
+    return imageMap;
+  } catch (error) {
+    console.error('Error:', error);
+    return {};
+  }
+}
+
 async function getSpaceImages(): Promise<Record<string, string>> {
   if (!supabase) return {};
   try {
@@ -195,12 +249,14 @@ async function getSpaceImages(): Promise<Record<string, string>> {
 }
 
 export default async function Home() {
-  const [allProducts, categories, spaces, categoryImages, spaceImages] = await Promise.all([
+  const [allProducts, categories, spaces, shapes, categoryImages, spaceImages, shapeImages] = await Promise.all([
     getAllProducts(),
     getCategories(),
     getSpaces(),
+    getShapes(),
     getCategoryImages(),
     getSpaceImages(),
+    getShapeImages(),
   ]);
 
   const allCarpets = allProducts.filter(
@@ -226,8 +282,10 @@ export default async function Home() {
       <AttributesPreview
         categories={categories}
         spaces={spaces}
+        shapes={shapes}
         categoryImages={categoryImages}
         spaceImages={spaceImages}
+        shapeImages={shapeImages}
       />
       {allPlants.length > 0 && (
         <MostWanted
