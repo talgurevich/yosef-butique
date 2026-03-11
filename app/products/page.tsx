@@ -139,6 +139,11 @@ async function getProducts(filters: FilterParams = {}) {
       if (p.description?.toLowerCase().includes(term)) return true;
       if (p.product_types?.name?.toLowerCase().includes(term)) return true;
       if (p.product_categories?.some((pc: any) => pc.categories?.name?.toLowerCase().includes(term))) return true;
+      if (p.product_colors?.some((pc: any) => pc.colors?.name?.toLowerCase().includes(term))) return true;
+      if (p.product_shapes?.some((ps: any) => ps.shapes?.name?.toLowerCase().includes(term))) return true;
+      if (p.product_spaces?.some((ps: any) => ps.spaces?.name?.toLowerCase().includes(term))) return true;
+      if (p.product_plant_types?.some((pt: any) => pt.plant_types?.name?.toLowerCase().includes(term))) return true;
+      if (p.product_plant_sizes?.some((ps: any) => ps.plant_sizes?.name?.toLowerCase().includes(term))) return true;
       return false;
     });
   }
