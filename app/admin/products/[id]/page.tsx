@@ -828,30 +828,66 @@ export default function EditProductPage() {
 
     try {
       if (variant.id.startsWith('temp-')) {
-        // Create new variant
-        const { data, error } = await supabase
+        // Check for existing variant with same size + color to prevent duplicates
+        let duplicateQuery = supabase
           .from('product_variants')
-          .insert([
-            {
-              product_id: productId,
-              size: variant.size,
-              color_id: variant.color_id || null,
+          .select('id')
+          .eq('product_id', productId)
+          .eq('size', variant.size);
+        if (variant.color_id) {
+          duplicateQuery = duplicateQuery.eq('color_id', variant.color_id);
+        } else {
+          duplicateQuery = duplicateQuery.is('color_id', null);
+        }
+        const { data: existingVariants } = await duplicateQuery;
+
+        if (existingVariants && existingVariants.length > 0) {
+          // Update the existing variant instead of creating a duplicate
+          const { data, error } = await supabase
+            .from('product_variants')
+            .update({
               sku: variant.sku,
               price: variant.price,
               compare_at_price: variant.compare_at_price || null,
               stock_quantity: variant.stock_quantity,
               is_active: variant.is_active,
               sort_order: variant.sort_order,
-            },
-          ])
-          .select()
-          .single();
+            })
+            .eq('id', existingVariants[0].id)
+            .select()
+            .single();
 
-        if (error) throw error;
+          if (error) throw error;
 
-        const updated = [...variants];
-        updated[index] = data;
-        setVariants(updated);
+          const updated = [...variants];
+          updated[index] = data;
+          setVariants(updated);
+        } else {
+          // Create new variant
+          const { data, error } = await supabase
+            .from('product_variants')
+            .insert([
+              {
+                product_id: productId,
+                size: variant.size,
+                color_id: variant.color_id || null,
+                sku: variant.sku,
+                price: variant.price,
+                compare_at_price: variant.compare_at_price || null,
+                stock_quantity: variant.stock_quantity,
+                is_active: variant.is_active,
+                sort_order: variant.sort_order,
+              },
+            ])
+            .select()
+            .single();
+
+          if (error) throw error;
+
+          const updated = [...variants];
+          updated[index] = data;
+          setVariants(updated);
+        }
       } else {
         // Update existing variant
         const { error } = await supabase

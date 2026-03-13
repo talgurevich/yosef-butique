@@ -294,15 +294,19 @@ export async function POST(request: NextRequest) {
           continue;
         }
 
-        // Create variants
-        const variantsToInsert = sizes.map((size, idx) => {
-          // Look up color_id from variant_colors if provided
+        // Create variants (deduplicate by size + color_id)
+        const seenVariants = new Set<string>();
+        const variantsToInsert = sizes.reduce((acc: any[], size, idx) => {
           let colorId = null;
           if (variantColors[idx]) {
             colorId = slugMaps.colors.get(variantColors[idx]) || null;
           }
 
-          return {
+          const dedupeKey = `${size}|${colorId}`;
+          if (seenVariants.has(dedupeKey)) return acc;
+          seenVariants.add(dedupeKey);
+
+          acc.push({
             product_id: productData.id,
             size,
             color_id: colorId,
@@ -311,9 +315,10 @@ export async function POST(request: NextRequest) {
             compare_at_price: comparePrices[idx] ? parseFloat(comparePrices[idx]) : null,
             stock_quantity: stockQuantities[idx] ? parseInt(stockQuantities[idx]) : 0,
             is_active: true,
-            sort_order: idx,
-          };
-        });
+            sort_order: acc.length,
+          });
+          return acc;
+        }, []);
 
         const { error: variantsError } = await supabaseAdmin
           .from('product_variants')
