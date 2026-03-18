@@ -683,6 +683,24 @@ export default function EditProductPage() {
     setVariants([...variants, newVariant as ProductVariant]);
   };
 
+  const addVariantToColor = (colorId: string | null) => {
+    const newVariant = {
+      id: `temp-${Date.now()}`,
+      product_id: productId,
+      size: '',
+      color_id: colorId,
+      sku: `VAR-${Date.now()}`,
+      price: 0,
+      compare_at_price: 0,
+      stock_quantity: 0,
+      is_active: true,
+      sort_order: variants.length,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    setVariants([...variants, newVariant as ProductVariant]);
+  };
+
   const updateVariant = (index: number, field: string, value: any) => {
     const updated = [...variants];
     updated[index] = { ...updated[index], [field]: value };
@@ -1349,13 +1367,15 @@ export default function EditProductPage() {
                 צור וריאנטים לכל השילובים
               </button>
             )}
-            <button
-              onClick={addVariant}
-              className="bg-terracotta text-white px-4 py-2 rounded-lg hover:bg-terracotta-dark transition-colors flex items-center gap-2"
-            >
-              <FaPlus />
-              הוסף וריאנט
-            </button>
+            {(variants.length === 0 || (variantsByColor.length <= 1 && !variantsByColor[0]?.colorId)) && (
+              <button
+                onClick={addVariant}
+                className="bg-terracotta text-white px-4 py-2 rounded-lg hover:bg-terracotta-dark transition-colors flex items-center gap-2"
+              >
+                <FaPlus />
+                הוסף וריאנט
+              </button>
+            )}
           </div>
         </div>
 
@@ -1494,6 +1514,17 @@ export default function EditProductPage() {
                           </div>
                         </div>
                       ))}
+                      {/* Add Size button for this color group */}
+                      <div className="px-4 py-3 bg-gray-50/50">
+                        <button
+                          type="button"
+                          onClick={() => addVariantToColor(group.colorId)}
+                          className="text-sm text-primary-600 hover:text-primary-800 flex items-center gap-1 font-medium"
+                        >
+                          <FaPlus size={10} />
+                          הוסף מידה
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
