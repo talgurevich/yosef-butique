@@ -57,6 +57,7 @@ export default function AdminBannerPage() {
       const { data, error } = await supabase
         .from('banner')
         .select('*')
+        .order('is_active', { ascending: false })
         .limit(1)
         .single();
 
