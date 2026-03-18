@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { sendSlackNotification } from '@/lib/slack';
 
 type CartItemPayload = {
   productId: string;
@@ -196,6 +197,22 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('Payment link generated successfully, order:', orderNumber);
+
+    // Fire-and-forget Slack notification for checkout started
+    sendSlackNotification({
+      type: 'checkout_started',
+      customerName: customer?.customer_name || '',
+      customerEmail: customer?.email || '',
+      customerPhone: customer?.phone || '',
+      orderNumber,
+      items: (cartItems as CartItemPayload[] || []).map((item) => ({
+        productName: item.productName,
+        variantSize: item.variantSize,
+        price: item.price,
+        quantity: item.quantity,
+      })),
+      total,
+    });
 
     return NextResponse.json({
       success: true,

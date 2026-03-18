@@ -9,7 +9,7 @@ import Link from 'next/link';
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { cartItems, getFinalTotal, getCartTotal, getDiscountAmount, getDeliveryCost, appliedCoupon, clearCart } = useCart();
+  const { cartItems, getFinalTotal, getCartTotal, getDiscountAmount, getDeliveryCost, appliedCoupon, clearCart, cancelAbandonTimer } = useCart();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [isClient, setIsClient] = useState(false);
@@ -45,6 +45,9 @@ export default function CheckoutPage() {
     setError('');
 
     try {
+      // Cancel the cart abandon timer since user is checking out
+      cancelAbandonTimer();
+
       const effectiveDeliveryCost = getDeliveryCost();
 
       // Prepare items for PayPlus

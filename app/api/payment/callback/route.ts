@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { createClient } from '@supabase/supabase-js';
 import { sendOrderConfirmationEmail, sendAdminOrderNotificationEmail } from '@/lib/order-emails';
+import { sendSlackNotification } from '@/lib/slack';
 
 // Validate PayPlus hash to ensure request authenticity
 function validatePayPlusHash(body: any, hash: string, secretKey: string): boolean {
@@ -215,10 +216,24 @@ export async function POST(request: NextRequest) {
           phone: order.customer_phone || billing.phone || '',
         };
 
-        // Send both emails in parallel
+        // Send both emails and Slack notification in parallel
         await Promise.allSettled([
           sendOrderConfirmationEmail(orderData, emailItems, customerData),
           sendAdminOrderNotificationEmail(orderData, emailItems, customerData),
+          Promise.resolve(sendSlackNotification({
+            type: 'order_completed',
+            orderNumber: orderData.order_number,
+            customerName: customerData.customer_name,
+            customerEmail: customerData.email,
+            customerPhone: customerData.phone,
+            items: emailItems.map((item: any) => ({
+              productName: item.product_name,
+              variantSize: item.variant_size || '',
+              price: item.price,
+              quantity: item.quantity,
+            })),
+            total: orderData.total,
+          })),
         ]);
 
         console.log('Order emails sent for:', order.order_number);

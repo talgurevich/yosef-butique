@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useRef, useCallback, ReactNode } from 'react';
 
 export type CartItem = {
   productId: string;
@@ -40,6 +40,7 @@ type CartContextType = {
   getDeliveryCost: () => number;
   getFinalTotal: () => number;
   getCartItemsCount: () => number;
+  cancelAbandonTimer: () => void;
 };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -51,6 +52,47 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [deliveryDistance, setDeliveryDistance] = useState<number | null>(null);
   const [deliveryAddress, setDeliveryAddress] = useState('');
   const [isLoaded, setIsLoaded] = useState(false);
+  const abandonTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const ABANDON_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
+
+  const cancelAbandonTimer = useCallback(() => {
+    if (abandonTimerRef.current) {
+      clearTimeout(abandonTimerRef.current);
+      abandonTimerRef.current = null;
+    }
+    localStorage.removeItem('cart_created_at');
+  }, []);
+
+  const fireAbandonNotification = useCallback((items: CartItem[], total: number, minutesIdle: number) => {
+    fetch('/api/slack/cart-abandoned', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        items: items.map((i) => ({ productName: i.productName, variantSize: i.variantSize, price: i.price, quantity: i.quantity })),
+        total,
+        minutesIdle,
+      }),
+    }).catch(() => {});
+  }, []);
+
+  const startAbandonTimer = useCallback((delayMs: number) => {
+    if (abandonTimerRef.current) clearTimeout(abandonTimerRef.current);
+    abandonTimerRef.current = setTimeout(() => {
+      // Read latest cart from localStorage since state may be stale in the closure
+      try {
+        const saved = localStorage.getItem('cart');
+        const items: CartItem[] = saved ? JSON.parse(saved) : [];
+        if (items.length > 0) {
+          const total = items.reduce((s, i) => s + i.price * i.quantity, 0);
+          const createdAt = localStorage.getItem('cart_created_at');
+          const minutesIdle = createdAt ? Math.round((Date.now() - Number(createdAt)) / 60000) : 30;
+          fireAbandonNotification(items, total, minutesIdle);
+        }
+      } catch {}
+      localStorage.removeItem('cart_created_at');
+    }, delayMs);
+  }, [fireAbandonNotification]);
 
   // Load cart, coupon, and delivery from localStorage on mount
   useEffect(() => {
@@ -88,6 +130,30 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setIsLoaded(true);
   }, []);
 
+  // Resume abandon timer on mount if cart is non-empty
+  useEffect(() => {
+    if (!isLoaded) return;
+    const createdAt = localStorage.getItem('cart_created_at');
+    if (cartItems.length > 0 && createdAt) {
+      const elapsed = Date.now() - Number(createdAt);
+      const remaining = ABANDON_TIMEOUT_MS - elapsed;
+      if (remaining <= 0) {
+        // Already expired — fire immediately
+        const total = cartItems.reduce((s, i) => s + i.price * i.quantity, 0);
+        const minutesIdle = Math.round(elapsed / 60000);
+        fireAbandonNotification(cartItems, total, minutesIdle);
+        localStorage.removeItem('cart_created_at');
+      } else {
+        startAbandonTimer(remaining);
+      }
+    }
+    return () => {
+      if (abandonTimerRef.current) clearTimeout(abandonTimerRef.current);
+    };
+    // Only run once after load
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoaded]);
+
   // Save cart to localStorage whenever it changes
   useEffect(() => {
     if (isLoaded) {
@@ -120,20 +186,39 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const addToCart = (item: Omit<CartItem, 'quantity'> & { quantity?: number }) => {
     setCartItems((prevItems) => {
+      const wasEmpty = prevItems.length === 0;
+
       // Check if item already exists in cart
       const existingItemIndex = prevItems.findIndex(
         (i) => i.variantId === item.variantId
       );
 
+      let newItems: CartItem[];
       if (existingItemIndex > -1) {
         // Update quantity of existing item
-        const newItems = [...prevItems];
+        newItems = [...prevItems];
         newItems[existingItemIndex].quantity += item.quantity || 1;
-        return newItems;
       } else {
         // Add new item
-        return [...prevItems, { ...item, quantity: item.quantity || 1 }];
+        newItems = [...prevItems, { ...item, quantity: item.quantity || 1 }];
       }
+
+      // If cart went from empty to non-empty, fire cart-created and start abandon timer
+      if (wasEmpty && newItems.length > 0) {
+        const total = newItems.reduce((s, i) => s + i.price * i.quantity, 0);
+        localStorage.setItem('cart_created_at', String(Date.now()));
+        fetch('/api/slack/cart-created', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            items: newItems.map((i) => ({ productName: i.productName, variantSize: i.variantSize, price: i.price, quantity: i.quantity })),
+            total,
+          }),
+        }).catch(() => {});
+        startAbandonTimer(ABANDON_TIMEOUT_MS);
+      }
+
+      return newItems;
     });
   };
 
@@ -155,6 +240,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const clearCart = () => {
+    cancelAbandonTimer();
     setCartItems([]);
     setAppliedCoupon(null);
     setDeliveryCostState(0);
@@ -220,6 +306,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         getDeliveryCost,
         getFinalTotal,
         getCartItemsCount,
+        cancelAbandonTimer,
       }}
     >
       {children}
