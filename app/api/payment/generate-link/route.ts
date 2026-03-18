@@ -191,7 +191,7 @@ export async function POST(request: NextRequest) {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('PayPlus API error:', data);
+      console.error('PayPlus API error:', JSON.stringify(data), 'status:', response.status, 'url:', apiUrl);
       // Return order info with fallback flag so checkout can redirect to demo page
       return NextResponse.json({
         success: false,
