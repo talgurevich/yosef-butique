@@ -21,6 +21,16 @@ type CheckoutStartedEvent = {
   total: number;
 };
 
+type PaymentLinkGeneratedEvent = {
+  type: 'payment_link_generated';
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  orderNumber: string;
+  items: CartItem[];
+  total: number;
+};
+
 type OrderCompletedEvent = {
   type: 'order_completed';
   orderNumber: string;
@@ -41,6 +51,7 @@ type CartAbandonedEvent = {
 type SlackEvent =
   | CartCreatedEvent
   | CheckoutStartedEvent
+  | PaymentLinkGeneratedEvent
   | OrderCompletedEvent
   | CartAbandonedEvent;
 
@@ -64,6 +75,20 @@ function buildBlocks(event: SlackEvent) {
     case 'checkout_started':
       return [
         { type: 'header', text: { type: 'plain_text', text: '💳 Checkout Started' } },
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: `*Customer:* ${event.customerName}\n*Email:* ${event.customerEmail}\n*Phone:* ${event.customerPhone}\n*Order:* ${event.orderNumber}`,
+          },
+        },
+        { type: 'section', text: { type: 'mrkdwn', text: itemList } },
+        { type: 'section', text: { type: 'mrkdwn', text: `*Total:* ₪${event.total.toLocaleString()}` } },
+      ];
+
+    case 'payment_link_generated':
+      return [
+        { type: 'header', text: { type: 'plain_text', text: '🔗 Payment Link Generated' } },
         {
           type: 'section',
           text: {
