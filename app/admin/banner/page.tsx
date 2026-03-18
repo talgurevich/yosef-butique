@@ -188,7 +188,7 @@ export default function AdminBannerPage() {
                   >
                     <div
                       className={`absolute right-1 top-1 bg-white w-6 h-6 rounded-full transition-transform ${
-                        banner.is_active ? 'translate-x-6' : ''
+                        banner.is_active ? '-translate-x-6' : ''
                       }`}
                     ></div>
                   </div>
