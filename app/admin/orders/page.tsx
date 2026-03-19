@@ -78,6 +78,24 @@ export default function OrdersPage() {
   const pendingOrders = orders.filter((o) => o.status === 'pending');
   const totalRevenue = paidOrders.reduce((sum, o) => sum + o.total, 0);
 
+  const updateStatus = async (orderId: string, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .eq('id', orderId);
+
+      if (error) throw error;
+
+      setOrders((prev) =>
+        prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
+      );
+    } catch (error) {
+      console.error('Error updating order status:', error);
+      alert('שגיאה בעדכון סטטוס');
+    }
+  };
+
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr);
     return d.toLocaleDateString('he-IL', {
@@ -202,9 +220,15 @@ export default function OrdersPage() {
                       ₪{order.total.toLocaleString()}
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${STATUS_COLORS[order.status] || 'bg-gray-100 text-gray-800'}`}>
-                        {STATUS_LABELS[order.status] || order.status}
-                      </span>
+                      <select
+                        value={order.status}
+                        onChange={(e) => updateStatus(order.id, e.target.value)}
+                        className={`px-2 py-1 rounded-full text-xs font-medium border-0 cursor-pointer focus:ring-2 focus:ring-primary-500 ${STATUS_COLORS[order.status] || 'bg-gray-100 text-gray-800'}`}
+                      >
+                        {Object.entries(STATUS_LABELS).map(([key, label]) => (
+                          <option key={key} value={key}>{label}</option>
+                        ))}
+                      </select>
                     </td>
                     <td className="px-6 py-4">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${PAYMENT_STATUS_COLORS[order.payment_status] || 'bg-gray-100 text-gray-800'}`}>
