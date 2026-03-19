@@ -50,9 +50,11 @@ export async function POST(request: NextRequest) {
 
     // Validate hash
     if (!hash || !validatePayPlusHash(body, hash, secretKey)) {
-      console.error('Invalid hash signature');
+      console.error('Invalid hash signature. Hash present:', !!hash, 'Body keys:', Object.keys(body || {}));
       return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
     }
+
+    console.log('PayPlus callback hash validated successfully');
 
     console.log('PayPlus callback received:', body);
 
@@ -119,6 +121,7 @@ export async function POST(request: NextRequest) {
     // Check if payment was successful
     // PayPlus status codes: 000 = success
     const isSuccess = status_code === '000' || status_code === 0 || status_code === '0' || String(status_code) === '000';
+    console.log('PayPlus callback - order:', order.order_number, 'status_code:', status_code, 'isSuccess:', isSuccess);
 
     if (isSuccess) {
       // Update order status to processing / paid
