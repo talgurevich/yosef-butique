@@ -60,22 +60,25 @@ export async function POST(request: NextRequest) {
 
     console.log('PayPlus callback received:', body);
 
-    // Extract transaction data
-    const {
-      transaction_uid,
-      page_request_uid,
-      status_code,
-      amount,
-      currency_code,
-      customer_name,
-      customer_email,
-      transaction_type,
-      approval_number,
-      voucher_number,
-      four_digits,
-      more_info,
-      items,
-    } = body.data || body;
+    // Extract transaction data from PayPlus callback
+    // Transaction details are in body.transaction, customer/card data in body.data
+    const tx = body.transaction || {};
+    const txData = body.data || {};
+    const cardInfo = txData.card_information || {};
+
+    const transaction_uid = tx.uid || body.transaction_uid;
+    const page_request_uid = tx.payment_page_request_uid || body.page_request_uid;
+    const status_code = tx.status_code ?? body.status_code;
+    const amount = tx.amount || body.amount;
+    const currency_code = tx.currency || body.currency_code || 'ILS';
+    const customer_name = cardInfo.card_holder_name || body.customer_name;
+    const customer_email = txData.customer_email || body.customer_email;
+    const transaction_type = body.transaction_type;
+    const approval_number = tx.approval_number || body.approval_number;
+    const voucher_number = tx.voucher_number || body.voucher_number;
+    const four_digits = cardInfo.four_digits || body.four_digits;
+    const more_info = tx.more_info || body.more_info;
+    const items = txData.items || body.items;
 
     const supabaseAdmin = getSupabaseAdmin();
 
