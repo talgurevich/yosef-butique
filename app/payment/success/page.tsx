@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCart } from '@/contexts/CartContext';
 import Header from '@/components/Header';
@@ -25,8 +25,12 @@ function PaymentSuccessContent() {
   const { clearCart } = useCart();
   const [transactionData, setTransactionData] = useState<any>(null);
   const [orderNumber, setOrderNumber] = useState<string | null>(null);
+  const didRun = useRef(false);
 
   useEffect(() => {
+    if (didRun.current) return;
+    didRun.current = true;
+
     // Clear cart on successful payment
     clearCart();
 
@@ -52,7 +56,8 @@ function PaymentSuccessContent() {
     sessionStorage.removeItem('checkout_cart');
     sessionStorage.removeItem('checkout_customer');
     sessionStorage.removeItem('order_number');
-  }, [clearCart, searchParams]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col">

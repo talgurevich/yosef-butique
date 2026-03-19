@@ -80,6 +80,14 @@ export async function POST(request: NextRequest) {
     const more_info = tx.more_info || body.more_info;
     const items = txData.items || body.items;
 
+    console.log('Extracted callback fields:', {
+      transaction_uid,
+      page_request_uid,
+      status_code,
+      amount,
+      customer_email,
+    });
+
     const supabaseAdmin = getSupabaseAdmin();
 
     // Store transaction in database
