@@ -254,6 +254,39 @@ export type NewsletterSubscriber = {
   unsubscribed_at?: string;
 };
 
+export type Order = {
+  id: string;
+  user_id?: string;
+  order_number: string;
+  status: string;
+  subtotal: number;
+  shipping_cost: number;
+  tax: number;
+  total: number;
+  payment_method?: string;
+  payment_status: string;
+  payplus_transaction_id?: string;
+  shipping_address?: Record<string, any>;
+  billing_address?: Record<string, any>;
+  customer_email: string;
+  customer_phone?: string;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type OrderItem = {
+  id: string;
+  order_id: string;
+  product_id?: string;
+  product_name: string;
+  product_sku: string;
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+  created_at: string;
+};
+
 export type PromoCode = {
   id: string;
   code: string;
