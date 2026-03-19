@@ -1,4 +1,4 @@
-import sgMail from '@sendgrid/mail';
+import { resend, EMAIL_FROM } from './resend';
 
 type OrderItem = {
   product_name: string;
@@ -25,14 +25,6 @@ type CustomerData = {
   phone: string;
 };
 
-function initSendGrid() {
-  const apiKey = process.env.SENDGRID_API_KEY;
-  if (!apiKey) {
-    throw new Error('SENDGRID_API_KEY not configured');
-  }
-  sgMail.setApiKey(apiKey);
-}
-
 function formatCurrency(amount: number): string {
   return `₪${amount.toLocaleString('he-IL')}`;
 }
@@ -53,13 +45,9 @@ export async function sendOrderConfirmationEmail(
   items: OrderItem[],
   customer: CustomerData
 ) {
-  initSendGrid();
-
-  const fromEmail = process.env.SENDGRID_FROM_EMAIL || 'info@boutique-yossef.co.il';
-
-  const msg = {
+  await resend.emails.send({
+    from: EMAIL_FROM,
     to: customer.email,
-    from: fromEmail,
     subject: `אישור הזמנה ${order.order_number} - שטיחי בוטיק יוסף`,
     html: `
       <!DOCTYPE html>
@@ -170,9 +158,7 @@ WhatsApp: https://wa.me/972515092208
 
 שטיחי בוטיק יוסף | השקד משק 47, מושב בית עזרא
     `,
-  };
-
-  await sgMail.send(msg);
+  });
 }
 
 export async function sendAdminOrderNotificationEmail(
@@ -180,13 +166,9 @@ export async function sendAdminOrderNotificationEmail(
   items: OrderItem[],
   customer: CustomerData
 ) {
-  initSendGrid();
-
-  const fromEmail = process.env.SENDGRID_FROM_EMAIL || 'info@boutique-yossef.co.il';
-
-  const msg = {
+  await resend.emails.send({
+    from: EMAIL_FROM,
     to: 'info@boutique-yossef.co.il',
-    from: fromEmail,
     subject: `הזמנה חדשה! ${order.order_number} - ${formatCurrency(order.total)}`,
     html: `
       <!DOCTYPE html>
@@ -284,7 +266,5 @@ ${order.discount_amount > 0 ? `הנחה${order.coupon_code ? ` (${order.coupon_c
 מע"מ (כלול): ${formatCurrency(order.tax)}
 סה"כ: ${formatCurrency(order.total)}
     `,
-  };
-
-  await sgMail.send(msg);
+  });
 }

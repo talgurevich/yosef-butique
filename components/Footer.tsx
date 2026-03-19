@@ -419,11 +419,11 @@ export default function Footer() {
                   />
                 </div>
 
-                {/* PayPal */}
-                <div className="bg-white px-3 py-2 rounded flex items-center justify-center h-10" title="PayPal">
+                {/* Google Pay */}
+                <div className="bg-white px-3 py-2 rounded flex items-center justify-center h-10" title="Google Pay">
                   <Image
-                    src="/payment-logos/paypal.webp"
-                    alt="PayPal"
+                    src="/payment-logos/google-pay.png"
+                    alt="Google Pay"
                     width={50}
                     height={30}
                     className="object-contain"

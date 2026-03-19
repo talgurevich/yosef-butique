@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if email exists
-    const { data: existing, error: checkError } = await supabaseAdmin
+    const { data: existing } = await supabaseAdmin
       .from('newsletter_subscribers')
       .select('id, status')
       .eq('email', email.toLowerCase())
@@ -62,52 +62,6 @@ export async function POST(request: NextRequest) {
       .eq('id', existing.id);
 
     if (updateError) throw updateError;
-
-    // Optionally: Remove from SendGrid Marketing Contacts
-    // This is optional - you might want to keep them in SendGrid but mark as unsubscribed
-    if (process.env.SENDGRID_API_KEY) {
-      try {
-        // Search for the contact in SendGrid
-        const searchResponse = await fetch(
-          `https://api.sendgrid.com/v3/marketing/contacts/search/emails`,
-          {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${process.env.SENDGRID_API_KEY}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              emails: [email.toLowerCase()],
-            }),
-          }
-        );
-
-        const searchResult = await searchResponse.json();
-
-        // If found, you can optionally delete them from SendGrid
-        // Or add them to a suppression group
-        if (searchResult.result && searchResult.result[email.toLowerCase()]) {
-          const contactId = searchResult.result[email.toLowerCase()].contact.id;
-
-          // Option 1: Delete from SendGrid (commented out - you might prefer suppression)
-          // await fetch(
-          //   `https://api.sendgrid.com/v3/marketing/contacts?ids=${contactId}`,
-          //   {
-          //     method: 'DELETE',
-          //     headers: {
-          //       'Authorization': `Bearer ${process.env.SENDGRID_API_KEY}`,
-          //     },
-          //   }
-          // );
-
-          // Option 2: Add to suppression group (recommended)
-          // This requires a suppression group to be created in SendGrid first
-        }
-      } catch (sendgridError) {
-        console.error('Error updating SendGrid contact:', sendgridError);
-        // Continue even if SendGrid update fails
-      }
-    }
 
     return NextResponse.json({
       success: true,
