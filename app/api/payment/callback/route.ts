@@ -220,7 +220,7 @@ export async function POST(request: NextRequest) {
         await Promise.allSettled([
           sendOrderConfirmationEmail(orderData, emailItems, customerData),
           sendAdminOrderNotificationEmail(orderData, emailItems, customerData),
-          Promise.resolve(sendSlackNotification({
+          sendSlackNotification({
             type: 'order_completed',
             orderNumber: orderData.order_number,
             customerName: customerData.customer_name,
@@ -233,7 +233,7 @@ export async function POST(request: NextRequest) {
               quantity: item.quantity,
             })),
             total: orderData.total,
-          })),
+          }),
         ]);
 
         console.log('Order emails sent for:', order.order_number);

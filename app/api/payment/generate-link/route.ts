@@ -158,14 +158,13 @@ export async function POST(request: NextRequest) {
       more_info: more_info || undefined,
     };
 
-    // Fire-and-forget Slack notification for checkout started
     const slackItems = (cartItems as CartItemPayload[] || []).map((item) => ({
       productName: item.productName,
       variantSize: item.variantSize,
       price: item.price,
       quantity: item.quantity,
     }));
-    sendSlackNotification({
+    await sendSlackNotification({
       type: 'checkout_started',
       customerName: customer?.customer_name || '',
       customerEmail: customer?.email || '',
@@ -215,8 +214,7 @@ export async function POST(request: NextRequest) {
 
     console.log('Payment link generated successfully, order:', orderNumber);
 
-    // Fire-and-forget Slack notification for payment link generated
-    sendSlackNotification({
+    await sendSlackNotification({
       type: 'payment_link_generated',
       customerName: customer?.customer_name || '',
       customerEmail: customer?.email || '',

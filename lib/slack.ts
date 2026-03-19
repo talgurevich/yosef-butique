@@ -124,17 +124,19 @@ function buildBlocks(event: SlackEvent) {
   }
 }
 
-export function sendSlackNotification(event: SlackEvent): void {
+export async function sendSlackNotification(event: SlackEvent): Promise<void> {
   const webhookUrl = process.env.SLACK_WEBHOOK_URL;
   if (!webhookUrl) return;
 
   const blocks = buildBlocks(event);
 
-  fetch(webhookUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ blocks }),
-  }).catch(() => {
-    // fire-and-forget — never throw
-  });
+  try {
+    await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ blocks }),
+    });
+  } catch {
+    // best-effort — never throw
+  }
 }
