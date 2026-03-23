@@ -27,7 +27,7 @@ const heroSlides = [
     title: 'עציצים מרהיבים',
     subtitle: 'לכל חלל',
     description: 'מגוון עציצים מדהים שיהפכו את הבית שלך',
-    highlight: 'לגן עדן ירוק',
+    highlight: 'לירוק',
     link: '/products?type=plants',
     linkText: 'צפה בעציצים',
     gradientFrom: 'from-green-400',
