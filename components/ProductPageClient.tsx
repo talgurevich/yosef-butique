@@ -9,7 +9,7 @@ import Breadcrumbs from '@/components/Breadcrumbs';
 import ProductFAQ from '@/components/ProductFAQ';
 import ImageMagnifier from '@/components/ImageMagnifier';
 import { supabase, Product, ProductVariant } from '@/lib/supabase';
-import { FaShoppingCart, FaArrowRight, FaCheck, FaTruck, FaShieldAlt, FaTimes, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaShoppingCart, FaArrowRight, FaCheck, FaTruck, FaShieldAlt, FaTimes, FaChevronLeft, FaChevronRight, FaWhatsapp } from 'react-icons/fa';
 import { useCart } from '@/contexts/CartContext';
 
 type ProductPageClientProps = {
@@ -521,19 +521,44 @@ export default function ProductPageClient({
                       const isSelected = selectedVariant?.size === size;
                       const variant = variants.find(v => v.size === size);
 
+                      if (!available) {
+                        const whatsappMessage = encodeURIComponent(
+                          `היי, ראיתי שהמוצר "${product.name}" במידה ${size} אזל מהמלאי. מתי הוא צפוי לחזור?`
+                        );
+                        const whatsappUrl = `https://wa.me/972515092208?text=${whatsappMessage}`;
+
+                        return (
+                          <a
+                            key={size}
+                            href={whatsappUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-4 border-2 rounded-lg transition-all border-gray-300 bg-gray-50 hover:border-green-500 hover:bg-green-50 group"
+                          >
+                            <div className="text-center">
+                              <div className="font-bold text-gray-400">{size}</div>
+                              <div className="text-sm text-gray-400 line-through mt-1">
+                                ₪{variant?.price?.toFixed(2) || '0.00'}
+                              </div>
+                              <div className="text-xs text-red-600 mt-1 flex items-center justify-center gap-1">
+                                אזל
+                                <span className="text-green-600 group-hover:text-green-700 flex items-center gap-0.5">
+                                  — <FaWhatsapp className="inline" /> שאל אותנו
+                                </span>
+                              </div>
+                            </div>
+                          </a>
+                        );
+                      }
+
                       return (
                         <button
                           key={size}
                           onClick={() => handleSizeSelect(size)}
-                          disabled={!available}
                           className={`p-4 border-2 rounded-lg transition-all ${
                             isSelected
                               ? 'border-primary-600 bg-primary-50'
                               : 'border-gray-300 hover:border-primary-400'
-                          } ${
-                            !available
-                              ? 'opacity-50 cursor-not-allowed bg-gray-100'
-                              : ''
                           }`}
                         >
                           <div className="text-center">
@@ -541,9 +566,6 @@ export default function ProductPageClient({
                             <div className="text-sm text-gray-600 mt-1">
                               ₪{variant?.price?.toFixed(2) || '0.00'}
                             </div>
-                            {!available && (
-                              <div className="text-xs text-red-600 mt-1">אזל</div>
-                            )}
                           </div>
                         </button>
                       );
