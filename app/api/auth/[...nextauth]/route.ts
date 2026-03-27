@@ -1,47 +1,5 @@
-import NextAuth, { NextAuthOptions } from 'next-auth';
-import GoogleProvider from 'next-auth/providers/google';
-
-const authOptions: NextAuthOptions = {
-  providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || '',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-      authorization: {
-        params: {
-          prompt: "consent",
-          access_type: "offline",
-          response_type: "code"
-        }
-      }
-    }),
-  ],
-  pages: {
-    signIn: '/admin/login',
-  },
-  callbacks: {
-    async signIn({ user, account, profile }) {
-      // Check if user email is in the allowed admin emails list (case-insensitive)
-      const allowedEmails = process.env.ADMIN_EMAILS?.split(',').map(e => e.trim().toLowerCase()) || [];
-      if (!user.email || !allowedEmails.includes(user.email.toLowerCase())) {
-        return false;
-      }
-      return true;
-    },
-    async session({ session, token }) {
-      return session;
-    },
-    async jwt({ token, user, account }) {
-      if (user) {
-        token.id = user.id;
-      }
-      return token;
-    },
-  },
-  session: {
-    strategy: 'jwt',
-  },
-  secret: process.env.NEXTAUTH_SECRET,
-};
+import NextAuth from 'next-auth';
+import { authOptions } from '@/lib/auth-options';
 
 const handler = NextAuth(authOptions);
 

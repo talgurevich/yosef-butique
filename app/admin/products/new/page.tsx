@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FaSave, FaArrowRight, FaPlus, FaTrash } from 'react-icons/fa';
-import { supabase, ProductVariant, Category, Color, Shape, Space, ProductType, PlantType, PlantSize, PlantPetSafety } from '@/lib/supabase';
+import { ProductVariant, Category, Color, Shape, Space, ProductType, PlantType, PlantSize, PlantPetSafety } from '@/lib/supabase';
+import { adminFetch } from '@/lib/admin-api';
 import SizeCombobox from '@/components/admin/SizeCombobox';
 
 type TempVariant = {
@@ -79,11 +80,7 @@ export default function NewProductPage() {
 
   const fetchProductTypes = async () => {
     try {
-      const { data, error } = await supabase
-        .from('product_types')
-        .select('*')
-        .eq('is_active', true);
-      if (error) throw error;
+      const { data } = await adminFetch('product_types', { params: { filter_column: 'is_active', filter_value: 'true' } });
       setProductTypes(data || []);
 
       // Auto-select carpets by default
@@ -98,12 +95,7 @@ export default function NewProductPage() {
 
   const fetchPlantTypes = async () => {
     try {
-      const { data, error } = await supabase
-        .from('plant_types')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order');
-      if (error) throw error;
+      const { data } = await adminFetch('plant_types', { params: { filter_column: 'is_active', filter_value: 'true', order_by: 'sort_order' } });
       setPlantTypes(data || []);
     } catch (error: any) {
       console.error('Error fetching plant types:', error);
@@ -112,12 +104,7 @@ export default function NewProductPage() {
 
   const fetchPlantSizes = async () => {
     try {
-      const { data, error } = await supabase
-        .from('plant_sizes')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order');
-      if (error) throw error;
+      const { data } = await adminFetch('plant_sizes', { params: { filter_column: 'is_active', filter_value: 'true', order_by: 'sort_order' } });
       setPlantSizes(data || []);
     } catch (error: any) {
       console.error('Error fetching plant sizes:', error);
@@ -127,12 +114,7 @@ export default function NewProductPage() {
 
   const fetchPlantPetSafety = async () => {
     try {
-      const { data, error } = await supabase
-        .from('plant_pet_safety')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order');
-      if (error) throw error;
+      const { data } = await adminFetch('plant_pet_safety', { params: { filter_column: 'is_active', filter_value: 'true', order_by: 'sort_order' } });
       setPlantPetSafety(data || []);
     } catch (error: any) {
       console.error('Error fetching plant pet safety:', error);
@@ -151,13 +133,7 @@ export default function NewProductPage() {
 
   const fetchCategories = async () => {
     try {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order');
-
-      if (error) throw error;
+      const { data } = await adminFetch('categories', { params: { filter_column: 'is_active', filter_value: 'true', order_by: 'sort_order' } });
       setCategories(data || []);
     } catch (error: any) {
       console.error('Error fetching categories:', error);
@@ -166,13 +142,7 @@ export default function NewProductPage() {
 
   const fetchColors = async () => {
     try {
-      const { data, error } = await supabase
-        .from('colors')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order');
-
-      if (error) throw error;
+      const { data } = await adminFetch('colors', { params: { filter_column: 'is_active', filter_value: 'true', order_by: 'sort_order' } });
       setColors(data || []);
     } catch (error: any) {
       console.error('Error fetching colors:', error);
@@ -181,13 +151,7 @@ export default function NewProductPage() {
 
   const fetchShapes = async () => {
     try {
-      const { data, error } = await supabase
-        .from('shapes')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order');
-
-      if (error) throw error;
+      const { data } = await adminFetch('shapes', { params: { filter_column: 'is_active', filter_value: 'true', order_by: 'sort_order' } });
       setShapes(data || []);
     } catch (error: any) {
       console.error('Error fetching shapes:', error);
@@ -196,13 +160,7 @@ export default function NewProductPage() {
 
   const fetchSpaces = async () => {
     try {
-      const { data, error } = await supabase
-        .from('spaces')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order');
-
-      if (error) throw error;
+      const { data } = await adminFetch('spaces', { params: { filter_column: 'is_active', filter_value: 'true', order_by: 'sort_order' } });
       setSpaces(data || []);
     } catch (error: any) {
       console.error('Error fetching spaces:', error);
@@ -403,13 +361,8 @@ export default function NewProductPage() {
         product_type_id: selectedProductType,
       };
 
-      const { data: productData, error: productError } = await supabase
-        .from('products')
-        .insert([productToInsert])
-        .select()
-        .single();
-
-      if (productError) throw productError;
+      const { data: productRows } = await adminFetch('products', { method: 'POST', data: productToInsert });
+      const productData = productRows[0];
 
       // 2. Create variants
       {
@@ -427,11 +380,7 @@ export default function NewProductPage() {
           sort_order: variant.sort_order,
         }));
 
-        const { error: variantsError } = await supabase
-          .from('product_variants')
-          .insert(variantsToInsert);
-
-        if (variantsError) throw variantsError;
+        await adminFetch('product_variants', { method: 'POST', data: variantsToInsert });
       }
 
       // 3. Create product-category relationships
@@ -441,11 +390,7 @@ export default function NewProductPage() {
           category_id: categoryId,
         }));
 
-        const { error: categoriesError } = await supabase
-          .from('product_categories')
-          .insert(categoryRelations);
-
-        if (categoriesError) throw categoriesError;
+        await adminFetch('product_categories', { method: 'POST', data: categoryRelations });
       }
 
       // 4. Create product-color relationships
@@ -455,11 +400,7 @@ export default function NewProductPage() {
           color_id: colorId,
         }));
 
-        const { error: colorsError } = await supabase
-          .from('product_colors')
-          .insert(colorRelations);
-
-        if (colorsError) throw colorsError;
+        await adminFetch('product_colors', { method: 'POST', data: colorRelations });
       }
 
       // 5. Create product-shape relationships
@@ -469,11 +410,7 @@ export default function NewProductPage() {
           shape_id: shapeId,
         }));
 
-        const { error: shapesError } = await supabase
-          .from('product_shapes')
-          .insert(shapeRelations);
-
-        if (shapesError) throw shapesError;
+        await adminFetch('product_shapes', { method: 'POST', data: shapeRelations });
       }
 
       // 6. Create product-space relationships
@@ -483,11 +420,7 @@ export default function NewProductPage() {
           space_id: spaceId,
         }));
 
-        const { error: spacesError } = await supabase
-          .from('product_spaces')
-          .insert(spaceRelations);
-
-        if (spacesError) throw spacesError;
+        await adminFetch('product_spaces', { method: 'POST', data: spaceRelations });
       }
 
       // 7. Save plant dimensions (only if product type is plants)
@@ -498,8 +431,7 @@ export default function NewProductPage() {
             product_id: productData.id,
             plant_type_id: id,
           }));
-          const { error } = await supabase.from('product_plant_types').insert(relations);
-          if (error) throw error;
+          await adminFetch('product_plant_types', { method: 'POST', data: relations });
         }
 
         // Plant sizes
@@ -508,8 +440,7 @@ export default function NewProductPage() {
             product_id: productData.id,
             plant_size_id: id,
           }));
-          const { error } = await supabase.from('product_plant_sizes').insert(relations);
-          if (error) throw error;
+          await adminFetch('product_plant_sizes', { method: 'POST', data: relations });
         }
 
         // Plant pet safety
@@ -518,8 +449,7 @@ export default function NewProductPage() {
             product_id: productData.id,
             plant_pet_safety_id: id,
           }));
-          const { error } = await supabase.from('product_plant_pet_safety').insert(relations);
-          if (error) throw error;
+          await adminFetch('product_plant_pet_safety', { method: 'POST', data: relations });
         }
       }
 

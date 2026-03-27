@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { FaSave, FaArrowRight } from 'react-icons/fa';
-import { supabase, Order, OrderItem } from '@/lib/supabase';
+import { Order, OrderItem } from '@/lib/supabase';
+import { adminFetch } from '@/lib/admin-api';
 
 const STATUS_OPTIONS = [
   { value: 'pending', label: 'ממתין' },
@@ -46,24 +47,19 @@ export default function OrderDetailPage() {
 
   const fetchOrder = async () => {
     try {
-      const { data: orderData, error: orderError } = await supabase
-        .from('orders')
-        .select('*')
-        .eq('id', orderId)
-        .single();
-
-      if (orderError) throw orderError;
+      const { data: ordersData } = await adminFetch('orders', {
+        params: { filter_column: 'id', filter_value: orderId },
+      });
+      const orderData = ordersData?.[0];
+      if (!orderData) throw new Error('Order not found');
 
       setOrder(orderData);
       setStatus(orderData.status);
       setNotes(orderData.notes || '');
 
-      const { data: itemsData, error: itemsError } = await supabase
-        .from('order_items')
-        .select('*')
-        .eq('order_id', orderId);
-
-      if (itemsError) throw itemsError;
+      const { data: itemsData } = await adminFetch('order_items', {
+        params: { filter_column: 'order_id', filter_value: orderId },
+      });
       setItems(itemsData || []);
     } catch (error) {
       console.error('Error fetching order:', error);
@@ -78,16 +74,15 @@ export default function OrderDetailPage() {
     if (!order) return;
     setSaving(true);
     try {
-      const { error } = await supabase
-        .from('orders')
-        .update({
+      await adminFetch('orders', {
+        method: 'PUT',
+        data: {
+          id: order.id,
           status,
           notes,
           updated_at: new Date().toISOString(),
-        })
-        .eq('id', order.id);
-
-      if (error) throw error;
+        },
+      });
       alert('ההזמנה עודכנה בהצלחה');
     } catch (error) {
       console.error('Error updating order:', error);

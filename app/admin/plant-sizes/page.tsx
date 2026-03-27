@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes } from 'react-icons/fa';
-import { supabase, PlantSize } from '@/lib/supabase';
+import { PlantSize } from '@/lib/supabase';
+import { adminFetch } from '@/lib/admin-api';
 
 export default function PlantSizesPage() {
   const [plantTypes, setPlantSizes] = useState<PlantSize[]>([]);
@@ -22,12 +23,7 @@ export default function PlantSizesPage() {
 
   const fetchPlantSizes = async () => {
     try {
-      const { data, error } = await supabase
-        .from('plant_sizes')
-        .select('*')
-        .order('sort_order');
-
-      if (error) throw error;
+      const { data } = await adminFetch('plant_sizes', { params: { order_by: 'sort_order' } });
       setPlantSizes(data || []);
     } catch (error: any) {
       console.error('Error fetching plant types:', error);
@@ -60,17 +56,16 @@ export default function PlantSizesPage() {
 
       const slug = generateSlug(formData.name);
 
-      const { error } = await supabase.from('plant_sizes').insert([
-        {
+      await adminFetch('plant_sizes', {
+        method: 'POST',
+        data: {
           name: formData.name,
           description: formData.description,
           slug,
           sort_order: formData.sort_order,
           is_active: formData.is_active,
         },
-      ]);
-
-      if (error) throw error;
+      });
 
       alert('הגודל נוסף בהצלחה!');
       setFormData({ name: '', description: '', sort_order: 0, is_active: true });
@@ -89,18 +84,17 @@ export default function PlantSizesPage() {
 
       const slug = generateSlug(plantType.name, plantType.slug);
 
-      const { error } = await supabase
-        .from('plant_sizes')
-        .update({
+      await adminFetch('plant_sizes', {
+        method: 'PUT',
+        data: {
+          id,
           name: plantType.name,
           description: plantType.description,
           slug,
           sort_order: plantType.sort_order,
           is_active: plantType.is_active,
-        })
-        .eq('id', id);
-
-      if (error) throw error;
+        },
+      });
 
       alert('הגודל עודכן בהצלחה!');
       setEditingId(null);
@@ -115,9 +109,7 @@ export default function PlantSizesPage() {
     if (!confirm('האם אתה בטוח שברצונך למחוק גודל זה?')) return;
 
     try {
-      const { error } = await supabase.from('plant_sizes').delete().eq('id', id);
-
-      if (error) throw error;
+      await adminFetch('plant_sizes', { method: 'DELETE', params: { id } });
 
       alert('הגודל נמחק בהצלחה!');
       fetchPlantSizes();

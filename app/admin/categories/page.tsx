@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes } from 'react-icons/fa';
-import { supabase, Category } from '@/lib/supabase';
+import { Category } from '@/lib/supabase';
+import { adminFetch } from '@/lib/admin-api';
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -23,12 +24,7 @@ export default function CategoriesPage() {
 
   const fetchCategories = async () => {
     try {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .order('sort_order');
-
-      if (error) throw error;
+      const { data } = await adminFetch('categories', { params: { order_by: 'sort_order' } });
       setCategories(data || []);
     } catch (error: any) {
       console.error('Error fetching categories:', error);
@@ -63,8 +59,9 @@ export default function CategoriesPage() {
 
       const slug = generateSlug(formData.name);
 
-      const { error } = await supabase.from('categories').insert([
-        {
+      await adminFetch('categories', {
+        method: 'POST',
+        data: {
           name: formData.name,
           description: formData.description,
           parent_id: formData.parent_id,
@@ -72,9 +69,7 @@ export default function CategoriesPage() {
           sort_order: formData.sort_order,
           is_active: formData.is_active,
         },
-      ]);
-
-      if (error) throw error;
+      });
 
       alert('הסגנון נוסף בהצלחה!');
       setFormData({ name: '', description: '', parent_id: null, sort_order: 0, is_active: true });
@@ -93,19 +88,18 @@ export default function CategoriesPage() {
 
       const slug = generateSlug(category.name, category.slug);
 
-      const { error } = await supabase
-        .from('categories')
-        .update({
+      await adminFetch('categories', {
+        method: 'PUT',
+        data: {
+          id,
           name: category.name,
           description: category.description,
           parent_id: category.parent_id,
           slug,
           sort_order: category.sort_order,
           is_active: category.is_active,
-        })
-        .eq('id', id);
-
-      if (error) throw error;
+        },
+      });
 
       alert('הסגנון עודכן בהצלחה!');
       setEditingId(null);
@@ -120,9 +114,7 @@ export default function CategoriesPage() {
     if (!confirm('האם אתה בטוח שברצונך למחוק סגנון זה?')) return;
 
     try {
-      const { error } = await supabase.from('categories').delete().eq('id', id);
-
-      if (error) throw error;
+      await adminFetch('categories', { method: 'DELETE', params: { id } });
 
       alert('הסגנון נמחק בהצלחה!');
       fetchCategories();

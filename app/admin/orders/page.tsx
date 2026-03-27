@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { FaEye, FaFilter } from 'react-icons/fa';
-import { supabase, Order } from '@/lib/supabase';
+import { Order } from '@/lib/supabase';
+import { adminFetch } from '@/lib/admin-api';
 
 const STATUS_LABELS: Record<string, string> = {
   pending: 'ממתין',
@@ -48,12 +49,7 @@ export default function OrdersPage() {
 
   const fetchOrders = async () => {
     try {
-      const { data, error } = await supabase
-        .from('orders')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
+      const { data } = await adminFetch('orders', { params: { order_by: 'created_at', order_dir: 'desc' } });
       setOrders(data || []);
     } catch (error) {
       console.error('Error fetching orders:', error);
@@ -80,12 +76,10 @@ export default function OrdersPage() {
 
   const updateStatus = async (orderId: string, newStatus: string) => {
     try {
-      const { error } = await supabase
-        .from('orders')
-        .update({ status: newStatus, updated_at: new Date().toISOString() })
-        .eq('id', orderId);
-
-      if (error) throw error;
+      await adminFetch('orders', {
+        method: 'PUT',
+        data: { id: orderId, status: newStatus, updated_at: new Date().toISOString() },
+      });
 
       setOrders((prev) =>
         prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))

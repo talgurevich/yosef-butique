@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes } from 'react-icons/fa';
-import { supabase, PlantPetSafety } from '@/lib/supabase';
+import { PlantPetSafety } from '@/lib/supabase';
+import { adminFetch } from '@/lib/admin-api';
 
 export default function PlantPetSafetysPage() {
   const [plantTypes, setPlantPetSafetys] = useState<PlantPetSafety[]>([]);
@@ -22,12 +23,7 @@ export default function PlantPetSafetysPage() {
 
   const fetchPlantPetSafetys = async () => {
     try {
-      const { data, error } = await supabase
-        .from('plant_pet_safety')
-        .select('*')
-        .order('sort_order');
-
-      if (error) throw error;
+      const { data } = await adminFetch('plant_pet_safety', { params: { order_by: 'sort_order' } });
       setPlantPetSafetys(data || []);
     } catch (error: any) {
       console.error('Error fetching plant types:', error);
@@ -60,17 +56,16 @@ export default function PlantPetSafetysPage() {
 
       const slug = generateSlug(formData.name);
 
-      const { error } = await supabase.from('plant_pet_safety').insert([
-        {
+      await adminFetch('plant_pet_safety', {
+        method: 'POST',
+        data: {
           name: formData.name,
           description: formData.description,
           slug,
           sort_order: formData.sort_order,
           is_active: formData.is_active,
         },
-      ]);
-
-      if (error) throw error;
+      });
 
       alert('רמת הבטיחות נוסף בהצלחה!');
       setFormData({ name: '', description: '', sort_order: 0, is_active: true });
@@ -89,18 +84,17 @@ export default function PlantPetSafetysPage() {
 
       const slug = generateSlug(plantType.name, plantType.slug);
 
-      const { error } = await supabase
-        .from('plant_pet_safety')
-        .update({
+      await adminFetch('plant_pet_safety', {
+        method: 'PUT',
+        data: {
+          id,
           name: plantType.name,
           description: plantType.description,
           slug,
           sort_order: plantType.sort_order,
           is_active: plantType.is_active,
-        })
-        .eq('id', id);
-
-      if (error) throw error;
+        },
+      });
 
       alert('רמת הבטיחות עודכן בהצלחה!');
       setEditingId(null);
@@ -115,9 +109,7 @@ export default function PlantPetSafetysPage() {
     if (!confirm('האם אתה בטוח שברצונך למחוק רמת בטיחות זה?')) return;
 
     try {
-      const { error } = await supabase.from('plant_pet_safety').delete().eq('id', id);
-
-      if (error) throw error;
+      await adminFetch('plant_pet_safety', { method: 'DELETE', params: { id } });
 
       alert('רמת הבטיחות נמחק בהצלחה!');
       fetchPlantPetSafetys();

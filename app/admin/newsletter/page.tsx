@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { FaEnvelope, FaCheckCircle, FaTimesCircle, FaDownload, FaSearch } from 'react-icons/fa';
-import { supabase, NewsletterSubscriber } from '@/lib/supabase';
+import { NewsletterSubscriber } from '@/lib/supabase';
+import { adminFetch } from '@/lib/admin-api';
 
 export default function NewsletterPage() {
   const [subscribers, setSubscribers] = useState<NewsletterSubscriber[]>([]);
@@ -16,12 +17,9 @@ export default function NewsletterPage() {
 
   const fetchSubscribers = async () => {
     try {
-      const { data, error } = await supabase
-        .from('newsletter_subscribers')
-        .select('*')
-        .order('subscribed_at', { ascending: false });
-
-      if (error) throw error;
+      const { data } = await adminFetch<{ data: NewsletterSubscriber[] }>('newsletter_subscribers', {
+        params: { order_by: 'subscribed_at', order_dir: 'desc' },
+      });
       setSubscribers(data || []);
     } catch (error) {
       console.error('Error fetching subscribers:', error);

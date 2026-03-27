@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FaBox, FaShoppingCart, FaUsers, FaDollarSign } from 'react-icons/fa';
-import { supabase } from '@/lib/supabase';
+import { adminFetch } from '@/lib/admin-api';
 
 type ActivityItem = {
   type: 'order' | 'product_created' | 'product_updated';
@@ -47,60 +47,62 @@ export default function AdminDashboard() {
       // Fetch all data in parallel — use allSettled so one failure doesn't block others
       const [
         productsRes,
-        activeOrdersRes,
-        paidOrdersRes,
+        ordersRes,
         subscribersRes,
-        weekOrdersRes,
         recentProductsRes,
         updatedProductsRes,
       ] = await Promise.allSettled([
-        supabase.from('products').select('id', { count: 'exact', head: true }),
-        supabase
-          .from('orders')
-          .select('id', { count: 'exact', head: true })
-          .in('status', ['pending', 'processing']),
-        supabase
-          .from('orders')
-          .select('total')
-          .eq('payment_status', 'paid')
-          .gte('created_at', startOfMonth),
-        supabase.from('newsletter_subscribers').select('id', { count: 'exact', head: true }),
-        supabase
-          .from('orders')
-          .select('id, order_number, customer_email, billing_address, total, payment_status, created_at')
-          .gte('created_at', weekStart)
-          .order('created_at', { ascending: false })
-          .limit(20),
-        supabase
-          .from('products')
-          .select('id, name, created_at')
-          .gte('created_at', weekStart)
-          .order('created_at', { ascending: false })
-          .limit(10),
-        supabase
-          .from('products')
-          .select('id, name, created_at, updated_at')
-          .gte('updated_at', weekStart)
-          .order('updated_at', { ascending: false })
-          .limit(10),
+        adminFetch<{ data: any[] }>('products', { params: { select: 'id' } }),
+        adminFetch<{ data: any[] }>('orders', {
+          params: {
+            select: 'id, order_number, customer_email, billing_address, total, payment_status, status, created_at',
+            order_by: 'created_at',
+            order_dir: 'desc',
+          },
+        }),
+        adminFetch<{ data: any[] }>('newsletter_subscribers', { params: { select: 'id' } }),
+        adminFetch<{ data: any[] }>('products', {
+          params: {
+            select: 'id, name, created_at',
+            order_by: 'created_at',
+            order_dir: 'desc',
+            limit: '50',
+          },
+        }),
+        adminFetch<{ data: any[] }>('products', {
+          params: {
+            select: 'id, name, created_at, updated_at',
+            order_by: 'updated_at',
+            order_dir: 'desc',
+            limit: '50',
+          },
+        }),
       ]);
 
       // Helper to safely extract settled values
-      const val = (r: PromiseSettledResult<any>) => r.status === 'fulfilled' ? r.value : { data: null, count: 0 };
+      const val = (r: PromiseSettledResult<any>) => r.status === 'fulfilled' ? r.value : { data: [] };
 
       // Stats
-      setProductsCount(val(productsRes).count || 0);
-      setActiveOrdersCount(val(activeOrdersRes).count || 0);
-      setSubscribersCount(val(subscribersRes).count || 0);
+      setProductsCount((val(productsRes).data || []).length);
 
-      const revenue = (val(paidOrdersRes).data || []).reduce((sum: number, o: any) => sum + (o.total || 0), 0);
+      const allOrders = val(ordersRes).data || [];
+      const activeOrders = allOrders.filter((o: any) => o.status === 'pending' || o.status === 'processing');
+      setActiveOrdersCount(activeOrders.length);
+
+      setSubscribersCount((val(subscribersRes).data || []).length);
+
+      const paidThisMonth = allOrders.filter(
+        (o: any) => o.payment_status === 'paid' && o.created_at >= startOfMonth
+      );
+      const revenue = paidThisMonth.reduce((sum: number, o: any) => sum + (o.total || 0), 0);
       setMonthlyRevenue(revenue);
 
       // Build activity list
       const items: ActivityItem[] = [];
 
-      // Orders
-      for (const order of val(weekOrdersRes).data || []) {
+      // Orders from last 7 days
+      const weekOrders = allOrders.filter((o: any) => o.created_at >= weekStart).slice(0, 20);
+      for (const order of weekOrders) {
         const billing = order.billing_address as any;
         const customerName = billing?.name || order.customer_email;
         const paymentLabel = order.payment_status === 'paid' ? 'שולם' : order.payment_status === 'failed' ? 'נכשל' : 'ממתין';
@@ -114,8 +116,11 @@ export default function AdminDashboard() {
         });
       }
 
-      // Products created
-      for (const product of val(recentProductsRes).data || []) {
+      // Products created (filter to last 7 days client-side)
+      const recentProducts = (val(recentProductsRes).data || []).filter(
+        (p: any) => p.created_at >= weekStart
+      ).slice(0, 10);
+      for (const product of recentProducts) {
         items.push({
           type: 'product_created',
           id: `created-${product.id}`,
@@ -127,8 +132,11 @@ export default function AdminDashboard() {
       }
 
       // Products updated (exclude ones just created this week)
-      const createdIds = new Set((val(recentProductsRes).data || []).map((p: any) => p.id));
-      for (const product of val(updatedProductsRes).data || []) {
+      const updatedProducts = (val(updatedProductsRes).data || []).filter(
+        (p: any) => p.updated_at >= weekStart
+      ).slice(0, 10);
+      const createdIds = new Set(recentProducts.map((p: any) => p.id));
+      for (const product of updatedProducts) {
         if (createdIds.has(product.id) && product.created_at === product.updated_at) continue;
         if (createdIds.has(product.id)) {
           // Was created this week but also updated — only show update if times differ

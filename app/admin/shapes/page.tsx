@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes } from 'react-icons/fa';
-import { supabase, Shape } from '@/lib/supabase';
+import { Shape } from '@/lib/supabase';
+import { adminFetch } from '@/lib/admin-api';
 
 export default function ShapesPage() {
   const [shapes, setShapes] = useState<Shape[]>([]);
@@ -22,12 +23,7 @@ export default function ShapesPage() {
 
   const fetchShapes = async () => {
     try {
-      const { data, error } = await supabase
-        .from('shapes')
-        .select('*')
-        .order('sort_order');
-
-      if (error) throw error;
+      const { data } = await adminFetch('shapes', { params: { order_by: 'sort_order' } });
       setShapes(data || []);
     } catch (error: any) {
       console.error('Error fetching shapes:', error);
@@ -62,17 +58,16 @@ export default function ShapesPage() {
 
       const slug = generateSlug(formData.name);
 
-      const { error } = await supabase.from('shapes').insert([
-        {
+      await adminFetch('shapes', {
+        method: 'POST',
+        data: {
           name: formData.name,
           description: formData.description,
           slug,
           sort_order: formData.sort_order,
           is_active: formData.is_active,
         },
-      ]);
-
-      if (error) throw error;
+      });
 
       alert('הצורה נוספה בהצלחה!');
       setFormData({ name: '', description: '', sort_order: 0, is_active: true });
@@ -91,18 +86,17 @@ export default function ShapesPage() {
 
       const slug = generateSlug(shape.name, shape.slug);
 
-      const { error } = await supabase
-        .from('shapes')
-        .update({
+      await adminFetch('shapes', {
+        method: 'PUT',
+        data: {
+          id,
           name: shape.name,
           description: shape.description,
           slug,
           sort_order: shape.sort_order,
           is_active: shape.is_active,
-        })
-        .eq('id', id);
-
-      if (error) throw error;
+        },
+      });
 
       alert('הצורה עודכנה בהצלחה!');
       setEditingId(null);
@@ -117,9 +111,7 @@ export default function ShapesPage() {
     if (!confirm('האם אתה בטוח שברצונך למחוק צורה זו?')) return;
 
     try {
-      const { error } = await supabase.from('shapes').delete().eq('id', id);
-
-      if (error) throw error;
+      await adminFetch('shapes', { method: 'DELETE', params: { id } });
 
       alert('הצורה נמחקה בהצלחה!');
       fetchShapes();

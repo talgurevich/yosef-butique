@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FaArrowRight, FaSave, FaEye, FaEyeSlash } from 'react-icons/fa';
-import { supabase } from '@/lib/supabase';
+import { adminFetch } from '@/lib/admin-api';
 
 interface BannerData {
   id: string;
@@ -49,26 +49,12 @@ export default function AdminBannerPage() {
 
   const fetchBanner = async () => {
     try {
-      if (!supabase) {
-        setLoading(false);
-        return;
-      }
+      const { data } = await adminFetch('banner');
 
-      const { data, error } = await supabase
-        .from('banner')
-        .select('*')
-        .order('is_active', { ascending: false })
-        .limit(1)
-        .single();
-
-      if (error) {
+      if (data && data.length > 0) {
+        setBanner(data[0]);
+      } else {
         console.log('No banner found, will create new one');
-        setLoading(false);
-        return;
-      }
-
-      if (data) {
-        setBanner(data);
       }
 
       setLoading(false);
@@ -81,42 +67,32 @@ export default function AdminBannerPage() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      if (!supabase) {
-        alert('שגיאה בשמירה');
-        setSaving(false);
-        return;
-      }
-
       if (banner.id) {
         // Update existing banner
-        const { error } = await supabase
-          .from('banner')
-          .update({
+        await adminFetch('banner', {
+          method: 'PUT',
+          data: {
+            id: banner.id,
             message: banner.message,
             is_active: banner.is_active,
             gradient_from: banner.gradient_from,
             gradient_to: banner.gradient_to,
             text_color: banner.text_color,
             updated_at: new Date().toISOString(),
-          })
-          .eq('id', banner.id);
-
-        if (error) throw error;
+          },
+        });
       } else {
         // Create new banner
-        const { data, error } = await supabase
-          .from('banner')
-          .insert({
+        const { data } = await adminFetch('banner', {
+          method: 'POST',
+          data: {
             message: banner.message,
             is_active: banner.is_active,
             gradient_from: banner.gradient_from,
             gradient_to: banner.gradient_to,
             text_color: banner.text_color,
-          })
-          .select()
-          .single();
-
-        if (error) throw error;
+          },
+        });
         if (data) setBanner(data);
       }
 

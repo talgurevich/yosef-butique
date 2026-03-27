@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes } from 'react-icons/fa';
-import { supabase, Color } from '@/lib/supabase';
+import { Color } from '@/lib/supabase';
+import { adminFetch } from '@/lib/admin-api';
 
 export default function ColorsPage() {
   const [colors, setColors] = useState<Color[]>([]);
@@ -22,12 +23,7 @@ export default function ColorsPage() {
 
   const fetchColors = async () => {
     try {
-      const { data, error } = await supabase
-        .from('colors')
-        .select('*')
-        .order('sort_order');
-
-      if (error) throw error;
+      const { data } = await adminFetch('colors', { params: { order_by: 'sort_order' } });
       setColors(data || []);
     } catch (error: any) {
       console.error('Error fetching colors:', error);
@@ -62,17 +58,16 @@ export default function ColorsPage() {
 
       const slug = generateSlug(formData.name);
 
-      const { error } = await supabase.from('colors').insert([
-        {
+      await adminFetch('colors', {
+        method: 'POST',
+        data: {
           name: formData.name,
           hex_code: formData.hex_code || null,
           slug,
           sort_order: formData.sort_order,
           is_active: formData.is_active,
         },
-      ]);
-
-      if (error) throw error;
+      });
 
       alert('הצבע נוסף בהצלחה!');
       setFormData({ name: '', hex_code: '', sort_order: 0, is_active: true });
@@ -91,18 +86,17 @@ export default function ColorsPage() {
 
       const slug = generateSlug(color.name, color.slug);
 
-      const { error } = await supabase
-        .from('colors')
-        .update({
+      await adminFetch('colors', {
+        method: 'PUT',
+        data: {
+          id,
           name: color.name,
           hex_code: color.hex_code || null,
           slug,
           sort_order: color.sort_order,
           is_active: color.is_active,
-        })
-        .eq('id', id);
-
-      if (error) throw error;
+        },
+      });
 
       alert('הצבע עודכן בהצלחה!');
       setEditingId(null);
@@ -117,9 +111,7 @@ export default function ColorsPage() {
     if (!confirm('האם אתה בטוח שברצונך למחוק צבע זה?')) return;
 
     try {
-      const { error } = await supabase.from('colors').delete().eq('id', id);
-
-      if (error) throw error;
+      await adminFetch('colors', { method: 'DELETE', params: { id } });
 
       alert('הצבע נמחק בהצלחה!');
       fetchColors();

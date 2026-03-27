@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes } from 'react-icons/fa';
-import { supabase, PlantLightRequirement } from '@/lib/supabase';
+import { PlantLightRequirement } from '@/lib/supabase';
+import { adminFetch } from '@/lib/admin-api';
 
 export default function PlantLightRequirementsPage() {
   const [plantTypes, setPlantLightRequirements] = useState<PlantLightRequirement[]>([]);
@@ -22,12 +23,7 @@ export default function PlantLightRequirementsPage() {
 
   const fetchPlantLightRequirements = async () => {
     try {
-      const { data, error } = await supabase
-        .from('plant_light_requirements')
-        .select('*')
-        .order('sort_order');
-
-      if (error) throw error;
+      const { data } = await adminFetch('plant_light_requirements', { params: { order_by: 'sort_order' } });
       setPlantLightRequirements(data || []);
     } catch (error: any) {
       console.error('Error fetching plant types:', error);
@@ -60,17 +56,16 @@ export default function PlantLightRequirementsPage() {
 
       const slug = generateSlug(formData.name);
 
-      const { error } = await supabase.from('plant_light_requirements').insert([
-        {
+      await adminFetch('plant_light_requirements', {
+        method: 'POST',
+        data: {
           name: formData.name,
           description: formData.description,
           slug,
           sort_order: formData.sort_order,
           is_active: formData.is_active,
         },
-      ]);
-
-      if (error) throw error;
+      });
 
       alert('דרישת האור נוסף בהצלחה!');
       setFormData({ name: '', description: '', sort_order: 0, is_active: true });
@@ -89,18 +84,17 @@ export default function PlantLightRequirementsPage() {
 
       const slug = generateSlug(plantType.name, plantType.slug);
 
-      const { error } = await supabase
-        .from('plant_light_requirements')
-        .update({
+      await adminFetch('plant_light_requirements', {
+        method: 'PUT',
+        data: {
+          id,
           name: plantType.name,
           description: plantType.description,
           slug,
           sort_order: plantType.sort_order,
           is_active: plantType.is_active,
-        })
-        .eq('id', id);
-
-      if (error) throw error;
+        },
+      });
 
       alert('דרישת האור עודכן בהצלחה!');
       setEditingId(null);
@@ -115,9 +109,7 @@ export default function PlantLightRequirementsPage() {
     if (!confirm('האם אתה בטוח שברצונך למחוק דרישת אור זה?')) return;
 
     try {
-      const { error } = await supabase.from('plant_light_requirements').delete().eq('id', id);
-
-      if (error) throw error;
+      await adminFetch('plant_light_requirements', { method: 'DELETE', params: { id } });
 
       alert('דרישת האור נמחק בהצלחה!');
       fetchPlantLightRequirements();

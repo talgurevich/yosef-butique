@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { adminFetch } from '@/lib/admin-api';
 import { FaPlus, FaEdit, FaTrash, FaTicketAlt, FaCheck, FaTimes } from 'react-icons/fa';
 import Link from 'next/link';
 
@@ -44,12 +44,7 @@ export default function PromoCodesPage() {
 
   const fetchPromoCodes = async () => {
     try {
-      const { data, error } = await supabase
-        .from('promo_codes')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
+      const { data } = await adminFetch('promo_codes', { params: { order_by: 'created_at', order_dir: 'desc' } });
       setPromoCodes(data || []);
     } catch (error) {
       console.error('Error fetching promo codes:', error);
@@ -70,20 +65,11 @@ export default function PromoCodesPage() {
 
       if (editingCode) {
         // Update existing code
-        const { error } = await supabase
-          .from('promo_codes')
-          .update(dataToSubmit)
-          .eq('id', editingCode.id);
-
-        if (error) throw error;
+        await adminFetch('promo_codes', { method: 'PUT', data: { id: editingCode.id, ...dataToSubmit } });
         alert('קוד ההנחה עודכן בהצלחה!');
       } else {
         // Create new code (current_uses will default to 0 in the database)
-        const { error } = await supabase
-          .from('promo_codes')
-          .insert([dataToSubmit]);
-
-        if (error) throw error;
+        await adminFetch('promo_codes', { method: 'POST', data: dataToSubmit });
         alert('קוד ההנחה נוסף בהצלחה!');
       }
 
@@ -116,12 +102,7 @@ export default function PromoCodesPage() {
     if (!confirm('האם אתה בטוח שברצונך למחוק את קוד ההנחה?')) return;
 
     try {
-      const { error } = await supabase
-        .from('promo_codes')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      await adminFetch('promo_codes', { method: 'DELETE', params: { id } });
       alert('קוד ההנחה נמחק בהצלחה!');
       fetchPromoCodes();
     } catch (error: any) {
@@ -132,12 +113,7 @@ export default function PromoCodesPage() {
 
   const toggleActive = async (id: string, currentStatus: boolean) => {
     try {
-      const { error } = await supabase
-        .from('promo_codes')
-        .update({ is_active: !currentStatus })
-        .eq('id', id);
-
-      if (error) throw error;
+      await adminFetch('promo_codes', { method: 'PUT', data: { id, is_active: !currentStatus } });
       fetchPromoCodes();
     } catch (error: any) {
       console.error('Error updating promo code:', error);

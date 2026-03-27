@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { FaChevronDown, FaChevronUp, FaMinus, FaPlus, FaSearch } from 'react-icons/fa';
-import { supabase, Color, ProductType } from '@/lib/supabase';
+import { Color, ProductType } from '@/lib/supabase';
+import { adminFetch } from '@/lib/admin-api';
 
 type InventoryVariant = {
   id: string;
@@ -62,36 +63,17 @@ export default function InventoryPage() {
   const fetchData = async () => {
     try {
       const [productsRes, colorsRes, typesRes] = await Promise.all([
-        supabase
-          .from('products')
-          .select(`
-            id,
-            name,
-            stock_quantity,
-            has_variants,
-            is_active,
-            product_type_id,
-            product_images (
-              image_url,
-              sort_order
-            ),
-            product_variants (
-              id,
-              size,
-              color_id,
-              stock_quantity,
-              is_active,
-              sku
-            )
-          `)
-          .order('name'),
-        supabase.from('colors').select('*'),
-        supabase.from('product_types').select('*').eq('is_active', true),
+        adminFetch<{ data: any[] }>('products', {
+          params: {
+            select: 'id, name, stock_quantity, has_variants, is_active, product_type_id, product_images(image_url, sort_order), product_variants(id, size, color_id, stock_quantity, is_active, sku)',
+            order_by: 'name',
+          },
+        }),
+        adminFetch<{ data: Color[] }>('colors'),
+        adminFetch<{ data: ProductType[] }>('product_types', {
+          params: { is_active: 'true' },
+        }),
       ]);
-
-      if (productsRes.error) throw productsRes.error;
-      if (colorsRes.error) throw colorsRes.error;
-      if (typesRes.error) throw typesRes.error;
 
       setColors(colorsRes.data || []);
       setProductTypes(typesRes.data || []);
@@ -252,12 +234,10 @@ export default function InventoryPage() {
     setSavingIds(prev => new Set(prev).add(variantId));
 
     try {
-      const { error } = await supabase
-        .from('product_variants')
-        .update({ stock_quantity: newValue })
-        .eq('id', variantId);
-
-      if (error) throw error;
+      await adminFetch('product_variants', {
+        method: 'PUT',
+        data: { id: variantId, stock_quantity: newValue },
+      });
 
       // Update local state
       setProducts(prev => prev.map(p => {
@@ -301,12 +281,10 @@ export default function InventoryPage() {
     setSavingIds(prev => new Set(prev).add(productId));
 
     try {
-      const { error } = await supabase
-        .from('products')
-        .update({ stock_quantity: newValue })
-        .eq('id', productId);
-
-      if (error) throw error;
+      await adminFetch('products', {
+        method: 'PUT',
+        data: { id: productId, stock_quantity: newValue },
+      });
 
       setProducts(prev => prev.map(p =>
         p.id === productId ? { ...p, stock_quantity: newValue, totalStock: newValue } : p

@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { FaPlus, FaEdit, FaTrash, FaStar, FaEye, FaEyeSlash, FaImage } from 'react-icons/fa';
-import { supabase, GalleryImage, Product } from '@/lib/supabase';
+import { GalleryImage, Product } from '@/lib/supabase';
+import { adminFetch } from '@/lib/admin-api';
 
 export default function GalleryPage() {
   const [images, setImages] = useState<GalleryImage[]>([]);
@@ -30,13 +31,12 @@ export default function GalleryPage() {
 
   const fetchImages = async () => {
     try {
-      const { data, error } = await supabase
-        .from('customer_gallery')
-        .select('*')
-        .order('sort_order', { ascending: true })
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
+      const { data } = await adminFetch('customer_gallery', {
+        params: {
+          select: '*',
+          order: 'sort_order.asc,created_at.desc',
+        },
+      });
       setImages(data || []);
     } catch (error) {
       console.error('Error fetching gallery images:', error);
@@ -48,13 +48,9 @@ export default function GalleryPage() {
 
   const fetchProducts = async () => {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('id, name, sku')
-        .eq('is_active', true)
-        .order('name');
-
-      if (error) throw error;
+      const { data } = await adminFetch('products', {
+        params: { select: 'id, name, sku', filter_column: 'is_active', filter_value: 'true', order_by: 'name' },
+      });
       setProducts(data || []);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -104,24 +100,24 @@ export default function GalleryPage() {
 
       if (editingImage) {
         // Update existing image
-        const { error } = await supabase
-          .from('customer_gallery')
-          .update({
+        await adminFetch('customer_gallery', {
+          method: 'PUT',
+          data: {
+            id: editingImage.id,
             customer_name: formData.customer_name || null,
             testimonial: formData.testimonial || null,
             product_id: formData.product_id || null,
             is_featured: formData.is_featured,
             is_active: formData.is_active,
             image_url: imageUrl,
-          })
-          .eq('id', editingImage.id);
-
-        if (error) throw error;
+          },
+        });
         alert('התמונה עודכנה בהצלחה');
       } else {
         // Insert new image
-        const { error } = await supabase.from('customer_gallery').insert([
-          {
+        await adminFetch('customer_gallery', {
+          method: 'POST',
+          data: {
             image_url: imageUrl,
             customer_name: formData.customer_name || null,
             testimonial: formData.testimonial || null,
@@ -129,9 +125,7 @@ export default function GalleryPage() {
             is_featured: formData.is_featured,
             is_active: formData.is_active,
           },
-        ]);
-
-        if (error) throw error;
+        });
         alert('התמונה נוספה בהצלחה');
       }
 
@@ -163,12 +157,10 @@ export default function GalleryPage() {
 
     try {
       // Delete from database
-      const { error } = await supabase
-        .from('customer_gallery')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      await adminFetch('customer_gallery', {
+        method: 'DELETE',
+        params: { id },
+      });
 
       // TODO: Delete from storage
       // You may want to call an API route to delete the image from storage
@@ -183,12 +175,10 @@ export default function GalleryPage() {
 
   const toggleFeatured = async (id: string, currentValue: boolean) => {
     try {
-      const { error } = await supabase
-        .from('customer_gallery')
-        .update({ is_featured: !currentValue })
-        .eq('id', id);
-
-      if (error) throw error;
+      await adminFetch('customer_gallery', {
+        method: 'PUT',
+        data: { id, is_featured: !currentValue },
+      });
 
       setImages(
         images.map((img) =>
@@ -203,12 +193,10 @@ export default function GalleryPage() {
 
   const toggleActive = async (id: string, currentValue: boolean) => {
     try {
-      const { error } = await supabase
-        .from('customer_gallery')
-        .update({ is_active: !currentValue })
-        .eq('id', id);
-
-      if (error) throw error;
+      await adminFetch('customer_gallery', {
+        method: 'PUT',
+        data: { id, is_active: !currentValue },
+      });
 
       setImages(
         images.map((img) =>

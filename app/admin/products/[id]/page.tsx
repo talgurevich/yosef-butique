@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { FaSave, FaArrowRight, FaPlus, FaTrash, FaChevronDown } from 'react-icons/fa';
-import { supabase, Product, ProductVariant, Category, ProductImage, Color, Shape, Space, ProductType, PlantType, PlantSize, PlantPetSafety } from '@/lib/supabase';
+import { Product, ProductVariant, Category, ProductImage, Color, Shape, Space, ProductType, PlantType, PlantSize, PlantPetSafety } from '@/lib/supabase';
+import { adminFetch } from '@/lib/admin-api';
 import ProductImageUpload from '@/components/ProductImageUpload';
 import SizeCombobox from '@/components/admin/SizeCombobox';
 
@@ -76,11 +77,9 @@ export default function EditProductPage() {
 
   const fetchProductTypes = async () => {
     try {
-      const { data, error } = await supabase
-        .from('product_types')
-        .select('*')
-        .eq('is_active', true);
-      if (error) throw error;
+      const { data } = await adminFetch<{ data: ProductType[] }>('product_types', {
+        params: { filter_column: 'is_active', filter_value: 'true' },
+      });
       setProductTypes(data || []);
     } catch (error: any) {
       console.error('Error fetching product types:', error);
@@ -89,26 +88,23 @@ export default function EditProductPage() {
 
   const fetchProduct = async () => {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('id', productId)
-        .single();
+      const { data } = await adminFetch<{ data: Product[] }>('products', {
+        params: { filter_column: 'id', filter_value: productId },
+      });
 
-      if (error) throw error;
-
-      setProduct(data);
-      setSelectedProductType(data.product_type_id || '');
+      const product = data[0];
+      setProduct(product);
+      setSelectedProductType(product.product_type_id || '');
       setFormData({
-        name: data.name,
-        description: data.description || '',
-        material: data.material || '',
-        price: data.price?.toString() || '',
-        compare_at_price: data.compare_at_price?.toString() || '',
-        stock_quantity: data.stock_quantity?.toString() || '',
-        is_featured: data.is_featured,
-        is_active: data.is_active,
-        has_variants: data.has_variants || false,
+        name: product.name,
+        description: product.description || '',
+        material: product.material || '',
+        price: product.price?.toString() || '',
+        compare_at_price: product.compare_at_price?.toString() || '',
+        stock_quantity: product.stock_quantity?.toString() || '',
+        is_featured: product.is_featured,
+        is_active: product.is_active,
+        has_variants: product.has_variants || false,
       });
     } catch (error) {
       console.error('Error fetching product:', error);
@@ -120,13 +116,9 @@ export default function EditProductPage() {
 
   const fetchVariants = async () => {
     try {
-      const { data, error } = await supabase
-        .from('product_variants')
-        .select('*')
-        .eq('product_id', productId)
-        .order('sort_order', { ascending: true });
-
-      if (error) throw error;
+      const { data } = await adminFetch<{ data: ProductVariant[] }>('product_variants', {
+        params: { filter_column: 'product_id', filter_value: productId, order_by: 'sort_order' },
+      });
       setVariants(data || []);
     } catch (error) {
       console.error('Error fetching variants:', error);
@@ -135,13 +127,9 @@ export default function EditProductPage() {
 
   const fetchCategories = async () => {
     try {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order');
-
-      if (error) throw error;
+      const { data } = await adminFetch<{ data: Category[] }>('categories', {
+        params: { filter_column: 'is_active', filter_value: 'true', order_by: 'sort_order' },
+      });
       setCategories(data || []);
     } catch (error: any) {
       console.error('Error fetching categories:', error);
@@ -150,12 +138,9 @@ export default function EditProductPage() {
 
   const fetchProductCategories = async () => {
     try {
-      const { data, error } = await supabase
-        .from('product_categories')
-        .select('category_id')
-        .eq('product_id', productId);
-
-      if (error) throw error;
+      const { data } = await adminFetch<{ data: { category_id: string }[] }>('product_categories', {
+        params: { filter_column: 'product_id', filter_value: productId, select: 'category_id' },
+      });
       setSelectedCategories(data?.map((pc) => pc.category_id) || []);
     } catch (error: any) {
       console.error('Error fetching product categories:', error);
@@ -164,13 +149,9 @@ export default function EditProductPage() {
 
   const fetchColors = async () => {
     try {
-      const { data, error } = await supabase
-        .from('colors')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order');
-
-      if (error) throw error;
+      const { data } = await adminFetch<{ data: Color[] }>('colors', {
+        params: { filter_column: 'is_active', filter_value: 'true', order_by: 'sort_order' },
+      });
       setColors(data || []);
     } catch (error: any) {
       console.error('Error fetching colors:', error);
@@ -179,13 +160,9 @@ export default function EditProductPage() {
 
   const fetchShapes = async () => {
     try {
-      const { data, error } = await supabase
-        .from('shapes')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order');
-
-      if (error) throw error;
+      const { data } = await adminFetch<{ data: Shape[] }>('shapes', {
+        params: { filter_column: 'is_active', filter_value: 'true', order_by: 'sort_order' },
+      });
       setShapes(data || []);
     } catch (error: any) {
       console.error('Error fetching shapes:', error);
@@ -194,12 +171,9 @@ export default function EditProductPage() {
 
   const fetchProductColors = async () => {
     try {
-      const { data, error } = await supabase
-        .from('product_colors')
-        .select('color_id')
-        .eq('product_id', productId);
-
-      if (error) throw error;
+      const { data } = await adminFetch<{ data: { color_id: string }[] }>('product_colors', {
+        params: { filter_column: 'product_id', filter_value: productId, select: 'color_id' },
+      });
       setSelectedColors(data?.map((pc) => pc.color_id) || []);
     } catch (error: any) {
       console.error('Error fetching product colors:', error);
@@ -208,12 +182,9 @@ export default function EditProductPage() {
 
   const fetchProductShapes = async () => {
     try {
-      const { data, error } = await supabase
-        .from('product_shapes')
-        .select('shape_id')
-        .eq('product_id', productId);
-
-      if (error) throw error;
+      const { data } = await adminFetch<{ data: { shape_id: string }[] }>('product_shapes', {
+        params: { filter_column: 'product_id', filter_value: productId, select: 'shape_id' },
+      });
       setSelectedShapes(data?.map((ps) => ps.shape_id) || []);
     } catch (error: any) {
       console.error('Error fetching product shapes:', error);
@@ -222,13 +193,9 @@ export default function EditProductPage() {
 
   const fetchSpaces = async () => {
     try {
-      const { data, error } = await supabase
-        .from('spaces')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order');
-
-      if (error) throw error;
+      const { data } = await adminFetch<{ data: Space[] }>('spaces', {
+        params: { filter_column: 'is_active', filter_value: 'true', order_by: 'sort_order' },
+      });
       setSpaces(data || []);
     } catch (error: any) {
       console.error('Error fetching spaces:', error);
@@ -237,12 +204,9 @@ export default function EditProductPage() {
 
   const fetchProductSpaces = async () => {
     try {
-      const { data, error } = await supabase
-        .from('product_spaces')
-        .select('space_id')
-        .eq('product_id', productId);
-
-      if (error) throw error;
+      const { data } = await adminFetch<{ data: { space_id: string }[] }>('product_spaces', {
+        params: { filter_column: 'product_id', filter_value: productId, select: 'space_id' },
+      });
       setSelectedSpaces(data?.map((ps) => ps.space_id) || []);
     } catch (error: any) {
       console.error('Error fetching product spaces:', error);
@@ -251,12 +215,9 @@ export default function EditProductPage() {
 
   const fetchPlantTypes = async () => {
     try {
-      const { data, error } = await supabase
-        .from('plant_types')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order');
-      if (error) throw error;
+      const { data } = await adminFetch<{ data: PlantType[] }>('plant_types', {
+        params: { filter_column: 'is_active', filter_value: 'true', order_by: 'sort_order' },
+      });
       setPlantTypes(data || []);
     } catch (error: any) {
       console.error('Error fetching plant types:', error);
@@ -265,12 +226,9 @@ export default function EditProductPage() {
 
   const fetchPlantSizes = async () => {
     try {
-      const { data, error } = await supabase
-        .from('plant_sizes')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order');
-      if (error) throw error;
+      const { data } = await adminFetch<{ data: PlantSize[] }>('plant_sizes', {
+        params: { filter_column: 'is_active', filter_value: 'true', order_by: 'sort_order' },
+      });
       setPlantSizes(data || []);
     } catch (error: any) {
       console.error('Error fetching plant sizes:', error);
@@ -279,12 +237,9 @@ export default function EditProductPage() {
 
   const fetchPlantPetSafety = async () => {
     try {
-      const { data, error } = await supabase
-        .from('plant_pet_safety')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order');
-      if (error) throw error;
+      const { data } = await adminFetch<{ data: PlantPetSafety[] }>('plant_pet_safety', {
+        params: { filter_column: 'is_active', filter_value: 'true', order_by: 'sort_order' },
+      });
       setPlantPetSafety(data || []);
     } catch (error: any) {
       console.error('Error fetching plant pet safety:', error);
@@ -293,11 +248,9 @@ export default function EditProductPage() {
 
   const fetchProductPlantTypes = async () => {
     try {
-      const { data, error } = await supabase
-        .from('product_plant_types')
-        .select('plant_type_id')
-        .eq('product_id', productId);
-      if (error) throw error;
+      const { data } = await adminFetch<{ data: { plant_type_id: string }[] }>('product_plant_types', {
+        params: { filter_column: 'product_id', filter_value: productId, select: 'plant_type_id' },
+      });
       setSelectedPlantTypes(data?.map((pt) => pt.plant_type_id) || []);
     } catch (error: any) {
       console.error('Error fetching product plant types:', error);
@@ -306,11 +259,9 @@ export default function EditProductPage() {
 
   const fetchProductPlantSizes = async () => {
     try {
-      const { data, error } = await supabase
-        .from('product_plant_sizes')
-        .select('plant_size_id')
-        .eq('product_id', productId);
-      if (error) throw error;
+      const { data } = await adminFetch<{ data: { plant_size_id: string }[] }>('product_plant_sizes', {
+        params: { filter_column: 'product_id', filter_value: productId, select: 'plant_size_id' },
+      });
       setSelectedPlantSizes(data?.map((ps) => ps.plant_size_id) || []);
     } catch (error: any) {
       console.error('Error fetching product plant sizes:', error);
@@ -319,11 +270,9 @@ export default function EditProductPage() {
 
   const fetchProductPlantPetSafety = async () => {
     try {
-      const { data, error } = await supabase
-        .from('product_plant_pet_safety')
-        .select('plant_pet_safety_id')
-        .eq('product_id', productId);
-      if (error) throw error;
+      const { data } = await adminFetch<{ data: { plant_pet_safety_id: string }[] }>('product_plant_pet_safety', {
+        params: { filter_column: 'product_id', filter_value: productId, select: 'plant_pet_safety_id' },
+      });
       setSelectedPlantPetSafety(data?.map((pp) => pp.plant_pet_safety_id) || []);
     } catch (error: any) {
       console.error('Error fetching product plant pet safety:', error);
@@ -332,13 +281,9 @@ export default function EditProductPage() {
 
   const fetchProductImages = async () => {
     try {
-      const { data, error } = await supabase
-        .from('product_images')
-        .select('*')
-        .eq('product_id', productId)
-        .order('sort_order');
-
-      if (error) throw error;
+      const { data } = await adminFetch<{ data: ProductImage[] }>('product_images', {
+        params: { filter_column: 'product_id', filter_value: productId, order_by: 'sort_order' },
+      });
       setProductImages(data || []);
     } catch (error: any) {
       console.error('Error fetching product images:', error);
@@ -435,129 +380,97 @@ export default function EditProductPage() {
         has_variants: formData.has_variants,
       };
 
-      const { error } = await supabase
-        .from('products')
-        .update(updateData)
-        .eq('id', productId);
-
-      if (error) throw error;
+      await adminFetch('products', {
+        method: 'PUT',
+        data: { id: productId, ...updateData },
+      });
 
       // 2. Sync category relationships
-      // First, delete existing relationships
-      const { error: deleteError } = await supabase
-        .from('product_categories')
-        .delete()
-        .eq('product_id', productId);
+      await adminFetch('product_categories', {
+        method: 'DELETE',
+        params: { filter_column: 'product_id', filter_value: productId },
+      });
 
-      if (deleteError) throw deleteError;
-
-      // Then, insert new relationships
       if (selectedCategories.length > 0) {
         const categoryRelations = selectedCategories.map((categoryId) => ({
           product_id: productId,
           category_id: categoryId,
         }));
-
-        const { error: insertError } = await supabase
-          .from('product_categories')
-          .insert(categoryRelations);
-
-        if (insertError) throw insertError;
+        await adminFetch('product_categories', { method: 'POST', data: categoryRelations });
       }
 
       // 3. Sync color relationships
-      const { error: deleteColorsError } = await supabase
-        .from('product_colors')
-        .delete()
-        .eq('product_id', productId);
-
-      if (deleteColorsError) throw deleteColorsError;
+      await adminFetch('product_colors', {
+        method: 'DELETE',
+        params: { filter_column: 'product_id', filter_value: productId },
+      });
 
       if (selectedColors.length > 0) {
         const colorRelations = selectedColors.map((colorId) => ({
           product_id: productId,
           color_id: colorId,
         }));
-
-        const { error: insertColorsError } = await supabase
-          .from('product_colors')
-          .insert(colorRelations);
-
-        if (insertColorsError) throw insertColorsError;
+        await adminFetch('product_colors', { method: 'POST', data: colorRelations });
       }
 
       // 4. Sync shape relationships
-      const { error: deleteShapesError } = await supabase
-        .from('product_shapes')
-        .delete()
-        .eq('product_id', productId);
-
-      if (deleteShapesError) throw deleteShapesError;
+      await adminFetch('product_shapes', {
+        method: 'DELETE',
+        params: { filter_column: 'product_id', filter_value: productId },
+      });
 
       if (selectedShapes.length > 0) {
         const shapeRelations = selectedShapes.map((shapeId) => ({
           product_id: productId,
           shape_id: shapeId,
         }));
-
-        const { error: insertShapesError } = await supabase
-          .from('product_shapes')
-          .insert(shapeRelations);
-
-        if (insertShapesError) throw insertShapesError;
+        await adminFetch('product_shapes', { method: 'POST', data: shapeRelations });
       }
 
       // 5. Sync space relationships
-      const { error: deleteSpacesError } = await supabase
-        .from('product_spaces')
-        .delete()
-        .eq('product_id', productId);
-
-      if (deleteSpacesError) throw deleteSpacesError;
+      await adminFetch('product_spaces', {
+        method: 'DELETE',
+        params: { filter_column: 'product_id', filter_value: productId },
+      });
 
       if (selectedSpaces.length > 0) {
         const spaceRelations = selectedSpaces.map((spaceId) => ({
           product_id: productId,
           space_id: spaceId,
         }));
-
-        const { error: insertSpacesError } = await supabase
-          .from('product_spaces')
-          .insert(spaceRelations);
-
-        if (insertSpacesError) throw insertSpacesError;
+        await adminFetch('product_spaces', { method: 'POST', data: spaceRelations });
       }
 
       // 6. Sync plant dimensions (only if product type is plants)
       if (isPlantProduct) {
         // Sync plant types
-        await supabase.from('product_plant_types').delete().eq('product_id', productId);
+        await adminFetch('product_plant_types', { method: 'DELETE', params: { filter_column: 'product_id', filter_value: productId } });
         if (selectedPlantTypes.length > 0) {
           const relations = selectedPlantTypes.map(id => ({
             product_id: productId,
             plant_type_id: id,
           }));
-          await supabase.from('product_plant_types').insert(relations);
+          await adminFetch('product_plant_types', { method: 'POST', data: relations });
         }
 
         // Sync plant sizes
-        await supabase.from('product_plant_sizes').delete().eq('product_id', productId);
+        await adminFetch('product_plant_sizes', { method: 'DELETE', params: { filter_column: 'product_id', filter_value: productId } });
         if (selectedPlantSizes.length > 0) {
           const relations = selectedPlantSizes.map(id => ({
             product_id: productId,
             plant_size_id: id,
           }));
-          await supabase.from('product_plant_sizes').insert(relations);
+          await adminFetch('product_plant_sizes', { method: 'POST', data: relations });
         }
 
         // Sync plant pet safety
-        await supabase.from('product_plant_pet_safety').delete().eq('product_id', productId);
+        await adminFetch('product_plant_pet_safety', { method: 'DELETE', params: { filter_column: 'product_id', filter_value: productId } });
         if (selectedPlantPetSafety.length > 0) {
           const relations = selectedPlantPetSafety.map(id => ({
             product_id: productId,
             plant_pet_safety_id: id,
           }));
-          await supabase.from('product_plant_pet_safety').insert(relations);
+          await adminFetch('product_plant_pet_safety', { method: 'POST', data: relations });
         }
       }
 
@@ -578,41 +491,59 @@ export default function EditProductPage() {
 
           if (variant.id.startsWith('temp-')) {
             // Check for existing variant with same size + color to prevent duplicates
-            let duplicateQuery = supabase
-              .from('product_variants')
-              .select('id')
-              .eq('product_id', productId)
-              .eq('size', variant.size);
-            if (variant.color_id) {
-              duplicateQuery = duplicateQuery.eq('color_id', variant.color_id);
-            } else {
-              duplicateQuery = duplicateQuery.is('color_id', null);
-            }
-            const { data: existingVariants } = await duplicateQuery;
+            const { data: allProductVariants } = await adminFetch<{ data: any[] }>('product_variants', {
+              params: { filter_column: 'product_id', filter_value: productId, select: 'id,size,color_id' },
+            });
+            const existingVariants = (allProductVariants || []).filter(
+              (v: any) => v.size === variant.size && (variant.color_id ? v.color_id === variant.color_id : v.color_id === null)
+            );
 
-            if (existingVariants && existingVariants.length > 0) {
+            if (existingVariants.length > 0) {
               // Update the existing variant instead of creating a duplicate
-              const { error: variantError } = await supabase
-                .from('product_variants')
-                .update({
-                  sku,
-                  price: variant.price,
-                  compare_at_price: variant.compare_at_price || null,
-                  stock_quantity: variant.stock_quantity,
-                  is_active: variant.is_active,
-                  sort_order: i,
-                })
-                .eq('id', existingVariants[0].id);
-
-              if (variantError) {
-                console.error('Error updating duplicate variant:', variantError);
+              try {
+                await adminFetch('product_variants', {
+                  method: 'PUT',
+                  data: {
+                    id: existingVariants[0].id,
+                    sku,
+                    price: variant.price,
+                    compare_at_price: variant.compare_at_price || null,
+                    stock_quantity: variant.stock_quantity,
+                    is_active: variant.is_active,
+                    sort_order: i,
+                  },
+                });
+              } catch (err) {
+                console.error('Error updating duplicate variant:', err);
               }
             } else {
               // Create new variant
-              const { error: variantError } = await supabase
-                .from('product_variants')
-                .insert([{
-                  product_id: productId,
+              try {
+                await adminFetch('product_variants', {
+                  method: 'POST',
+                  data: [{
+                    product_id: productId,
+                    size: variant.size,
+                    color_id: variant.color_id || null,
+                    sku,
+                    price: variant.price,
+                    compare_at_price: variant.compare_at_price || null,
+                    stock_quantity: variant.stock_quantity,
+                    is_active: variant.is_active,
+                    sort_order: i,
+                  }],
+                });
+              } catch (err) {
+                console.error('Error creating variant:', err);
+              }
+            }
+          } else {
+            // Update existing variant
+            try {
+              await adminFetch('product_variants', {
+                method: 'PUT',
+                data: {
+                  id: variant.id,
                   size: variant.size,
                   color_id: variant.color_id || null,
                   sku,
@@ -620,39 +551,19 @@ export default function EditProductPage() {
                   compare_at_price: variant.compare_at_price || null,
                   stock_quantity: variant.stock_quantity,
                   is_active: variant.is_active,
-                  sort_order: i,
-                }]);
-
-              if (variantError) {
-                console.error('Error creating variant:', variantError);
-              }
-            }
-          } else {
-            // Update existing variant
-            const { error: variantError } = await supabase
-              .from('product_variants')
-              .update({
-                size: variant.size,
-                color_id: variant.color_id || null,
-                sku,
-                price: variant.price,
-                compare_at_price: variant.compare_at_price || null,
-                stock_quantity: variant.stock_quantity,
-                is_active: variant.is_active,
-              })
-              .eq('id', variant.id);
-
-            if (variantError) {
-              console.error('Error updating variant:', variantError);
+                },
+              });
+            } catch (err) {
+              console.error('Error updating variant:', err);
             }
           }
         }
 
         // Update has_variants flag
-        await supabase
-          .from('products')
-          .update({ has_variants: true })
-          .eq('id', productId);
+        await adminFetch('products', {
+          method: 'PUT',
+          data: { id: productId, has_variants: true },
+        });
       }
 
       alert('המוצר עודכן בהצלחה!');
@@ -719,12 +630,10 @@ export default function EditProductPage() {
     if (!confirm('האם אתה בטוח שברצונך למחוק גודל זה?')) return;
 
     try {
-      const { error } = await supabase
-        .from('product_variants')
-        .delete()
-        .eq('id', variant.id);
-
-      if (error) throw error;
+      await adminFetch('product_variants', {
+        method: 'DELETE',
+        params: { id: variant.id },
+      });
 
       setVariants(variants.filter((_, i) => i !== index));
       alert('הגודל נמחק בהצלחה');
@@ -847,70 +756,58 @@ export default function EditProductPage() {
     try {
       if (variant.id.startsWith('temp-')) {
         // Check for existing variant with same size + color to prevent duplicates
-        let duplicateQuery = supabase
-          .from('product_variants')
-          .select('id')
-          .eq('product_id', productId)
-          .eq('size', variant.size);
-        if (variant.color_id) {
-          duplicateQuery = duplicateQuery.eq('color_id', variant.color_id);
-        } else {
-          duplicateQuery = duplicateQuery.is('color_id', null);
-        }
-        const { data: existingVariants } = await duplicateQuery;
+        const { data: allProductVariants } = await adminFetch<{ data: any[] }>('product_variants', {
+          params: { filter_column: 'product_id', filter_value: productId, select: 'id,size,color_id' },
+        });
+        const existingVariants = (allProductVariants || []).filter(
+          (v: any) => v.size === variant.size && (variant.color_id ? v.color_id === variant.color_id : v.color_id === null)
+        );
 
-        if (existingVariants && existingVariants.length > 0) {
+        if (existingVariants.length > 0) {
           // Update the existing variant instead of creating a duplicate
-          const { data, error } = await supabase
-            .from('product_variants')
-            .update({
+          const { data } = await adminFetch<{ data: ProductVariant }>('product_variants', {
+            method: 'PUT',
+            data: {
+              id: existingVariants[0].id,
               sku: variant.sku,
               price: variant.price,
               compare_at_price: variant.compare_at_price || null,
               stock_quantity: variant.stock_quantity,
               is_active: variant.is_active,
               sort_order: variant.sort_order,
-            })
-            .eq('id', existingVariants[0].id)
-            .select()
-            .single();
-
-          if (error) throw error;
+            },
+          });
 
           const updated = [...variants];
           updated[index] = data;
           setVariants(updated);
         } else {
           // Create new variant
-          const { data, error } = await supabase
-            .from('product_variants')
-            .insert([
-              {
-                product_id: productId,
-                size: variant.size,
-                color_id: variant.color_id || null,
-                sku: variant.sku,
-                price: variant.price,
-                compare_at_price: variant.compare_at_price || null,
-                stock_quantity: variant.stock_quantity,
-                is_active: variant.is_active,
-                sort_order: variant.sort_order,
-              },
-            ])
-            .select()
-            .single();
-
-          if (error) throw error;
+          const { data } = await adminFetch<{ data: ProductVariant }>('product_variants', {
+            method: 'POST',
+            data: [{
+              product_id: productId,
+              size: variant.size,
+              color_id: variant.color_id || null,
+              sku: variant.sku,
+              price: variant.price,
+              compare_at_price: variant.compare_at_price || null,
+              stock_quantity: variant.stock_quantity,
+              is_active: variant.is_active,
+              sort_order: variant.sort_order,
+            }],
+          });
 
           const updated = [...variants];
-          updated[index] = data;
+          updated[index] = Array.isArray(data) ? data[0] : data;
           setVariants(updated);
         }
       } else {
         // Update existing variant
-        const { error } = await supabase
-          .from('product_variants')
-          .update({
+        await adminFetch('product_variants', {
+          method: 'PUT',
+          data: {
+            id: variant.id,
             size: variant.size,
             color_id: variant.color_id || null,
             sku: variant.sku,
@@ -918,20 +815,18 @@ export default function EditProductPage() {
             compare_at_price: variant.compare_at_price || null,
             stock_quantity: variant.stock_quantity,
             is_active: variant.is_active,
-          })
-          .eq('id', variant.id);
-
-        if (error) throw error;
+          },
+        });
       }
 
       // Update has_variants flag on product
-      const { error: hasVariantsError } = await supabase
-        .from('products')
-        .update({ has_variants: true })
-        .eq('id', productId);
-
-      if (hasVariantsError) {
-        console.error('Error updating has_variants:', hasVariantsError);
+      try {
+        await adminFetch('products', {
+          method: 'PUT',
+          data: { id: productId, has_variants: true },
+        });
+      } catch (err) {
+        console.error('Error updating has_variants:', err);
       }
 
       // Update local state to reflect has_variants

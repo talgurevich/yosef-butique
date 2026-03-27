@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { FaPlus, FaEdit, FaTrash, FaUpload, FaCheckSquare, FaSquare } from 'react-icons/fa';
-import { supabase, Product } from '@/lib/supabase';
+import { Product } from '@/lib/supabase';
+import { adminFetch } from '@/lib/admin-api';
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -18,45 +19,13 @@ export default function ProductsPage() {
 
   const fetchProducts = async () => {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select(`
-          *,
-          product_images (
-            id,
-            image_url,
-            alt_text,
-            sort_order
-          ),
-          product_colors (
-            colors (
-              id,
-              name
-            )
-          ),
-          product_categories (
-            categories (
-              id,
-              name
-            )
-          ),
-          product_spaces (
-            spaces (
-              id,
-              name
-            )
-          ),
-          product_variants (
-            id,
-            stock_quantity
-          ),
-          product_types (
-            slug
-          )
-        `)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
+      const { data } = await adminFetch<{ data: any[] }>('products', {
+        params: {
+          select: '*, product_images(id, image_url, alt_text, sort_order), product_colors(colors(id, name)), product_categories(categories(id, name)), product_spaces(spaces(id, name)), product_variants(id, stock_quantity), product_types(slug)',
+          order_by: 'created_at',
+          order_dir: 'desc',
+        },
+      });
 
       // Sort images and calculate total stock from variants
       const productsWithSortedImages = data?.map(product => {
@@ -83,9 +52,7 @@ export default function ProductsPage() {
     if (!confirm('האם אתה בטוח שברצונך למחוק מוצר זה?')) return;
 
     try {
-      const { error } = await supabase.from('products').delete().eq('id', id);
-
-      if (error) throw error;
+      await adminFetch('products', { method: 'DELETE', params: { id } });
 
       setProducts(products.filter((p) => p.id !== id));
       setSelectedIds(prev => {
@@ -108,12 +75,9 @@ export default function ProductsPage() {
     setDeleting(true);
     try {
       const idsArray = Array.from(selectedIds);
-      const { error } = await supabase
-        .from('products')
-        .delete()
-        .in('id', idsArray);
-
-      if (error) throw error;
+      await Promise.all(
+        idsArray.map(id => adminFetch('products', { method: 'DELETE', params: { id } }))
+      );
 
       setProducts(products.filter((p) => !selectedIds.has(p.id)));
       setSelectedIds(new Set());

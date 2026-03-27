@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes } from 'react-icons/fa';
-import { supabase, Space } from '@/lib/supabase';
+import { Space } from '@/lib/supabase';
+import { adminFetch } from '@/lib/admin-api';
 
 export default function SpacesPage() {
   const [spaces, setSpaces] = useState<Space[]>([]);
@@ -22,12 +23,7 @@ export default function SpacesPage() {
 
   const fetchSpaces = async () => {
     try {
-      const { data, error } = await supabase
-        .from('spaces')
-        .select('*')
-        .order('sort_order');
-
-      if (error) throw error;
+      const { data } = await adminFetch('spaces', { params: { order_by: 'sort_order' } });
       setSpaces(data || []);
     } catch (error: any) {
       console.error('Error fetching spaces:', error);
@@ -62,17 +58,16 @@ export default function SpacesPage() {
 
       const slug = generateSlug(formData.name);
 
-      const { error } = await supabase.from('spaces').insert([
-        {
+      await adminFetch('spaces', {
+        method: 'POST',
+        data: {
           name: formData.name,
           description: formData.description,
           slug,
           sort_order: formData.sort_order,
           is_active: formData.is_active,
         },
-      ]);
-
-      if (error) throw error;
+      });
 
       alert('החלל נוסף בהצלחה!');
       setFormData({ name: '', description: '', sort_order: 0, is_active: true });
@@ -91,18 +86,17 @@ export default function SpacesPage() {
 
       const slug = generateSlug(space.name, space.slug);
 
-      const { error } = await supabase
-        .from('spaces')
-        .update({
+      await adminFetch('spaces', {
+        method: 'PUT',
+        data: {
+          id,
           name: space.name,
           description: space.description,
           slug,
           sort_order: space.sort_order,
           is_active: space.is_active,
-        })
-        .eq('id', id);
-
-      if (error) throw error;
+        },
+      });
 
       alert('החלל עודכן בהצלחה!');
       setEditingId(null);
@@ -117,9 +111,7 @@ export default function SpacesPage() {
     if (!confirm('האם אתה בטוח שברצונך למחוק חלל זה?')) return;
 
     try {
-      const { error } = await supabase.from('spaces').delete().eq('id', id);
-
-      if (error) throw error;
+      await adminFetch('spaces', { method: 'DELETE', params: { id } });
 
       alert('החלל נמחק בהצלחה!');
       fetchSpaces();
