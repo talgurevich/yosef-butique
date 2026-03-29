@@ -112,13 +112,13 @@ export default function Header() {
       <div className="container mx-auto px-4 py-2">
         <div className="flex items-center justify-between relative">
           {/* Logo - centered on mobile */}
-          <Link href="/" className="flex items-center md:static absolute left-1/2 -translate-x-1/2 md:translate-x-0 md:relative md:left-auto">
+          <Link href="/" className="flex items-center md:static absolute left-[55%] -translate-x-1/2 md:translate-x-0 md:relative md:left-auto">
             <Image
               src="/logo-cropped.png"
               alt="Yossef Boutique"
               width={650}
               height={250}
-              className="h-16 sm:h-20 md:h-24 w-auto object-contain max-w-[200px] sm:max-w-none"
+              className="h-16 sm:h-20 md:h-24 w-auto object-contain max-w-[160px] sm:max-w-[200px] md:max-w-none"
               priority
             />
           </Link>
