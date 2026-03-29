@@ -7,7 +7,7 @@ import Image from 'next/image';
 const heroSlides = [
   {
     id: 'carpets',
-    image: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=1920&q=80',
+    image: 'https://images.unsplash.com/photo-1554995207-c18c203602cb?w=1920&q=80',
     badge: 'איכות פרימיום מאז 2010',
     title: 'שטיחים איכותיים',
     subtitle: 'לכל בית',
@@ -99,6 +99,7 @@ export default function Hero() {
           className="object-cover scale-110"
           priority
           sizes="100vw"
+          unoptimized
         />
         {/* Refined gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40"></div>
