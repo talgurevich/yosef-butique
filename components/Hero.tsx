@@ -7,7 +7,7 @@ import Image from 'next/image';
 const heroSlides = [
   {
     id: 'carpets',
-    image: 'https://images.unsplash.com/photo-1554995207-c18c203602cb?w=1920&q=80',
+    image: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=1920&q=80',
     badge: 'איכות פרימיום מאז 2010',
     title: 'שטיחים איכותיים',
     subtitle: 'לכל בית',
