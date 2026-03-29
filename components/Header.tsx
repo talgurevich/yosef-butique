@@ -118,13 +118,13 @@ export default function Header() {
               alt="Yossef Boutique"
               width={650}
               height={250}
-              className="h-16 sm:h-20 md:h-24 w-auto object-contain max-w-[160px] sm:max-w-[200px] md:max-w-none"
+              className="h-16 sm:h-20 md:h-24 w-auto object-contain max-w-[160px] sm:max-w-[200px] md:max-w-[220px] lg:max-w-none"
               priority
             />
           </Link>
 
           {/* Navigation */}
-          <nav className="hidden md:flex space-x-6 space-x-reverse">
+          <nav className="hidden md:flex space-x-3 lg:space-x-6 space-x-reverse">
             <Link
               href="/"
               className="text-gray-700 hover:text-primary-600 transition-colors"
