@@ -326,6 +326,7 @@ export default function ProductPageClient({
                         height={200}
                         className="w-full h-full object-cover"
                         loading="lazy"
+                        unoptimized
                       />
                     </div>
                   ))}
