@@ -74,7 +74,7 @@ export default function AttributesPreview({ categories, spaces, shapes = [], cat
                 {/* Background Image */}
                 <div className="absolute inset-0">
                   <img
-                    src={categoryImages[category.id] || fallbackImage}
+                    src={category.image_url || categoryImages[category.id] || fallbackImage}
                     alt={category.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes, FaUpload } from 'react-icons/fa';
 import { Category } from '@/lib/supabase';
 import { adminFetch } from '@/lib/admin-api';
 
@@ -10,6 +10,7 @@ export default function CategoriesPage() {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -130,6 +131,35 @@ export default function CategoriesPage() {
         cat.id === id ? { ...cat, [field]: value } : cat
       )
     );
+  };
+
+  const handleImageUpload = async (categoryId: string, file: File) => {
+    setUploadingId(categoryId);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('folder', 'categories');
+
+      const res = await fetch('/api/upload-gallery-image', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error);
+
+      await adminFetch('categories', {
+        method: 'PUT',
+        data: { id: categoryId, image_url: result.url },
+      });
+
+      setCategories(categories.map(c => c.id === categoryId ? { ...c, image_url: result.url } : c));
+    } catch (error: any) {
+      console.error('Error uploading image:', error);
+      alert(`שגיאה בהעלאת תמונה: ${error.message}`);
+    } finally {
+      setUploadingId(null);
+    }
   };
 
   if (loading) {
@@ -272,6 +302,9 @@ export default function CategoriesPage() {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                תמונה
+              </th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                 שם
               </th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -294,13 +327,49 @@ export default function CategoriesPage() {
           <tbody className="bg-white divide-y divide-gray-200">
             {categories.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
                   אין סגנונות עדיין. לחץ על "הוסף סגנון חדש" כדי להתחיל.
                 </td>
               </tr>
             ) : (
               categories.map((category) => (
                 <tr key={category.id} className={category.parent_id ? 'bg-gray-50' : ''}>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      {category.image_url ? (
+                        <img
+                          src={category.image_url}
+                          alt={category.name}
+                          className="w-16 h-16 object-cover rounded-lg border border-gray-200"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400">
+                          <FaUpload className="text-sm" />
+                        </div>
+                      )}
+                      <label className="cursor-pointer text-sm text-primary-600 hover:text-primary-800 font-medium">
+                        {uploadingId === category.id ? (
+                          <span className="text-gray-400">מעלה...</span>
+                        ) : (
+                          <>
+                            <FaUpload className="inline ml-1" />
+                            {category.image_url ? 'החלף' : 'העלה'}
+                          </>
+                        )}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          disabled={uploadingId === category.id}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleImageUpload(category.id, file);
+                            e.target.value = '';
+                          }}
+                        />
+                      </label>
+                    </div>
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {editingId === category.id ? (
                       <input
