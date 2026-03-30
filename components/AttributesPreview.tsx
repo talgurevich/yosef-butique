@@ -9,6 +9,7 @@ interface Attribute {
   slug: string;
   description?: string;
   parent_id?: string | null;
+  image_url?: string;
 }
 
 interface AttributesPreviewProps {
@@ -134,7 +135,7 @@ export default function AttributesPreview({ categories, spaces, shapes = [], cat
                 >
                   <div className="absolute inset-0">
                     <img
-                      src={shapeImages[shape.id] || fallbackImage}
+                      src={shape.image_url || shapeImages[shape.id] || fallbackImage}
                       alt={shape.name}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes, FaUpload } from 'react-icons/fa';
 import { Shape } from '@/lib/supabase';
 import { adminFetch } from '@/lib/admin-api';
 
@@ -10,6 +10,7 @@ export default function ShapesPage() {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -40,12 +41,10 @@ export default function ShapesPage() {
       .replace(/[\s_-]+/g, '-')
       .replace(/^-+|-+$/g, '');
 
-    // If the slug hasn't changed, keep using it
     if (existingSlug && existingSlug.startsWith(baseSlug)) {
       return existingSlug;
     }
 
-    // Add timestamp to ensure uniqueness
     return `${baseSlug}-${Date.now()}`;
   };
 
@@ -118,6 +117,35 @@ export default function ShapesPage() {
     } catch (error: any) {
       console.error('Error deleting shape:', error);
       alert(`שגיאה במחיקת צורה: ${error.message}`);
+    }
+  };
+
+  const handleImageUpload = async (shapeId: string, file: File) => {
+    setUploadingId(shapeId);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('folder', 'shapes');
+
+      const res = await fetch('/api/upload-gallery-image', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error);
+
+      await adminFetch('shapes', {
+        method: 'PUT',
+        data: { id: shapeId, image_url: result.url },
+      });
+
+      setShapes(shapes.map(s => s.id === shapeId ? { ...s, image_url: result.url } : s));
+    } catch (error: any) {
+      console.error('Error uploading image:', error);
+      alert(`שגיאה בהעלאת תמונה: ${error.message}`);
+    } finally {
+      setUploadingId(null);
     }
   };
 
@@ -249,6 +277,9 @@ export default function ShapesPage() {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                תמונה
+              </th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                 שם
               </th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -268,13 +299,49 @@ export default function ShapesPage() {
           <tbody className="bg-white divide-y divide-gray-200">
             {shapes.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
-                  אין צורות עדיין. לחץ על "הוסף צורה חדשה" כדי להתחיל.
+                <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                  אין צורות עדיין. לחץ על &quot;הוסף צורה חדשה&quot; כדי להתחיל.
                 </td>
               </tr>
             ) : (
               shapes.map((shape) => (
                 <tr key={shape.id}>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      {shape.image_url ? (
+                        <img
+                          src={shape.image_url}
+                          alt={shape.name}
+                          className="w-16 h-16 object-cover rounded-lg border border-gray-200"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400">
+                          <FaUpload className="text-sm" />
+                        </div>
+                      )}
+                      <label className="cursor-pointer text-sm text-primary-600 hover:text-primary-800 font-medium">
+                        {uploadingId === shape.id ? (
+                          <span className="text-gray-400">מעלה...</span>
+                        ) : (
+                          <>
+                            <FaUpload className="inline ml-1" />
+                            {shape.image_url ? 'החלף' : 'העלה'}
+                          </>
+                        )}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          disabled={uploadingId === shape.id}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleImageUpload(shape.id, file);
+                            e.target.value = '';
+                          }}
+                        />
+                      </label>
+                    </div>
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {editingId === shape.id ? (
                       <input

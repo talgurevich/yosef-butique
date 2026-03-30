@@ -13,13 +13,22 @@ type CartItemPayload = {
   slug: string;
 };
 
-function generateOrderNumber(): string {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let code = '';
-  for (let i = 0; i < 6; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
+async function generateOrderNumber(supabaseAdmin: any): Promise<string> {
+  const { data } = await supabaseAdmin
+    .from('orders')
+    .select('order_number')
+    .order('created_at', { ascending: false })
+    .limit(100);
+
+  let maxNum = 0;
+  if (data) {
+    for (const row of data) {
+      const num = parseInt(row.order_number, 10);
+      if (!isNaN(num) && num > maxNum) maxNum = num;
+    }
   }
-  return `BYS-${code}`;
+
+  return String(maxNum + 1);
 }
 
 export async function POST(request: NextRequest) {
@@ -66,8 +75,8 @@ export async function POST(request: NextRequest) {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    // Generate order number and compute tax
-    const orderNumber = generateOrderNumber();
+    // Generate sequential order number
+    const orderNumber = await generateOrderNumber(supabaseAdmin);
     const total = parseFloat(amount);
     const subtotal = (cartItems as CartItemPayload[] | undefined)?.reduce(
       (sum: number, item: CartItemPayload) => sum + item.price * item.quantity,
