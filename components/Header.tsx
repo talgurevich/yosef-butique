@@ -126,13 +126,6 @@ export default function Header() {
           {/* Navigation */}
           <nav className="hidden md:flex space-x-4 lg:space-x-8 space-x-reverse whitespace-nowrap">
             <Link
-              href="/"
-              className="text-gray-700 hover:text-primary-600 transition-colors"
-            >
-              בית
-            </Link>
-
-            <Link
               href="/products"
               className="text-gray-700 hover:text-primary-600 transition-colors"
             >
@@ -299,13 +292,6 @@ export default function Header() {
             </div>
 
             <nav className="flex flex-col space-y-4">
-              <Link
-                href="/"
-                onClick={closeMobileMenu}
-                className="text-gray-700 hover:text-primary-600 transition-colors py-2 px-4 hover:bg-gray-50 rounded-lg"
-              >
-                בית
-              </Link>
               <Link
                 href="/products"
                 onClick={closeMobileMenu}
