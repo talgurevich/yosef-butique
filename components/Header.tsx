@@ -124,7 +124,7 @@ export default function Header() {
           </Link>
 
           {/* Navigation */}
-          <nav className="hidden md:flex space-x-4 lg:space-x-8 space-x-reverse whitespace-nowrap">
+          <nav className="hidden md:flex md:gap-4 lg:gap-8 whitespace-nowrap">
             <Link
               href="/products"
               className="text-gray-700 hover:text-primary-600 transition-colors"
