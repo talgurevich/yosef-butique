@@ -65,6 +65,7 @@ export default function Footer() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="הכניסו את כתובת המייל שלכם"
+                aria-label="כתובת אימייל לניוזלטר"
                 className="px-6 py-4 rounded-lg w-full md:w-96 text-gray-900 shadow-lg focus:ring-2 focus:ring-white focus:outline-none"
                 required
               />
@@ -97,6 +98,7 @@ export default function Footer() {
                 href="https://www.facebook.com/share/1FGwU1cT56/?mibextid=wwXIfr"
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="פייסבוק"
                 className="text-gray-400 hover:text-white transition-colors"
               >
                 <FaFacebook className="text-2xl" />
@@ -105,6 +107,7 @@ export default function Footer() {
                 href="https://www.instagram.com/yossef_carpets?igsh=MWEydXA5ZDFkemE3Ng=="
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="אינסטגרם"
                 className="text-gray-400 hover:text-white transition-colors"
               >
                 <FaInstagram className="text-2xl" />
@@ -113,6 +116,7 @@ export default function Footer() {
                 href="https://www.tiktok.com/@butiqyossef1?_r=1&_t=ZS-91MDi891VVF"
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="טיקטוק"
                 className="text-gray-400 hover:text-white transition-colors"
               >
                 <FaTiktok className="text-2xl" />
@@ -121,6 +125,7 @@ export default function Footer() {
                 href="https://wa.me/972515092208"
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="וואטסאפ"
                 className="text-gray-400 hover:text-white transition-colors"
               >
                 <FaWhatsapp className="text-2xl" />
@@ -159,6 +164,14 @@ export default function Footer() {
                   className="hover:text-white transition-colors text-sm"
                 >
                   צור קשר
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/accessibility"
+                  className="hover:text-white transition-colors text-sm"
+                >
+                  הצהרת נגישות
                 </Link>
               </li>
               <li>

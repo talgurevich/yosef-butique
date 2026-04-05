@@ -108,7 +108,14 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="bg-white shadow-md sticky top-0 z-50 relative">
+    <header className="bg-white shadow-md sticky top-0 z-50 relative" role="banner">
+      {/* Skip to content link - visible only on keyboard focus */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:right-2 focus:z-[100] focus:bg-primary-600 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:shadow-lg"
+      >
+        דלג לתוכן הראשי
+      </a>
       <div className="container mx-auto px-4 py-2">
         <div className="flex items-center justify-between relative">
           {/* Logo - centered on mobile */}
@@ -137,7 +144,9 @@ export default function Header() {
               onMouseEnter={handleCarpetsMouseEnter}
               onMouseLeave={handleCarpetsMouseLeave}
               onClick={toggleCarpetsDropdown}
-              className="flex items-center space-x-1 space-x-reverse text-gray-700 hover:text-primary-600 transition-colors"
+              aria-expanded={carpetsDropdownOpen}
+              aria-haspopup="true"
+              className="flex items-center space-x-1 space-x-reverse text-gray-700 hover:text-primary-600 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 rounded"
             >
               <span>שטיחים</span>
               <FaChevronDown className={`text-xs transition-transform ${carpetsDropdownOpen ? 'rotate-180' : ''}`} />
@@ -148,7 +157,9 @@ export default function Header() {
               onMouseEnter={handlePlantsMouseEnter}
               onMouseLeave={handlePlantsMouseLeave}
               onClick={togglePlantsDropdown}
-              className="flex items-center space-x-1 space-x-reverse text-gray-700 hover:text-primary-600 transition-colors"
+              aria-expanded={plantsDropdownOpen}
+              aria-haspopup="true"
+              className="flex items-center space-x-1 space-x-reverse text-gray-700 hover:text-primary-600 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 rounded"
             >
               <span>עציצים</span>
               <FaChevronDown className={`text-xs transition-transform ${plantsDropdownOpen ? 'rotate-180' : ''}`} />
@@ -178,6 +189,7 @@ export default function Header() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={handleSearch}
                 placeholder="חיפוש מוצרים..."
+                aria-label="חיפוש מוצרים"
                 className="w-44 lg:w-56 pl-9 pr-4 py-2 text-sm border border-gray-300 rounded-full bg-gray-50 focus:bg-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none transition-all"
               />
               <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
@@ -286,6 +298,7 @@ export default function Header() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={handleSearch}
                 placeholder="חיפוש מוצרים..."
+                aria-label="חיפוש מוצרים"
                 className="w-full pl-10 pr-4 py-3 text-sm border border-gray-300 rounded-full bg-gray-50 focus:bg-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none transition-all"
               />
               <FaSearch className="absolute left-7 top-1/2 -translate-y-1/2 text-gray-400" />

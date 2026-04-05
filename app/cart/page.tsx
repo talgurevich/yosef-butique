@@ -173,7 +173,8 @@ export default function CartPage() {
                         <div className="flex items-center border border-gray-300 rounded-lg">
                           <button
                             onClick={() => updateQuantity(item.variantId, item.quantity - 1)}
-                            className="px-3 py-1 hover:bg-gray-100 transition-colors"
+                            className="px-3 py-1 hover:bg-gray-100 transition-colors focus:ring-2 focus:ring-primary-500"
+                            aria-label="הקטן כמות"
                           >
                             -
                           </button>
@@ -182,7 +183,8 @@ export default function CartPage() {
                           </span>
                           <button
                             onClick={() => updateQuantity(item.variantId, item.quantity + 1)}
-                            className="px-3 py-1 hover:bg-gray-100 transition-colors"
+                            className="px-3 py-1 hover:bg-gray-100 transition-colors focus:ring-2 focus:ring-primary-500"
+                            aria-label="הגדל כמות"
                           >
                             +
                           </button>
@@ -206,6 +208,7 @@ export default function CartPage() {
                         onClick={() => removeFromCart(item.variantId)}
                         className="text-red-500 hover:text-red-700 transition-colors p-2"
                         title="הסר מהעגלה"
+                        aria-label="הסר מהסל"
                       >
                         <FaTrash className="text-xl" />
                       </button>

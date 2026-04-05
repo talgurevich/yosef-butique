@@ -6,6 +6,7 @@ import { CartProvider } from "@/contexts/CartContext";
 import StructuredData from "@/components/StructuredData";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import UnderConstructionPopup from "@/components/UnderConstructionPopup";
+import AccessibilityWidget from "@/components/AccessibilityWidget";
 import { Alef, Rubik, Montserrat, Playfair_Display } from 'next/font/google';
 
 const GA_MEASUREMENT_ID = 'G-9Z69J4TVPT';
@@ -111,8 +112,11 @@ export default function RootLayout({
       <body className="antialiased font-body">
         <AuthSessionProvider>
           <CartProvider>
-            {children}
+            <main id="main-content" role="main">
+              {children}
+            </main>
             <FloatingWhatsApp />
+            <AccessibilityWidget />
             <UnderConstructionPopup />
           </CartProvider>
         </AuthSessionProvider>

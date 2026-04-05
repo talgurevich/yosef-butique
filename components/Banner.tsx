@@ -85,7 +85,7 @@ export default function Banner() {
         </div>
         <button
           onClick={handleDismiss}
-          className="flex-shrink-0 p-1 hover:opacity-80 transition-opacity"
+          className="flex-shrink-0 p-1 hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-white rounded"
           aria-label="סגור באנר"
         >
           <FaTimes className="text-lg" />

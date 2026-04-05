@@ -313,7 +313,11 @@ export default function ProductPageClient({
                     <div
                       key={image.id}
                       onClick={() => setSelectedImageIndex(index)}
-                      className={`aspect-square rounded-lg flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-primary-600 transition-all overflow-hidden ${
+                      onKeyDown={(e) => { if (e.key === 'Enter') setSelectedImageIndex(index) }}
+                      tabIndex={0}
+                      role="button"
+                      aria-label={image.alt_text || `${product.name} - ${index + 1}`}
+                      className={`aspect-square rounded-lg flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-primary-600 transition-all overflow-hidden focus:ring-2 focus:ring-primary-500 ${
                         selectedImageIndex === index
                           ? 'ring-2 ring-primary-600'
                           : 'ring-1 ring-gray-200'
@@ -454,7 +458,7 @@ export default function ProductPageClient({
                       <button
                         key={color.id}
                         onClick={() => handleVariantColorSelect(color)}
-                        className={`p-4 border-2 rounded-lg transition-all ${
+                        className={`p-4 border-2 rounded-lg transition-all focus:ring-2 focus:ring-primary-500 ${
                           selectedColor?.id === color.id
                             ? 'border-primary-600 bg-primary-50'
                             : 'border-gray-300 hover:border-primary-400'
@@ -478,7 +482,7 @@ export default function ProductPageClient({
                       <button
                         key={color.id}
                         onClick={() => setSelectedColor(color)}
-                        className={`p-4 border-2 rounded-lg transition-all ${
+                        className={`p-4 border-2 rounded-lg transition-all focus:ring-2 focus:ring-primary-500 ${
                           selectedColor?.id === color.id
                             ? 'border-primary-600 bg-primary-50'
                             : 'border-gray-300 hover:border-primary-400'
@@ -534,7 +538,7 @@ export default function ProductPageClient({
                             href={whatsappUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="p-4 border-2 rounded-lg transition-all border-gray-300 bg-gray-50 hover:border-green-500 hover:bg-green-50 group"
+                            className="p-4 border-2 rounded-lg transition-all border-gray-300 bg-gray-50 hover:border-green-500 hover:bg-green-50 group focus:ring-2 focus:ring-primary-500"
                           >
                             <div className="text-center">
                               <div className="font-bold text-gray-400">{size}</div>
@@ -556,7 +560,7 @@ export default function ProductPageClient({
                         <button
                           key={size}
                           onClick={() => handleSizeSelect(size)}
-                          className={`p-4 border-2 rounded-lg transition-all ${
+                          className={`p-4 border-2 rounded-lg transition-all focus:ring-2 focus:ring-primary-500 ${
                             isSelected
                               ? 'border-primary-600 bg-primary-50'
                               : 'border-gray-300 hover:border-primary-400'
@@ -581,7 +585,8 @@ export default function ProductPageClient({
                 <div className="flex items-center gap-4">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="w-12 h-12 border-2 border-gray-300 rounded-lg hover:border-primary-600 transition-colors font-bold text-xl"
+                    className="w-12 h-12 border-2 border-gray-300 rounded-lg hover:border-primary-600 transition-colors font-bold text-xl focus:ring-2 focus:ring-primary-500"
+                    aria-label="הקטן כמות"
                   >
                     -
                   </button>
@@ -595,7 +600,8 @@ export default function ProductPageClient({
                   />
                   <button
                     onClick={() => setQuantity(Math.min(getStockQuantity(), quantity + 1))}
-                    className="w-12 h-12 border-2 border-gray-300 rounded-lg hover:border-primary-600 transition-colors font-bold text-xl"
+                    className="w-12 h-12 border-2 border-gray-300 rounded-lg hover:border-primary-600 transition-colors font-bold text-xl focus:ring-2 focus:ring-primary-500"
+                    aria-label="הגדל כמות"
                   >
                     +
                   </button>
@@ -666,6 +672,9 @@ export default function ProductPageClient({
         <div
           className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center"
           onClick={() => setLightboxOpen(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="תצוגת תמונה"
         >
           {/* Close button */}
           <button
