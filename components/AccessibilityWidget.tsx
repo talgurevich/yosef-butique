@@ -39,10 +39,10 @@ function applySettings(settings: AccessibilitySettings) {
   html.classList.remove('a11y-font-large', 'a11y-font-small');
   if (settings.fontLevel > 0) {
     html.classList.add('a11y-font-large');
-    html.style.setProperty('--a11y-font-scale', `${1 + settings.fontLevel * 0.15}`);
+    html.style.setProperty('--a11y-font-scale', `${1 + settings.fontLevel * 0.2}`);
   } else if (settings.fontLevel < 0) {
     html.classList.add('a11y-font-small');
-    html.style.setProperty('--a11y-font-scale', `${1 + settings.fontLevel * 0.1}`);
+    html.style.setProperty('--a11y-font-scale', `${1 + settings.fontLevel * 0.15}`);
   } else {
     html.style.removeProperty('--a11y-font-scale');
   }

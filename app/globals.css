@@ -297,12 +297,9 @@ html {
    Accessibility Mode Styles
    ======================================== */
 
-/* Font size adjustments */
-html.a11y-font-1 { font-size: 112.5%; }
-html.a11y-font-2 { font-size: 125%; }
-html.a11y-font-3 { font-size: 137.5%; }
-html.a11y-font--1 { font-size: 87.5%; }
-html.a11y-font--2 { font-size: 75%; }
+/* Font size adjustments — use zoom since Tailwind text classes use fixed rem values */
+html.a11y-font-large { zoom: var(--a11y-font-scale, 1); }
+html.a11y-font-small { zoom: var(--a11y-font-scale, 1); }
 
 /* High contrast mode */
 html.a11y-high-contrast,
