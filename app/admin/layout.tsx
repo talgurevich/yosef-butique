@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
-import { FaHome, FaBox, FaTags, FaShoppingCart, FaImages, FaTicketAlt, FaEnvelope, FaSignOutAlt, FaUser, FaPalette, FaShapes, FaDoorOpen, FaSeedling, FaRulerVertical, FaPaw, FaBullhorn, FaArrowRight, FaClipboardList } from 'react-icons/fa';
+import { FaHome, FaBox, FaTags, FaShoppingCart, FaImages, FaTicketAlt, FaEnvelope, FaSignOutAlt, FaUser, FaPalette, FaShapes, FaDoorOpen, FaSeedling, FaRulerVertical, FaPaw, FaBullhorn, FaArrowRight, FaClipboardList, FaStar } from 'react-icons/fa';
 
 export default function AdminLayout({
   children,
@@ -197,6 +197,14 @@ export default function AdminLayout({
             >
               <FaBullhorn className="ml-3" />
               באנר
+            </Link>
+
+            <Link
+              href="/admin/cart-promotion"
+              className="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+            >
+              <FaStar className="ml-3" />
+              מוצר מקודם בעגלה
             </Link>
 
             <Link

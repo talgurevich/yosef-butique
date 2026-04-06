@@ -8,6 +8,7 @@ import { FaTrash, FaShoppingCart, FaArrowRight, FaTimes, FaTicketAlt } from 'rea
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import DeliveryCalculator from '@/components/DeliveryCalculator';
+import CartPromotion from '@/components/CartPromotion';
 
 export default function CartPage() {
   const {
@@ -227,6 +228,9 @@ export default function CartPage() {
                   רוקן עגלה
                 </button>
               </div>
+
+              {/* Promoted Product */}
+              <CartPromotion />
 
               {/* Trust Badges - Prominent Row */}
               <div className="bg-white rounded-lg shadow-md p-6">

@@ -35,6 +35,7 @@ const ALLOWED_TABLES = new Set([
   'order_items',
   'users',
   'newsletter_subscribers',
+  'cart_promotion',
 ]);
 
 function getTable(params: { table: string }) {
