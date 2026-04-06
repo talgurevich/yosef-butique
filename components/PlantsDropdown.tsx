@@ -41,13 +41,13 @@ export default function PlantsDropdown({ onClose }: { onClose?: () => void }) {
   return (
     <div className="absolute top-full left-0 right-0 z-50 bg-white shadow-xl border-t border-gray-200">
       <div className="container mx-auto px-4 py-8">
-          <h3 className="text-2xl font-bold text-gray-800 mb-6 pb-3 border-b border-gray-200">עציצים</h3>
+          <h3 className="text-2xl font-bold text-gray-800 mb-6 pb-3 border-b border-gray-200 font-body">עציצים</h3>
 
           <div className="grid grid-cols-5 gap-8">
           {/* Plant Types */}
           {plantTypes.length > 0 && (
             <div>
-              <h4 className="text-sm font-semibold text-gray-700 mb-3">סוג צמח</h4>
+              <h4 className="text-sm font-semibold text-gray-700 mb-3 font-body">סוג צמח</h4>
               <div className="space-y-2">
                 {plantTypes.map((plantType) => (
                   <Link
@@ -66,7 +66,7 @@ export default function PlantsDropdown({ onClose }: { onClose?: () => void }) {
           {/* Plant Sizes */}
           {plantSizes.length > 0 && (
             <div>
-              <h4 className="text-sm font-semibold text-gray-700 mb-3">גודל</h4>
+              <h4 className="text-sm font-semibold text-gray-700 mb-3 font-body">גודל</h4>
               <div className="space-y-2">
                 {plantSizes.map((size) => (
                   <Link
@@ -85,7 +85,7 @@ export default function PlantsDropdown({ onClose }: { onClose?: () => void }) {
           {/* Plant Pet Safety */}
           {plantPetSafety.length > 0 && (
             <div>
-              <h4 className="text-sm font-semibold text-gray-700 mb-3">בטיחות לחיות</h4>
+              <h4 className="text-sm font-semibold text-gray-700 mb-3 font-body">בטיחות לחיות</h4>
               <div className="space-y-2">
                 {plantPetSafety.map((safety) => (
                   <Link
