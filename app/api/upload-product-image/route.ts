@@ -26,22 +26,30 @@ async function addWatermark(imageBuffer: Buffer): Promise<Buffer> {
     const imageWidth = metadata.width || 800;
     const imageHeight = metadata.height || 600;
 
-    // Calculate logo size (60% of image width)
-    const logoWidth = Math.round(imageWidth * 0.6);
+    // Calculate logo size (30% of image width)
+    const logoWidth = Math.round(imageWidth * 0.3);
 
-    // Load and resize the logo
+    // Load, resize, and set 20% opacity on the logo
     const logoBuffer = getLogoBuffer();
     const resizedLogo = await sharp(logoBuffer)
       .resize(logoWidth)
+      .ensureAlpha()
+      .composite([{
+        input: Buffer.from([255, 255, 255, Math.round(255 * 0.2)]),
+        raw: { width: 1, height: 1, channels: 4 },
+        tile: true,
+        blend: 'dest-in',
+      }])
       .toBuffer();
 
     // Get resized logo dimensions
     const logoMetadata = await sharp(resizedLogo).metadata();
     const logoHeight = logoMetadata.height || 50;
 
-    // Calculate position: centered horizontally and vertically
+    // Position: centered horizontally, bottom with padding
     const left = Math.round((imageWidth - logoWidth) / 2);
-    const top = Math.round((imageHeight - logoHeight) / 2);
+    const bottomPadding = Math.round(imageHeight * 0.03);
+    const top = imageHeight - logoHeight - bottomPadding;
 
     // Composite the logo onto the image
     const watermarkedImage = await sharp(imageBuffer)
