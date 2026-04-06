@@ -167,8 +167,8 @@ export default function EditProductPage() {
 
   const fetchProductColors = async () => {
     try {
-      const { data } = await adminFetch<{ data: { color_id: string }[] }>('product_colors', {
-        params: { filter_column: 'product_id', filter_value: productId, select: 'color_id' },
+      const { data } = await adminFetch<{ data: { color_id: string; sort_order: number }[] }>('product_colors', {
+        params: { filter_column: 'product_id', filter_value: productId, select: 'color_id, sort_order', order_by: 'sort_order' },
       });
       setSelectedColors(data?.map((pc) => pc.color_id) || []);
     } catch (error: any) {
@@ -374,9 +374,10 @@ export default function EditProductPage() {
       });
 
       if (selectedColors.length > 0) {
-        const colorRelations = selectedColors.map((colorId) => ({
+        const colorRelations = selectedColors.map((colorId, index) => ({
           product_id: productId,
           color_id: colorId,
+          sort_order: index,
         }));
         await adminFetch('product_colors', { method: 'POST', data: colorRelations });
       }
@@ -1023,9 +1024,56 @@ export default function EditProductPage() {
             </div>
           )}
 
+          {selectedColors.length > 1 && (
+            <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <p className="text-sm font-semibold text-gray-700 mb-3">סדר תצוגה (הצבע הראשון יוצג ראשון באתר):</p>
+              <div className="space-y-2">
+                {selectedColors.map((colorId, index) => {
+                  const color = colors.find(c => c.id === colorId);
+                  if (!color) return null;
+                  return (
+                    <div key={colorId} className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 border border-gray-200">
+                      <span className="text-sm font-medium text-gray-500 w-6">{index + 1}.</span>
+                      {color.hex_code && (
+                        <span className="w-4 h-4 rounded-full border border-gray-300 flex-shrink-0" style={{ backgroundColor: color.hex_code }} />
+                      )}
+                      <span className="flex-1 text-sm font-medium text-gray-700">{color.name}</span>
+                      <button
+                        type="button"
+                        disabled={index === 0}
+                        onClick={() => {
+                          const newOrder = [...selectedColors];
+                          [newOrder[index - 1], newOrder[index]] = [newOrder[index], newOrder[index - 1]];
+                          setSelectedColors(newOrder);
+                        }}
+                        className="text-gray-400 hover:text-gray-700 disabled:opacity-30 disabled:cursor-not-allowed p-1"
+                        title="הזז למעלה"
+                      >
+                        ▲
+                      </button>
+                      <button
+                        type="button"
+                        disabled={index === selectedColors.length - 1}
+                        onClick={() => {
+                          const newOrder = [...selectedColors];
+                          [newOrder[index], newOrder[index + 1]] = [newOrder[index + 1], newOrder[index]];
+                          setSelectedColors(newOrder);
+                        }}
+                        className="text-gray-400 hover:text-gray-700 disabled:opacity-30 disabled:cursor-not-allowed p-1"
+                        title="הזז למטה"
+                      >
+                        ▼
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           <div className="mt-4 p-4 bg-sage-light bg-opacity-20 rounded-lg border border-sage">
             <p className="text-sm text-gray-700">
-              <strong>💡 טיפ:</strong> בחר את כל הצבעים שהמוצר זמין בהם.
+              <strong>💡 טיפ:</strong> בחר את כל הצבעים שהמוצר זמין בהם. הצבע הראשון ברשימה יוצג ראשון בדף המוצר.
             </p>
           </div>
         </div>

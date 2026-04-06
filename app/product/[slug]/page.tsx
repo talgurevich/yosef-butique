@@ -60,8 +60,9 @@ async function getProductColors(productId: string) {
   if (!supabase) return [];
   const { data } = await supabase
     .from('product_colors')
-    .select('colors (*)')
-    .eq('product_id', productId);
+    .select('colors (*), sort_order')
+    .eq('product_id', productId)
+    .order('sort_order', { ascending: true });
   return data?.map((pc: any) => pc.colors) || [];
 }
 
