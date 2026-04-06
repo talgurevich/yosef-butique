@@ -86,7 +86,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">
           {/* About */}
           <div className="lg:col-span-2">
-            <h4 className="text-white text-lg font-bold mb-4">
+            <h4 className="text-white text-lg font-bold mb-4 font-body">
               שטיחי בוטיק יוסף
             </h4>
             <p className="text-sm mb-4 leading-relaxed">
@@ -135,7 +135,7 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-white text-lg font-bold mb-4">קישורים מהירים</h4>
+            <h4 className="text-white text-lg font-bold mb-4 font-body">קישורים מהירים</h4>
             <ul className="space-y-2">
               <li>
                 <Link href="/" className="hover:text-white transition-colors text-sm">
@@ -203,7 +203,7 @@ export default function Footer() {
 
           {/* Carpet Attributes */}
           <div>
-            <h4 className="text-white text-lg font-bold mb-4">שטיחים</h4>
+            <h4 className="text-white text-lg font-bold mb-4 font-body">שטיחים</h4>
             <ul className="space-y-2">
               <li>
                 <Link
@@ -250,7 +250,7 @@ export default function Footer() {
 
           {/* Plant Attributes */}
           <div>
-            <h4 className="text-white text-lg font-bold mb-4">עציצים</h4>
+            <h4 className="text-white text-lg font-bold mb-4 font-body">עציצים</h4>
             <ul className="space-y-2">
               <li>
                 <Link
@@ -305,7 +305,7 @@ export default function Footer() {
 
           {/* Contact */}
           <div>
-            <h4 className="text-white text-lg font-bold mb-4">צור קשר</h4>
+            <h4 className="text-white text-lg font-bold mb-4 font-body">צור קשר</h4>
             <ul className="space-y-3">
               <li className="flex items-start space-x-3 space-x-reverse">
                 <FaPhone className="text-primary-400 mt-1" />
