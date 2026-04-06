@@ -49,11 +49,11 @@ export default function Footer() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-8">
             <div>
-              <h3 className="text-white text-3xl md:text-4xl font-black mb-3 font-display">
+              <h3 className="text-white text-3xl md:text-4xl font-black mb-3 font-body">
                 הצטרפו לניוזלטר שלנו
               </h3>
-              <p className="text-primary-100 text-lg font-light">
-                הישארו מעודכנים עם <span className="font-serif italic">מבצעים והטבות בלעדיות</span>
+              <p className="text-primary-100 text-lg font-light font-body">
+                הישארו מעודכנים עם <span className="font-bold">מבצעים והטבות בלעדיות</span>
               </p>
             </div>
             <form

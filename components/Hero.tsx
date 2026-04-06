@@ -125,7 +125,7 @@ export default function Hero() {
 
           <p className="text-xl md:text-2xl mb-12 text-gray-100 font-light leading-relaxed max-w-2xl">
             {slide.description}
-            <span className={`font-serif italic ${slide.accentColor.replace('text-', 'text-').replace('400', '200')}`}> {slide.highlight}</span>
+            <span className={`font-bold ${slide.accentColor.replace('text-', 'text-').replace('400', '200')}`}> {slide.highlight}</span>
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4">
