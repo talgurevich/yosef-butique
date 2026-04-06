@@ -119,7 +119,7 @@ async function getProducts(filters: FilterParams = {}) {
   }
 
   // Get initial products
-  const { data: products, error } = await query.order('created_at', { ascending: false });
+  const { data: products, error } = await query.order('sort_order', { ascending: true });
 
   if (error) {
     console.error('Error fetching products:', error);

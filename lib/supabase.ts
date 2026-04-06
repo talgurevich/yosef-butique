@@ -35,6 +35,7 @@ export type Product = {
   is_featured: boolean;
   is_active: boolean;
   has_variants: boolean;
+  sort_order: number;
   slug: string;
   meta_title?: string;
   meta_description?: string;
