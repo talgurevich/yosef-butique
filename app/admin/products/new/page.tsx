@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FaSave, FaArrowRight, FaPlus, FaTrash } from 'react-icons/fa';
-import { ProductVariant, Category, Color, Shape, Space, ProductType, PlantType, PlantSize, PlantPetSafety } from '@/lib/supabase';
+import { ProductVariant, Category, Color, Shape, Space, ProductType, PlantType, PlantSize } from '@/lib/supabase';
 import { adminFetch } from '@/lib/admin-api';
 import SizeCombobox from '@/components/admin/SizeCombobox';
 
@@ -39,8 +39,6 @@ export default function NewProductPage() {
   const [selectedPlantTypes, setSelectedPlantTypes] = useState<string[]>([]);
   const [plantSizes, setPlantSizes] = useState<PlantSize[]>([]);
   const [selectedPlantSizes, setSelectedPlantSizes] = useState<string[]>([]);
-  const [plantPetSafety, setPlantPetSafety] = useState<PlantPetSafety[]>([]);
-  const [selectedPlantPetSafety, setSelectedPlantPetSafety] = useState<string[]>([]);
   const [existingSizes, setExistingSizes] = useState<string[]>([]);
 
   const [formData, setFormData] = useState({
@@ -74,7 +72,6 @@ export default function NewProductPage() {
     fetchSpaces();
     fetchPlantTypes();
     fetchPlantSizes();
-    fetchPlantPetSafety();
     fetchExistingSizes();
   }, []);
 
@@ -111,15 +108,6 @@ export default function NewProductPage() {
     }
   };
 
-
-  const fetchPlantPetSafety = async () => {
-    try {
-      const { data } = await adminFetch('plant_pet_safety', { params: { filter_column: 'is_active', filter_value: 'true', order_by: 'sort_order' } });
-      setPlantPetSafety(data || []);
-    } catch (error: any) {
-      console.error('Error fetching plant pet safety:', error);
-    }
-  };
 
   const fetchExistingSizes = async () => {
     try {
@@ -211,12 +199,6 @@ export default function NewProductPage() {
     );
   };
 
-
-  const togglePlantPetSafety = (id: string) => {
-    setSelectedPlantPetSafety(prev =>
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-    );
-  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -443,14 +425,6 @@ export default function NewProductPage() {
           await adminFetch('product_plant_sizes', { method: 'POST', data: relations });
         }
 
-        // Plant pet safety
-        if (selectedPlantPetSafety.length > 0) {
-          const relations = selectedPlantPetSafety.map(id => ({
-            product_id: productData.id,
-            plant_pet_safety_id: id,
-          }));
-          await adminFetch('product_plant_pet_safety', { method: 'POST', data: relations });
-        }
       }
 
       alert('המוצר והמידות נוספו בהצלחה! כעת תוכל להעלות תמונות.');
@@ -800,30 +774,6 @@ export default function NewProductPage() {
           </div>
         </div>
 
-        {/* Plant Pet Safety Section */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-6">בטיחות לחיות מחמד</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {plantPetSafety.map((plantPet) => (
-              <label
-                key={plantPet.id}
-                className={`flex items-center p-3 border-2 rounded-lg cursor-pointer transition-colors ${
-                  selectedPlantPetSafety.includes(plantPet.id)
-                    ? 'border-primary-600 bg-primary-50'
-                    : 'border-gray-200 hover:border-primary-300'
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedPlantPetSafety.includes(plantPet.id)}
-                  onChange={() => togglePlantPetSafety(plantPet.id)}
-                  className="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-                />
-                <span className="mr-3 text-gray-700 font-medium">{plantPet.name}</span>
-              </label>
-            ))}
-          </div>
-        </div>
         </>
         )}
 

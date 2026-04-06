@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabase';
 export default function PlantsDropdown({ onClose }: { onClose?: () => void }) {
   const [plantTypes, setPlantTypes] = useState<any[]>([]);
   const [plantSizes, setPlantSizes] = useState<any[]>([]);
-  const [plantPetSafety, setPlantPetSafety] = useState<any[]>([]);
+
 
   useEffect(() => {
     fetchData();
@@ -30,12 +30,6 @@ export default function PlantsDropdown({ onClose }: { onClose?: () => void }) {
       .order('sort_order');
     setPlantSizes(plantSizesData || []);
 
-    const { data: plantPetData } = await supabase
-      .from('plant_pet_safety')
-      .select('*')
-      .eq('is_active', true)
-      .order('sort_order');
-    setPlantPetSafety(plantPetData || []);
   };
 
   return (
@@ -82,24 +76,6 @@ export default function PlantsDropdown({ onClose }: { onClose?: () => void }) {
             </div>
           )}
 
-          {/* Plant Pet Safety */}
-          {plantPetSafety.length > 0 && (
-            <div>
-              <h4 className="text-sm font-semibold text-gray-700 mb-3 font-body">בטיחות לחיות</h4>
-              <div className="space-y-2">
-                {plantPetSafety.map((safety) => (
-                  <Link
-                    key={safety.id}
-                    href={`/products?type=plants&plantPetSafety=${safety.slug}`}
-                    onClick={onClose}
-                    className="block px-3 py-2 rounded-lg text-sm hover:bg-green-50 text-gray-700 transition-colors"
-                  >
-                    {safety.name}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
 
         <Link

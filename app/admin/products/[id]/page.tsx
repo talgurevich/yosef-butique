@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { FaSave, FaArrowRight, FaPlus, FaTrash, FaChevronDown } from 'react-icons/fa';
-import { Product, ProductVariant, Category, ProductImage, Color, Shape, Space, ProductType, PlantType, PlantSize, PlantPetSafety } from '@/lib/supabase';
+import { Product, ProductVariant, Category, ProductImage, Color, Shape, Space, ProductType, PlantType, PlantSize } from '@/lib/supabase';
 import { adminFetch } from '@/lib/admin-api';
 import ProductImageUpload from '@/components/ProductImageUpload';
 import SizeCombobox from '@/components/admin/SizeCombobox';
@@ -36,8 +36,6 @@ export default function EditProductPage() {
   const [selectedPlantTypes, setSelectedPlantTypes] = useState<string[]>([]);
   const [plantSizes, setPlantSizes] = useState<PlantSize[]>([]);
   const [selectedPlantSizes, setSelectedPlantSizes] = useState<string[]>([]);
-  const [plantPetSafety, setPlantPetSafety] = useState<PlantPetSafety[]>([]);
-  const [selectedPlantPetSafety, setSelectedPlantPetSafety] = useState<string[]>([]);
   const [existingSizes, setExistingSizes] = useState<string[]>([]);
   const [collapsedColors, setCollapsedColors] = useState<Set<string>>(new Set());
 
@@ -67,10 +65,8 @@ export default function EditProductPage() {
     fetchProductSpaces();
     fetchPlantTypes();
     fetchPlantSizes();
-    fetchPlantPetSafety();
     fetchProductPlantTypes();
     fetchProductPlantSizes();
-    fetchProductPlantPetSafety();
     fetchProductImages();
     fetchExistingSizes();
   }, [productId]);
@@ -235,17 +231,6 @@ export default function EditProductPage() {
     }
   };
 
-  const fetchPlantPetSafety = async () => {
-    try {
-      const { data } = await adminFetch<{ data: PlantPetSafety[] }>('plant_pet_safety', {
-        params: { filter_column: 'is_active', filter_value: 'true', order_by: 'sort_order' },
-      });
-      setPlantPetSafety(data || []);
-    } catch (error: any) {
-      console.error('Error fetching plant pet safety:', error);
-    }
-  };
-
   const fetchProductPlantTypes = async () => {
     try {
       const { data } = await adminFetch<{ data: { plant_type_id: string }[] }>('product_plant_types', {
@@ -265,17 +250,6 @@ export default function EditProductPage() {
       setSelectedPlantSizes(data?.map((ps) => ps.plant_size_id) || []);
     } catch (error: any) {
       console.error('Error fetching product plant sizes:', error);
-    }
-  };
-
-  const fetchProductPlantPetSafety = async () => {
-    try {
-      const { data } = await adminFetch<{ data: { plant_pet_safety_id: string }[] }>('product_plant_pet_safety', {
-        params: { filter_column: 'product_id', filter_value: productId, select: 'plant_pet_safety_id' },
-      });
-      setSelectedPlantPetSafety(data?.map((pp) => pp.plant_pet_safety_id) || []);
-    } catch (error: any) {
-      console.error('Error fetching product plant pet safety:', error);
     }
   };
 
@@ -340,12 +314,6 @@ export default function EditProductPage() {
 
   const togglePlantSize = (id: string) => {
     setSelectedPlantSizes(prev =>
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-    );
-  };
-
-  const togglePlantPetSafety = (id: string) => {
-    setSelectedPlantPetSafety(prev =>
       prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
     );
   };
@@ -463,15 +431,6 @@ export default function EditProductPage() {
           await adminFetch('product_plant_sizes', { method: 'POST', data: relations });
         }
 
-        // Sync plant pet safety
-        await adminFetch('product_plant_pet_safety', { method: 'DELETE', params: { filter_column: 'product_id', filter_value: productId } });
-        if (selectedPlantPetSafety.length > 0) {
-          const relations = selectedPlantPetSafety.map(id => ({
-            product_id: productId,
-            plant_pet_safety_id: id,
-          }));
-          await adminFetch('product_plant_pet_safety', { method: 'POST', data: relations });
-        }
       }
 
       // 7. Save all variants
@@ -1168,30 +1127,6 @@ export default function EditProductPage() {
           </div>
         </div>
 
-        {/* Plant Pet Safety Section */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-6">בטיחות לחיות מחמד</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {plantPetSafety.map((plantPet) => (
-              <label
-                key={plantPet.id}
-                className={`flex items-center p-3 border-2 rounded-lg cursor-pointer transition-colors ${
-                  selectedPlantPetSafety.includes(plantPet.id)
-                    ? 'border-primary-600 bg-primary-50'
-                    : 'border-gray-200 hover:border-primary-300'
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedPlantPetSafety.includes(plantPet.id)}
-                  onChange={() => togglePlantPetSafety(plantPet.id)}
-                  className="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-                />
-                <span className="mr-3 text-gray-700 font-medium">{plantPet.name}</span>
-              </label>
-            ))}
-          </div>
-        </div>
         </>
         )}
 

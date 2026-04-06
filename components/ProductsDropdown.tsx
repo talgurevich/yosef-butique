@@ -20,7 +20,7 @@ export default function ProductsDropdown({ onClose }: { onClose?: () => void }) 
   const [spaces, setSpaces] = useState<any[]>([]);
   const [plantTypes, setPlantTypes] = useState<any[]>([]);
   const [plantSizes, setPlantSizes] = useState<any[]>([]);
-  const [plantPetSafety, setPlantPetSafety] = useState<any[]>([]);
+
 
   useEffect(() => {
     fetchAllData();
@@ -74,12 +74,6 @@ export default function ProductsDropdown({ onClose }: { onClose?: () => void }) 
       .order('sort_order');
     setPlantSizes(plantSizesData || []);
 
-    const { data: plantPetData } = await supabase
-      .from('plant_pet_safety')
-      .select('*')
-      .eq('is_active', true)
-      .order('sort_order');
-    setPlantPetSafety(plantPetData || []);
   };
 
   const toggleSection = (section: 'carpets' | 'plants') => {

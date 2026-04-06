@@ -17,7 +17,6 @@ type ProductsPageClientProps = {
   spaces: any[];
   plantTypes: any[];
   plantSizes: any[];
-  plantPetSafety: any[];
   filters: {
     category?: string;
     productType?: string;
@@ -26,7 +25,6 @@ type ProductsPageClientProps = {
     space?: string;
     plantType?: string;
     plantSize?: string;
-    plantPetSafety?: string;
     search?: string;
   };
   search?: string;
@@ -41,7 +39,6 @@ export default function ProductsPageClient({
   spaces,
   plantTypes,
   plantSizes,
-  plantPetSafety,
   filters,
   search,
 }: ProductsPageClientProps) {
@@ -61,7 +58,6 @@ export default function ProductsPageClient({
         spaces={spaces}
         plantTypes={plantTypes}
         plantSizes={plantSizes}
-        plantPetSafety={plantPetSafety}
         filters={filters}
         productsCount={products.length}
         isOpen={isFiltersOpen}

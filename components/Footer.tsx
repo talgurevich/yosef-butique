@@ -292,14 +292,6 @@ export default function Footer() {
                   רמות טיפול
                 </Link>
               </li>
-              <li>
-                <Link
-                  href="/products?type=plants&plantPetSafety=safe"
-                  className="hover:text-white transition-colors text-sm"
-                >
-                  בטיחות לחיות
-                </Link>
-              </li>
             </ul>
           </div>
 

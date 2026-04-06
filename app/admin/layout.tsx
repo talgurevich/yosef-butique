@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
-import { FaHome, FaBox, FaTags, FaShoppingCart, FaImages, FaTicketAlt, FaEnvelope, FaSignOutAlt, FaUser, FaPalette, FaShapes, FaDoorOpen, FaSeedling, FaRulerVertical, FaPaw, FaBullhorn, FaArrowRight, FaClipboardList, FaStar } from 'react-icons/fa';
+import { FaHome, FaBox, FaTags, FaShoppingCart, FaImages, FaTicketAlt, FaEnvelope, FaSignOutAlt, FaUser, FaPalette, FaShapes, FaDoorOpen, FaSeedling, FaRulerVertical, FaBullhorn, FaArrowRight, FaClipboardList, FaStar } from 'react-icons/fa';
 
 export default function AdminLayout({
   children,
@@ -181,13 +181,6 @@ export default function AdminLayout({
               גדלים
             </Link>
 
-            <Link
-              href="/admin/plant-pet-safety"
-              className="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
-            >
-              <FaPaw className="ml-3" />
-              בטיחות לחיות
-            </Link>
           </div>
 
           <div className="mt-6 pt-6 border-t border-gray-800">

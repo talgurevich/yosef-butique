@@ -101,14 +101,7 @@ async function getProductPlantSizes(productId: string) {
   return data?.map((ps: any) => ps.plant_sizes) || [];
 }
 
-async function getProductPlantPetSafety(productId: string) {
-  if (!supabase) return [];
-  const { data } = await supabase
-    .from('product_plant_pet_safety')
-    .select('plant_pet_safety (*)')
-    .eq('product_id', productId);
-  return data?.map((ps: any) => ps.plant_pet_safety) || [];
-}
+
 
 export async function generateMetadata({
   params,
@@ -171,7 +164,6 @@ export default async function ProductPage({
     spaces,
     plantTypes,
     plantSizes,
-    plantPetSafety,
   ] = await Promise.all([
     getProductImages(product.id),
     product.has_variants ? getProductVariants(product.id) : Promise.resolve([]),
@@ -181,7 +173,6 @@ export default async function ProductPage({
     getProductSpaces(product.id),
     getProductPlantTypes(product.id),
     getProductPlantSizes(product.id),
-    getProductPlantPetSafety(product.id),
   ]);
 
   const productType = product.product_types || null;
@@ -270,7 +261,6 @@ export default async function ProductPage({
         spaces={spaces}
         plantTypes={plantTypes}
         plantSizes={plantSizes}
-        plantPetSafety={plantPetSafety}
         productType={productType}
       />
     </>

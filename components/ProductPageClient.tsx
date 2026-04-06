@@ -22,7 +22,6 @@ type ProductPageClientProps = {
   spaces: any[];
   plantTypes: any[];
   plantSizes: any[];
-  plantPetSafety: any[];
   productType: any;
 };
 
@@ -36,7 +35,6 @@ export default function ProductPageClient({
   spaces: initialSpaces,
   plantTypes: initialPlantTypes,
   plantSizes: initialPlantSizes,
-  plantPetSafety: initialPlantPetSafety,
   productType: initialProductType,
 }: ProductPageClientProps) {
   const { addToCart } = useCart();
@@ -79,7 +77,6 @@ export default function ProductPageClient({
   const [spaces] = useState<any[]>(initialSpaces);
   const [plantTypes] = useState<any[]>(initialPlantTypes);
   const [plantSizes] = useState<any[]>(initialPlantSizes);
-  const [plantPetSafety] = useState<any[]>(initialPlantPetSafety);
   const [productType] = useState<any>(initialProductType);
 
   // Filter images by selected color
@@ -438,12 +435,6 @@ export default function ProductPageClient({
                     <div className="flex justify-between">
                       <span className="text-gray-600">גודל:</span>
                       <span className="font-semibold text-gray-800">{plantSizes.map((ps: any) => ps.name).join(', ')}</span>
-                    </div>
-                  )}
-                  {plantPetSafety.length > 0 && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">בטיחות לחיות:</span>
-                      <span className="font-semibold text-gray-800">{plantPetSafety.map((ps: any) => ps.name).join(', ')}</span>
                     </div>
                   )}
                 </div>

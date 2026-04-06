@@ -30,7 +30,6 @@ type FilterParams = {
   space?: string;
   plantType?: string;
   plantSize?: string;
-  plantPetSafety?: string;
   search?: string;
 };
 
@@ -268,26 +267,6 @@ async function getProducts(filters: FilterParams = {}) {
     }
   }
 
-  // Filter by plant pet safety (junction table) - supports multiple values
-  if (filters.plantPetSafety) {
-    const plantPetSafetySlugs = filters.plantPetSafety.split(',');
-    const { data: plantPetSafetyData } = await supabase
-      .from('plant_pet_safety')
-      .select('id')
-      .in('slug', plantPetSafetySlugs);
-
-    if (plantPetSafetyData && plantPetSafetyData.length > 0) {
-      const plantPetSafetyIds = plantPetSafetyData.map(pps => pps.id);
-      const { data: productPlantPetSafety } = await supabase
-        .from('product_plant_pet_safety')
-        .select('product_id')
-        .in('plant_pet_safety_id', plantPetSafetyIds);
-
-      const productIds = new Set(productPlantPetSafety?.map(pps => pps.product_id) || []);
-      filteredProducts = filteredProducts.filter(p => productIds.has(p.id));
-    }
-  }
-
   // Sort images by sort_order
   const productsWithSortedImages = filteredProducts.map(product => ({
     ...product,
@@ -375,16 +354,6 @@ async function getPlantSizes() {
   return data || [];
 }
 
-async function getPlantPetSafety() {
-  if (!supabase) return [];
-  const { data } = await supabase
-    .from('plant_pet_safety')
-    .select('*')
-    .eq('is_active', true)
-    .order('sort_order');
-  return data || [];
-}
-
 export default async function ProductsPage({
   searchParams,
 }: {
@@ -399,7 +368,6 @@ export default async function ProductsPage({
     space: searchParams.space as string,
     plantType: searchParams.plantType as string,
     plantSize: searchParams.plantSize as string,
-    plantPetSafety: searchParams.plantPetSafety as string,
     search: searchParams.search as string,
   };
 
@@ -411,7 +379,6 @@ export default async function ProductsPage({
   const spaces = await getSpaces();
   const plantTypes = await getPlantTypes();
   const plantSizes = await getPlantSizes();
-  const plantPetSafety = await getPlantPetSafety();
 
   return (
     <>
@@ -492,7 +459,6 @@ export default async function ProductsPage({
           spaces={spaces}
           plantTypes={plantTypes}
           plantSizes={plantSizes}
-          plantPetSafety={plantPetSafety}
           filters={filters}
           search={filters.search}
         />

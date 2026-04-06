@@ -11,7 +11,6 @@ type FilterData = {
   spaces: any[];
   plantTypes: any[];
   plantSizes: any[];
-  plantPetSafety: any[];
   filters: {
     category?: string;
     productType?: string;
@@ -20,7 +19,6 @@ type FilterData = {
     space?: string;
     plantType?: string;
     plantSize?: string;
-    plantPetSafety?: string;
   };
   productsCount: number;
   isOpen: boolean;
@@ -34,7 +32,6 @@ export default function ProductFilters({
   spaces,
   plantTypes,
   plantSizes,
-  plantPetSafety,
   filters,
   productsCount,
   isOpen,
@@ -51,7 +48,6 @@ export default function ProductFilters({
     spaces: filters.space ? filters.space.split(',') : [],
     plantTypes: filters.plantType ? filters.plantType.split(',') : [],
     plantSizes: filters.plantSize ? filters.plantSize.split(',') : [],
-    plantPetSafety: filters.plantPetSafety ? filters.plantPetSafety.split(',') : [],
   });
 
   const [expandedSections, setExpandedSections] = useState<{
@@ -107,10 +103,6 @@ export default function ProductFilters({
     if (selectedFilters.plantSizes.length > 0) {
       params.set('plantSize', selectedFilters.plantSizes.join(','));
     }
-    if (selectedFilters.plantPetSafety.length > 0) {
-      params.set('plantPetSafety', selectedFilters.plantPetSafety.join(','));
-    }
-
     const queryString = params.toString();
     router.push(`/products${queryString ? `?${queryString}` : ''}`);
     onClose();
@@ -125,7 +117,6 @@ export default function ProductFilters({
       spaces: [],
       plantTypes: [],
       plantSizes: [],
-      plantPetSafety: [],
     });
     router.push('/products');
     onClose();
@@ -137,8 +128,7 @@ export default function ProductFilters({
     selectedFilters.shapes.length > 0 ||
     selectedFilters.spaces.length > 0 ||
     selectedFilters.plantTypes.length > 0 ||
-    selectedFilters.plantSizes.length > 0 ||
-    selectedFilters.plantPetSafety.length > 0;
+    selectedFilters.plantSizes.length > 0;
 
   // Prevent body scroll when panel is open
   useEffect(() => {
@@ -391,28 +381,6 @@ export default function ProductFilters({
                 </div>
               )}
 
-              {/* Plant Pet Safety */}
-              {plantPetSafety.length > 0 && (
-                <div>
-                  <h4 className="text-sm font-semibold text-gray-700 mb-2 px-2">בטיחות לחיות</h4>
-                  <div className="space-y-1">
-                    {plantPetSafety.map((safety) => (
-                      <label
-                        key={safety.id}
-                        className="flex items-center px-3 py-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedFilters.plantPetSafety.includes(safety.slug)}
-                          onChange={() => toggleFilter('plantPetSafety', safety.slug)}
-                          className="ml-2 w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
-                        />
-                        <span className="text-sm text-gray-700">{safety.name}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           )}
         </div>
