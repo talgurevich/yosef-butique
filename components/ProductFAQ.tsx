@@ -78,7 +78,7 @@ export default function ProductFAQ() {
         </h2>
         <p className="text-gray-600 text-lg font-light">
           מצאו תשובות לשאלות הנפוצות ביותר
-          <span className="font-serif italic"> על המוצרים שלנו</span>
+          <span className="font-bold"> על המוצרים שלנו</span>
         </p>
       </div>
 
