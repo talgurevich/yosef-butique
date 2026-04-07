@@ -49,18 +49,18 @@ export default function ProductPageClient({
     return inStockVariant || initialVariants[0];
   };
 
-  // Auto-select color: prefer a color that has in-stock variants
+  // Auto-select color: use the first color from product_colors sort order
   const getInitialColor = () => {
-    const initVariant = getInitialVariant() as any;
-    // If the in-stock variant has a color, use it
-    if (initVariant?.colors) return initVariant.colors;
-    // For product-level colors, prefer one that has in-stock variants
+    // For product-level colors (sorted by sort_order), prefer first in-stock
     if (initialColors.length > 0) {
       const inStockColor = initialColors.find((color: any) =>
         initialVariants.some((v: any) => v.color_id === color.id && v.stock_quantity > 0)
       );
       return inStockColor || initialColors[0];
     }
+    // Fallback: use variant's color
+    const initVariant = getInitialVariant() as any;
+    if (initVariant?.colors) return initVariant.colors;
     return null;
   };
 
@@ -205,7 +205,14 @@ export default function ProductPageClient({
         colorMap.set(v.color_id, v.colors);
       }
     });
-    return Array.from(colorMap.values());
+    const variantColorList = Array.from(colorMap.values());
+    // Sort by product_colors order (initialColors comes sorted by sort_order)
+    const colorOrder = initialColors.map((c: any) => c.id);
+    return variantColorList.sort((a: any, b: any) => {
+      const aIdx = colorOrder.indexOf(a.id);
+      const bIdx = colorOrder.indexOf(b.id);
+      return (aIdx === -1 ? 999 : aIdx) - (bIdx === -1 ? 999 : bIdx);
+    });
   };
 
   const isCombinationAvailable = (size: string, colorId: string | null) => {
