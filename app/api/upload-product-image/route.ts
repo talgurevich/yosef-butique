@@ -35,7 +35,7 @@ async function addWatermark(imageBuffer: Buffer): Promise<Buffer> {
       .resize(logoWidth)
       .ensureAlpha()
       .composite([{
-        input: Buffer.from([255, 255, 255, Math.round(255 * 0.2)]),
+        input: Buffer.from([255, 255, 255, Math.round(255 * 0.4)]),
         raw: { width: 1, height: 1, channels: 4 },
         tile: true,
         blend: 'dest-in',
