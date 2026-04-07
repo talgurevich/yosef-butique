@@ -97,18 +97,30 @@ export default function CarpetsDropdown({ onClose }: { onClose?: () => void }) {
           {colors.length > 0 && (
             <div>
               <h4 className="text-sm font-semibold text-gray-700 mb-3 font-body">צבעים</h4>
-              <div className="space-y-2">
-                {colors.map((color) => (
+              <div className="grid grid-cols-2 gap-1">
+                {colors.slice(0, 8).map((color) => (
                   <Link
                     key={color.id}
                     href={`/products?color=${color.slug}&type=carpets`}
                     onClick={onClose}
-                    className="block px-3 py-2 rounded-lg text-sm hover:bg-primary-50 text-gray-700 transition-colors"
+                    className="flex items-center gap-2 px-2 py-1.5 rounded-lg text-sm hover:bg-primary-50 text-gray-700 transition-colors"
                   >
+                    {color.hex_code && (
+                      <span className="w-3 h-3 rounded-full border border-gray-300 flex-shrink-0" style={{ backgroundColor: color.hex_code }} />
+                    )}
                     {color.name}
                   </Link>
                 ))}
               </div>
+              {colors.length > 8 && (
+                <Link
+                  href="/products?type=carpets"
+                  onClick={onClose}
+                  className="block mt-2 px-2 text-xs text-primary-600 hover:text-primary-700 font-medium"
+                >
+                  כל הצבעים ({colors.length}) →
+                </Link>
+              )}
             </div>
           )}
 
