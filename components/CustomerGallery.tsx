@@ -41,9 +41,9 @@ export default function CustomerGallery() {
               <Image
                 src="/logo-new.svg"
                 alt=""
-                width={60}
-                height={60}
-                className="w-16 h-16"
+                width={100}
+                height={100}
+                className="w-24 h-24"
               />
               <div className="w-12 h-0.5 bg-gradient-to-l from-transparent to-yellow-600"></div>
             </div>
@@ -76,9 +76,9 @@ export default function CustomerGallery() {
             <Image
               src="/logo-new.svg"
               alt=""
-              width={40}
-              height={40}
-              className="w-10 h-10"
+              width={100}
+              height={100}
+              className="w-24 h-24"
             />
             <div className="w-12 h-0.5 bg-gradient-to-l from-transparent to-yellow-600"></div>
           </div>

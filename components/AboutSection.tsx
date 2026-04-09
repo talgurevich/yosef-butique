@@ -102,9 +102,9 @@ export default function AboutSection() {
               <Image
                 src="/logo-new.svg"
                 alt=""
-                width={60}
-                height={60}
-                className="w-16 h-16"
+                width={100}
+                height={100}
+                className="w-24 h-24"
               />
               <div className="w-16 h-0.5 bg-gradient-to-r from-yellow-600 to-transparent"></div>
             </div>
