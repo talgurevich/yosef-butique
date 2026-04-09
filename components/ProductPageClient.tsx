@@ -447,8 +447,8 @@ export default function ProductPageClient({
                 </div>
               </div>
 
-              {/* Variant Color Selection (colors specific to variants) - hide for plants */}
-              {product.has_variants && getVariantColors().length > 0 && productType?.slug !== 'plants' && (
+              {/* Variant Color Selection (colors specific to variants) */}
+              {product.has_variants && getVariantColors().length > 0 && (
                 <div className="mb-6">
                   <h3 className="text-lg font-bold text-gray-800 mb-3">בחר צבע</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -471,8 +471,8 @@ export default function ProductPageClient({
                 </div>
               )}
 
-              {/* Product-level Color Selection (for products without variant colors) - hide for plants */}
-              {(!product.has_variants || getVariantColors().length === 0) && colors.length > 0 && productType?.slug !== 'plants' && (
+              {/* Product-level Color Selection (for products without variant colors) */}
+              {(!product.has_variants || getVariantColors().length === 0) && colors.length > 0 && (
                 <div className="mb-6">
                   <h3 className="text-lg font-bold text-gray-800 mb-3">בחר צבע</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
