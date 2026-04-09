@@ -65,11 +65,11 @@ export default function ProductFAQ() {
         <div className="inline-flex items-center justify-center gap-3 mb-4">
           <div className="w-12 h-0.5 bg-gradient-to-r from-transparent to-yellow-600"></div>
           <Image
-            src="/logo-new.svg"
+            src="/logo-icon.png"
             alt=""
-            width={100}
-            height={100}
-            className="w-24 h-24"
+            width={40}
+            height={40}
+            className="w-10 h-10"
           />
           <div className="w-12 h-0.5 bg-gradient-to-l from-transparent to-yellow-600"></div>
         </div>

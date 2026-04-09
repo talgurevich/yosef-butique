@@ -100,11 +100,11 @@ export default function AboutSection() {
             {/* Header with icon */}
             <div className="flex items-center gap-4 mb-6">
               <Image
-                src="/logo-new.svg"
+                src="/logo-icon.png"
                 alt=""
-                width={100}
-                height={100}
-                className="w-24 h-24"
+                width={50}
+                height={50}
+                className="w-12 h-12"
               />
               <div className="w-16 h-0.5 bg-gradient-to-r from-yellow-600 to-transparent"></div>
             </div>
