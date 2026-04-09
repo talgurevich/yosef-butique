@@ -43,9 +43,9 @@ export default function AttributesPreview({ categories, spaces, shapes = [], cat
             <Image
               src="/logo-new.svg"
               alt=""
-              width={40}
-              height={40}
-              className="w-10 h-10"
+              width={60}
+              height={60}
+              className="w-16 h-16"
             />
             <div className="w-12 h-0.5 bg-gradient-to-l from-transparent to-yellow-600"></div>
           </div>
