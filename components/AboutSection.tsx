@@ -100,7 +100,7 @@ export default function AboutSection() {
             {/* Header with icon */}
             <div className="flex items-center gap-4 mb-6">
               <Image
-                src="/logo-icon.png"
+                src="/logo-new.svg"
                 alt=""
                 width={50}
                 height={50}

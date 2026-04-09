@@ -5,7 +5,6 @@ import AuthSessionProvider from "@/components/SessionProvider";
 import { CartProvider } from "@/contexts/CartContext";
 import StructuredData from "@/components/StructuredData";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
-import UnderConstructionPopup from "@/components/UnderConstructionPopup";
 import AccessibilityWidget from "@/components/AccessibilityWidget";
 import { Alef, Rubik, Montserrat, Playfair_Display } from 'next/font/google';
 
@@ -117,7 +116,6 @@ export default function RootLayout({
             </main>
             <FloatingWhatsApp />
             <AccessibilityWidget />
-            <UnderConstructionPopup />
           </CartProvider>
         </AuthSessionProvider>
       </body>

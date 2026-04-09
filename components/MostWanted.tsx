@@ -33,7 +33,7 @@ export default function MostWanted({
           <div className="inline-flex items-center justify-center gap-3 mb-4">
             <div className="w-12 h-0.5 bg-gradient-to-r from-transparent to-yellow-600"></div>
             <Image
-              src="/logo-icon.png"
+              src="/logo-new.svg"
               alt=""
               width={40}
               height={40}

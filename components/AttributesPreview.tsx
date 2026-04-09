@@ -41,7 +41,7 @@ export default function AttributesPreview({ categories, spaces, shapes = [], cat
           <div className="inline-flex items-center justify-center gap-3 mb-4">
             <div className="w-12 h-0.5 bg-gradient-to-r from-transparent to-yellow-600"></div>
             <Image
-              src="/logo-icon.png"
+              src="/logo-new.svg"
               alt=""
               width={40}
               height={40}
@@ -54,7 +54,7 @@ export default function AttributesPreview({ categories, spaces, shapes = [], cat
           </h2>
           <p className="text-gray-600 text-lg md:text-xl max-w-2xl mx-auto font-light">
             גלה את המגוון הרחב שלנו - שטיחים
-            <span className="font-serif italic"> בכל הסגנונות והצבעים</span>
+            <span className="font-bold"> בכל הסגנונות והצבעים</span>
           </p>
         </div>
 

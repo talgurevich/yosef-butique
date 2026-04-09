@@ -121,10 +121,10 @@ export default function Header() {
           {/* Logo - centered on mobile */}
           <Link href="/" className="flex items-center md:static absolute left-[55%] -translate-x-1/2 md:translate-x-0 md:relative md:left-auto">
             <Image
-              src="/logo-cropped.png"
+              src="/logo-new.svg"
               alt="Yossef Boutique"
-              width={650}
-              height={250}
+              width={500}
+              height={500}
               className="h-16 sm:h-20 md:h-16 lg:h-24 w-auto object-contain max-w-[160px] sm:max-w-[200px] md:max-w-[160px] lg:max-w-none"
               priority
             />
