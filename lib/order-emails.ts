@@ -23,6 +23,8 @@ type CustomerData = {
   customer_name: string;
   email: string;
   phone: string;
+  address?: string;
+  city?: string;
 };
 
 function formatCurrency(amount: number): string {
@@ -210,6 +212,12 @@ export async function sendAdminOrderNotificationEmail(
               <div class="info-label">טלפון:</div>
               <div><a href="tel:${customer.phone}">${customer.phone}</a></div>
             </div>
+            ${customer.address ? `
+            <div class="info-box">
+              <div class="info-label">כתובת למשלוח:</div>
+              <div>${customer.address}${customer.city ? `, ${customer.city}` : ''}</div>
+            </div>
+            ` : ''}
             ${order.notes ? `
             <div class="info-box">
               <div class="info-label">הערות:</div>
@@ -255,7 +263,8 @@ export async function sendAdminOrderNotificationEmail(
 פרטי לקוח:
 שם: ${customer.customer_name}
 אימייל: ${customer.email}
-טלפון: ${customer.phone}
+טלפון: ${customer.phone}${customer.address ? `
+כתובת: ${customer.address}${customer.city ? `, ${customer.city}` : ''}` : ''}
 ${order.notes ? `הערות: ${order.notes}` : ''}
 
 פריטים:

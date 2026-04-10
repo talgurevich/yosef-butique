@@ -18,6 +18,8 @@ export default function CheckoutPage() {
     customer_name: '',
     email: '',
     phone: '',
+    address: '',
+    city: '',
     notes: '',
   });
 
@@ -83,6 +85,8 @@ export default function CheckoutPage() {
         customer_name: formData.customer_name,
         email: formData.email,
         phone: formData.phone,
+        address: formData.address,
+        city: formData.city,
       };
 
       // Compute final total with effective delivery cost
@@ -275,6 +279,38 @@ export default function CheckoutPage() {
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600"
                     placeholder="050-1234567"
                     dir="ltr"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="address" className="block text-gray-700 font-semibold mb-2">
+                    כתובת למשלוח *
+                  </label>
+                  <input
+                    type="text"
+                    id="address"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600"
+                    placeholder="רחוב ומספר בית"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="city" className="block text-gray-700 font-semibold mb-2">
+                    עיר *
+                  </label>
+                  <input
+                    type="text"
+                    id="city"
+                    name="city"
+                    value={formData.city}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600"
+                    placeholder="שם העיר"
                   />
                 </div>
 

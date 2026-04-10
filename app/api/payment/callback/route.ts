@@ -230,6 +230,8 @@ export async function POST(request: NextRequest) {
           customer_name: customerName,
           email: order.customer_email,
           phone: order.customer_phone || billing.phone || '',
+          address: billing.address || '',
+          city: billing.city || '',
         };
 
         // Send both emails and Slack notification in parallel

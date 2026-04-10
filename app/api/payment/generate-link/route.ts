@@ -88,6 +88,8 @@ export async function POST(request: NextRequest) {
     const billingAddress = {
       name: customer?.customer_name || '',
       phone: customer?.phone || '',
+      address: customer?.address || '',
+      city: customer?.city || '',
       discount_amount: discountAmount,
       coupon_code: couponCode || null,
       currency: currency_code,
