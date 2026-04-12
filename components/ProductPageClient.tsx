@@ -9,6 +9,7 @@ import Breadcrumbs from '@/components/Breadcrumbs';
 import ProductFAQ from '@/components/ProductFAQ';
 import ImageMagnifier from '@/components/ImageMagnifier';
 import { supabase, Product, ProductVariant } from '@/lib/supabase';
+import { normalizeSize, sizesEqual } from '@/lib/sizeNormalize';
 import { FaShoppingCart, FaArrowRight, FaCheck, FaTruck, FaShieldAlt, FaTimes, FaChevronLeft, FaChevronRight, FaWhatsapp } from 'react-icons/fa';
 import { useCart } from '@/contexts/CartContext';
 
@@ -167,7 +168,7 @@ export default function ProductPageClient({
       productId: product.id,
       variantId: variantToAdd.id,
       productName: product.name,
-      variantSize: variantToAdd.size,
+      variantSize: normalizeSize(variantToAdd.size) || variantToAdd.size,
       variantColor: colorName,
       price: variantToAdd.price,
       imageUrl,
@@ -196,7 +197,16 @@ export default function ProductPageClient({
 
   const isInStock = () => getStockQuantity() > 0;
 
-  const getUniqueSizes = () => Array.from(new Set(variants.map(v => v.size)));
+  // Dedupe sizes by physical dimensions so that reversed forms like "240×330"
+  // and "330×240" collapse into a single canonical entry for display.
+  const getUniqueSizes = () => {
+    const seen = new Map<string, string>(); // normalized -> canonical label
+    variants.forEach((v: any) => {
+      const norm = normalizeSize(v.size);
+      if (norm && !seen.has(norm)) seen.set(norm, norm);
+    });
+    return Array.from(seen.values());
+  };
 
   const getVariantColors = () => {
     const colorMap = new Map();
@@ -216,22 +226,33 @@ export default function ProductPageClient({
   };
 
   const isCombinationAvailable = (size: string, colorId: string | null) => {
-    const variant = variants.find(v => v.size === size && (colorId ? v.color_id === colorId : !v.color_id));
-    return variant && variant.stock_quantity > 0;
+    return variants.some(
+      v => sizesEqual(v.size, size)
+        && (colorId ? v.color_id === colorId : !v.color_id)
+        && v.stock_quantity > 0
+    );
   };
 
-  const isSizeAvailable = (size: string) => variants.some(v => v.size === size && v.stock_quantity > 0);
+  const isSizeAvailable = (size: string) =>
+    variants.some(v => sizesEqual(v.size, size) && v.stock_quantity > 0);
 
   const isColorAvailable = (colorId: string) => variants.some(v => v.color_id === colorId && v.stock_quantity > 0);
 
   const getCombinationStock = (size: string, colorId: string | null) => {
-    const variant = variants.find(v => v.size === size && (colorId ? v.color_id === colorId : !v.color_id));
-    return variant?.stock_quantity || 0;
+    // Sum stock across all DB rows that map to the same normalized size for this color,
+    // so dimension-swapped duplicates show one combined quantity.
+    return variants
+      .filter(v => sizesEqual(v.size, size) && (colorId ? v.color_id === colorId : !v.color_id))
+      .reduce((sum, v) => sum + (v.stock_quantity || 0), 0);
   };
 
   const findMatchingVariant = (size: string | null, colorId: string | null) => {
     if (!size) return null;
-    return variants.find(v => v.size === size && (colorId ? v.color_id === colorId : !v.color_id)) || null;
+    const matches = variants.filter(
+      v => sizesEqual(v.size, size) && (colorId ? v.color_id === colorId : !v.color_id)
+    );
+    // Prefer an in-stock variant when multiple DB rows share the same normalized size.
+    return matches.find(v => v.stock_quantity > 0) || matches[0] || null;
   };
 
   const handleSizeSelect = (size: string) => {
@@ -243,7 +264,7 @@ export default function ProductPageClient({
       if (matchingVariant) {
         setSelectedVariant(matchingVariant);
       } else {
-        const anyVariantWithSize = variants.find(v => v.size === size) as any;
+        const anyVariantWithSize = variants.find(v => sizesEqual(v.size, size)) as any;
         if (anyVariantWithSize) {
           setSelectedVariant(anyVariantWithSize);
           if (anyVariantWithSize.colors) {
@@ -252,7 +273,7 @@ export default function ProductPageClient({
         }
       }
     } else {
-      const variant = variants.find(v => v.size === size);
+      const variant = variants.find(v => sizesEqual(v.size, size));
       if (variant) setSelectedVariant(variant);
     }
   };
@@ -513,16 +534,19 @@ export default function ProductPageClient({
                       } else if (hasVariantColors) {
                         available = isSizeAvailable(size);
                         stockCount = variants
-                          .filter(v => v.size === size)
+                          .filter(v => sizesEqual(v.size, size))
                           .reduce((sum, v) => sum + (v.stock_quantity || 0), 0);
                       } else {
-                        const variant = variants.find(v => v.size === size);
+                        const variant = variants.find(v => sizesEqual(v.size, size));
                         available = (variant?.stock_quantity || 0) > 0;
                         stockCount = variant?.stock_quantity || 0;
                       }
 
-                      const isSelected = selectedVariant?.size === size;
-                      const variant = variants.find(v => v.size === size);
+                      const isSelected = sizesEqual(selectedVariant?.size, size);
+                      // Prefer an in-stock variant when multiple DB rows share the same normalized size.
+                      const variant =
+                        variants.find(v => sizesEqual(v.size, size) && v.stock_quantity > 0) ||
+                        variants.find(v => sizesEqual(v.size, size));
 
                       if (!available) {
                         const whatsappMessage = encodeURIComponent(

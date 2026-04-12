@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { FaSave, FaArrowRight, FaPlus, FaTrash, FaChevronDown } from 'react-icons/fa';
 import { Product, ProductVariant, Category, ProductImage, Color, Shape, Space, ProductType, PlantType, PlantSize } from '@/lib/supabase';
 import { adminFetch } from '@/lib/admin-api';
+import { normalizeSize } from '@/lib/sizeNormalize';
 import ProductImageUpload from '@/components/ProductImageUpload';
 import SizeCombobox from '@/components/admin/SizeCombobox';
 
@@ -444,18 +445,22 @@ export default function EditProductPage() {
             continue;
           }
 
+          // Canonicalize the size so dimension-swapped duplicates (e.g. "330×240" vs
+          // "240×330") collapse to one entry.
+          const canonicalSize = normalizeSize(variant.size) || variant.size;
+
           // Auto-generate SKU if not present
           const sku = (!variant.sku || variant.sku.startsWith('VAR-'))
             ? `VAR-${Date.now()}-${i}`
             : variant.sku;
 
           if (variant.id.startsWith('temp-')) {
-            // Check for existing variant with same size + color to prevent duplicates
+            // Check for existing variant with same (normalized) size + color to prevent duplicates
             const { data: allProductVariants } = await adminFetch<{ data: any[] }>('product_variants', {
               params: { filter_column: 'product_id', filter_value: productId, select: 'id,size,color_id' },
             });
             const existingVariants = (allProductVariants || []).filter(
-              (v: any) => v.size === variant.size && (variant.color_id ? v.color_id === variant.color_id : v.color_id === null)
+              (v: any) => normalizeSize(v.size) === canonicalSize && (variant.color_id ? v.color_id === variant.color_id : v.color_id === null)
             );
 
             if (existingVariants.length > 0) {
@@ -465,6 +470,7 @@ export default function EditProductPage() {
                   method: 'PUT',
                   data: {
                     id: existingVariants[0].id,
+                    size: canonicalSize,
                     sku,
                     price: variant.price,
                     compare_at_price: variant.compare_at_price || null,
@@ -483,7 +489,7 @@ export default function EditProductPage() {
                   method: 'POST',
                   data: [{
                     product_id: productId,
-                    size: variant.size,
+                    size: canonicalSize,
                     color_id: variant.color_id || null,
                     sku,
                     price: variant.price,
@@ -504,7 +510,7 @@ export default function EditProductPage() {
                 method: 'PUT',
                 data: {
                   id: variant.id,
-                  size: variant.size,
+                  size: canonicalSize,
                   color_id: variant.color_id || null,
                   sku,
                   price: variant.price,
@@ -708,6 +714,10 @@ export default function EditProductPage() {
       return;
     }
 
+    // Canonicalize the size so dimension-swapped duplicates (e.g. "330×240" vs
+    // "240×330") collapse to one entry.
+    const canonicalSize = normalizeSize(variant.size) || variant.size;
+
     // Auto-generate SKU if not present
     if (!variant.sku || variant.sku.startsWith('VAR-')) {
       variant.sku = `VAR-${Date.now()}-${index}`;
@@ -715,12 +725,12 @@ export default function EditProductPage() {
 
     try {
       if (variant.id.startsWith('temp-')) {
-        // Check for existing variant with same size + color to prevent duplicates
+        // Check for existing variant with same (normalized) size + color to prevent duplicates
         const { data: allProductVariants } = await adminFetch<{ data: any[] }>('product_variants', {
           params: { filter_column: 'product_id', filter_value: productId, select: 'id,size,color_id' },
         });
         const existingVariants = (allProductVariants || []).filter(
-          (v: any) => v.size === variant.size && (variant.color_id ? v.color_id === variant.color_id : v.color_id === null)
+          (v: any) => normalizeSize(v.size) === canonicalSize && (variant.color_id ? v.color_id === variant.color_id : v.color_id === null)
         );
 
         if (existingVariants.length > 0) {
@@ -729,6 +739,7 @@ export default function EditProductPage() {
             method: 'PUT',
             data: {
               id: existingVariants[0].id,
+              size: canonicalSize,
               sku: variant.sku,
               price: variant.price,
               compare_at_price: variant.compare_at_price || null,
@@ -747,7 +758,7 @@ export default function EditProductPage() {
             method: 'POST',
             data: [{
               product_id: productId,
-              size: variant.size,
+              size: canonicalSize,
               color_id: variant.color_id || null,
               sku: variant.sku,
               price: variant.price,
@@ -768,7 +779,7 @@ export default function EditProductPage() {
           method: 'PUT',
           data: {
             id: variant.id,
-            size: variant.size,
+            size: canonicalSize,
             color_id: variant.color_id || null,
             sku: variant.sku,
             price: variant.price,
