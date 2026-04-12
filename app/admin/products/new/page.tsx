@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { FaSave, FaArrowRight, FaPlus, FaTrash } from 'react-icons/fa';
 import { ProductVariant, Category, Color, Shape, Space, ProductType, PlantType, PlantSize } from '@/lib/supabase';
 import { adminFetch } from '@/lib/admin-api';
+import { normalizeSize } from '@/lib/sizeNormalize';
 import SizeCombobox from '@/components/admin/SizeCombobox';
 
 type TempVariant = {
@@ -348,9 +349,10 @@ export default function NewProductPage() {
 
       // 2. Create variants
       {
+        // Canonicalize sizes so dimension-swapped duplicates collapse to one entry.
         const variantsToInsert = variants.map((variant, index) => ({
           product_id: productData.id,
-          size: variant.size,
+          size: normalizeSize(variant.size) || variant.size,
           color_id: variant.color_id || null,
           sku: `${baseSku}-${index + 1}`,
           price: parseFloat(variant.price.toString()),
