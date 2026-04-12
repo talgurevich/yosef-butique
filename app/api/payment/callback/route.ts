@@ -153,6 +153,47 @@ export async function POST(request: NextRequest) {
         console.log('Order updated to processing:', order.order_number);
       }
 
+      // Increment promo code usage counter if a coupon was applied.
+      // Guarded by `coupon_counted` on billing_address so PayPlus callback retries
+      // for the same order don't double-count.
+      const billingForCoupon = order.billing_address || {};
+      const couponCodeForOrder = billingForCoupon.coupon_code;
+      if (couponCodeForOrder && !billingForCoupon.coupon_counted) {
+        try {
+          const { data: promoRow, error: promoFetchError } = await supabaseAdmin
+            .from('promo_codes')
+            .select('id, current_uses')
+            .eq('code', String(couponCodeForOrder).toUpperCase())
+            .single();
+
+          if (promoFetchError || !promoRow) {
+            console.warn('Promo code not found for increment:', couponCodeForOrder, promoFetchError);
+          } else {
+            const { error: promoUpdateError } = await supabaseAdmin
+              .from('promo_codes')
+              .update({ current_uses: (promoRow.current_uses || 0) + 1 })
+              .eq('id', promoRow.id);
+
+            if (promoUpdateError) {
+              console.error('Error incrementing promo code usage:', promoUpdateError);
+            } else {
+              // Mark the order so retries of this callback skip the increment.
+              const updatedBilling = { ...billingForCoupon, coupon_counted: true };
+              const { error: markError } = await supabaseAdmin
+                .from('orders')
+                .update({ billing_address: updatedBilling })
+                .eq('id', order.id);
+              if (markError) {
+                console.error('Error marking order coupon_counted:', markError);
+              }
+              console.log('Promo code usage incremented:', couponCodeForOrder, 'order:', order.order_number);
+            }
+          }
+        } catch (promoErr) {
+          console.error('Unexpected error incrementing promo code usage:', promoErr);
+        }
+      }
+
       // Fetch order items for inventory deduction and emails
       const { data: orderItems, error: itemsFetchError } = await supabaseAdmin
         .from('order_items')
