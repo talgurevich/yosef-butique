@@ -137,6 +137,17 @@ export async function POST(request: NextRequest) {
     console.log('PayPlus callback - order:', order.order_number, 'status_code:', status_code, 'isSuccess:', isSuccess);
 
     if (isSuccess) {
+      // Idempotency guard: PayPlus may retry the callback for the same order
+      // (network blips, timeouts, manual re-sends). If we've already marked the
+      // order paid on a prior invocation, skip all side effects — otherwise
+      // inventory would be deducted twice, confirmation emails and Slack pings
+      // would fire twice, and the promo counter would double-count. Just ack
+      // PayPlus so it stops retrying.
+      if (order.payment_status === 'paid') {
+        console.log('PayPlus callback retry ignored — order already paid:', order.order_number);
+        return NextResponse.json({ success: true, received: true, already_processed: true });
+      }
+
       // Update order status to processing / paid
       const { error: updateError } = await supabaseAdmin
         .from('orders')
@@ -151,6 +162,47 @@ export async function POST(request: NextRequest) {
         console.error('Error updating order status:', updateError);
       } else {
         console.log('Order updated to processing:', order.order_number);
+      }
+
+      // Increment promo code usage counter if a coupon was applied.
+      // Guarded by `coupon_counted` on billing_address so PayPlus callback retries
+      // for the same order don't double-count.
+      const billingForCoupon = order.billing_address || {};
+      const couponCodeForOrder = billingForCoupon.coupon_code;
+      if (couponCodeForOrder && !billingForCoupon.coupon_counted) {
+        try {
+          const { data: promoRow, error: promoFetchError } = await supabaseAdmin
+            .from('promo_codes')
+            .select('id, current_uses')
+            .eq('code', String(couponCodeForOrder).toUpperCase())
+            .single();
+
+          if (promoFetchError || !promoRow) {
+            console.warn('Promo code not found for increment:', couponCodeForOrder, promoFetchError);
+          } else {
+            const { error: promoUpdateError } = await supabaseAdmin
+              .from('promo_codes')
+              .update({ current_uses: (promoRow.current_uses || 0) + 1 })
+              .eq('id', promoRow.id);
+
+            if (promoUpdateError) {
+              console.error('Error incrementing promo code usage:', promoUpdateError);
+            } else {
+              // Mark the order so retries of this callback skip the increment.
+              const updatedBilling = { ...billingForCoupon, coupon_counted: true };
+              const { error: markError } = await supabaseAdmin
+                .from('orders')
+                .update({ billing_address: updatedBilling })
+                .eq('id', order.id);
+              if (markError) {
+                console.error('Error marking order coupon_counted:', markError);
+              }
+              console.log('Promo code usage incremented:', couponCodeForOrder, 'order:', order.order_number);
+            }
+          }
+        } catch (promoErr) {
+          console.error('Unexpected error incrementing promo code usage:', promoErr);
+        }
       }
 
       // Fetch order items for inventory deduction and emails
