@@ -137,6 +137,17 @@ export async function POST(request: NextRequest) {
     console.log('PayPlus callback - order:', order.order_number, 'status_code:', status_code, 'isSuccess:', isSuccess);
 
     if (isSuccess) {
+      // Idempotency guard: PayPlus may retry the callback for the same order
+      // (network blips, timeouts, manual re-sends). If we've already marked the
+      // order paid on a prior invocation, skip all side effects — otherwise
+      // inventory would be deducted twice, confirmation emails and Slack pings
+      // would fire twice, and the promo counter would double-count. Just ack
+      // PayPlus so it stops retrying.
+      if (order.payment_status === 'paid') {
+        console.log('PayPlus callback retry ignored — order already paid:', order.order_number);
+        return NextResponse.json({ success: true, received: true, already_processed: true });
+      }
+
       // Update order status to processing / paid
       const { error: updateError } = await supabaseAdmin
         .from('orders')
