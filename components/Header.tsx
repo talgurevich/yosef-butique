@@ -116,7 +116,7 @@ export default function Header() {
       >
         דלג לתוכן הראשי
       </a>
-      <div className="container mx-auto px-4 py-2">
+      <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between relative">
           {/* Logo - centered on mobile */}
           <Link href="/" className="flex items-center md:static absolute left-[55%] -translate-x-1/2 md:translate-x-0 md:relative md:left-auto">
@@ -125,7 +125,7 @@ export default function Header() {
               alt="Yossef Boutique"
               width={839}
               height={215}
-              className="h-12 sm:h-14 md:h-12 lg:h-16 w-auto object-contain"
+              className="h-10 sm:h-11 md:h-10 lg:h-12 w-auto object-contain"
               priority
             />
           </Link>
