@@ -123,9 +123,9 @@ export default function Header() {
             <Image
               src="/logo-cropped.png"
               alt="Yossef Boutique"
-              width={650}
-              height={250}
-              className="h-16 sm:h-20 md:h-16 lg:h-24 w-auto object-contain max-w-[160px] sm:max-w-[200px] md:max-w-[160px] lg:max-w-none"
+              width={1080}
+              height={1080}
+              className="h-14 sm:h-16 md:h-14 lg:h-20 w-auto object-contain"
               priority
             />
           </Link>
