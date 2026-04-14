@@ -3,37 +3,54 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { supabase } from '@/lib/supabase';
 
-const heroSlides = [
+type HeroSlide = {
+  id: string;
+  image_url: string;
+  badge?: string;
+  title: string;
+  subtitle?: string;
+  description?: string;
+  highlight?: string;
+  link: string;
+  link_text: string;
+  gradient_from: string;
+  gradient_via: string;
+  gradient_to: string;
+  accent_color: string;
+};
+
+const fallbackSlides: HeroSlide[] = [
   {
     id: 'carpets',
-    image: 'https://images.unsplash.com/photo-1554995207-c18c203602cb?w=1920&q=80',
+    image_url: 'https://images.unsplash.com/photo-1554995207-c18c203602cb?w=1920&q=80',
     badge: 'איכות פרימיום מאז 2010',
     title: 'שטיחים איכותיים',
     subtitle: 'לכל בית',
     description: 'מבחר רחב של שטיחים מעוצבים, מודרניים וקלאסיים',
     highlight: 'באיכות פרימיום',
     link: '/products?type=carpets',
-    linkText: 'צפה בשטיחים',
-    gradientFrom: 'from-yellow-400',
-    gradientVia: 'via-yellow-300',
-    gradientTo: 'to-yellow-500',
-    accentColor: 'text-yellow-400',
+    link_text: 'צפה בשטיחים',
+    gradient_from: 'from-yellow-400',
+    gradient_via: 'via-yellow-300',
+    gradient_to: 'to-yellow-500',
+    accent_color: 'text-yellow-400',
   },
   {
     id: 'plants',
-    image: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=1920&q=80',
+    image_url: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=1920&q=80',
     badge: 'ירוק בריא לבית',
     title: 'עציצים מרהיבים',
     subtitle: 'לכל חלל',
     description: 'מגוון עציצים מדהים שיהפכו את הבית שלך',
     highlight: 'לירוק',
     link: '/products?type=plants',
-    linkText: 'צפה בעציצים',
-    gradientFrom: 'from-green-400',
-    gradientVia: 'via-green-300',
-    gradientTo: 'to-green-500',
-    accentColor: 'text-green-400',
+    link_text: 'צפה בעציצים',
+    gradient_from: 'from-green-400',
+    gradient_via: 'via-green-300',
+    gradient_to: 'to-green-500',
+    accent_color: 'text-green-400',
   },
 ];
 
@@ -41,6 +58,27 @@ export default function Hero() {
   const [scrollY, setScrollY] = useState(0);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [slides, setSlides] = useState<HeroSlide[]>(fallbackSlides);
+
+  // Fetch slides from DB
+  useEffect(() => {
+    async function fetchSlides() {
+      if (!supabase) return;
+      try {
+        const { data } = await supabase
+          .from('hero_slides')
+          .select('*')
+          .eq('is_active', true)
+          .order('sort_order');
+        if (data && data.length > 0) {
+          setSlides(data);
+        }
+      } catch {
+        // Keep fallback slides
+      }
+    }
+    fetchSlides();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -53,16 +91,17 @@ export default function Hero() {
 
   // Auto-rotate slides every 6 seconds
   useEffect(() => {
+    if (slides.length <= 1) return;
     const interval = setInterval(() => {
       setIsTransitioning(true);
       setTimeout(() => {
-        setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+        setCurrentSlide((prev) => (prev + 1) % slides.length);
         setIsTransitioning(false);
       }, 500);
     }, 6000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [slides.length]);
 
   const goToSlide = (index: number) => {
     if (index !== currentSlide && !isTransitioning) {
@@ -74,7 +113,8 @@ export default function Hero() {
     }
   };
 
-  const slide = heroSlides[currentSlide];
+  const slide = slides[currentSlide];
+  if (!slide) return null;
 
   return (
     <section className="relative h-[700px] md:h-[800px] text-white overflow-hidden pattern-chevron-subtle">
@@ -93,7 +133,7 @@ export default function Hero() {
       >
         <Image
           key={slide.id}
-          src={slide.image}
+          src={slide.image_url}
           alt={slide.title}
           fill
           className="object-cover scale-110"
@@ -116,24 +156,30 @@ export default function Hero() {
             <span className="text-white drop-shadow-2xl block">
               {slide.title}
             </span>
-            <span className={`text-transparent bg-clip-text bg-gradient-to-r ${slide.gradientFrom} ${slide.gradientVia} ${slide.gradientTo} drop-shadow-2xl inline-block mt-2`}>
-              {slide.subtitle}
-            </span>
+            {slide.subtitle && (
+              <span className={`text-transparent bg-clip-text bg-gradient-to-r ${slide.gradient_from} ${slide.gradient_via} ${slide.gradient_to} drop-shadow-2xl inline-block mt-2`}>
+                {slide.subtitle}
+              </span>
+            )}
           </h1>
 
-          <div className={`w-20 h-1 bg-gradient-to-r ${slide.gradientFrom} to-transparent mb-8`}></div>
+          <div className={`w-20 h-1 bg-gradient-to-r ${slide.gradient_from} to-transparent mb-8`}></div>
 
-          <p className="text-xl md:text-2xl mb-12 text-gray-100 font-light leading-relaxed max-w-2xl">
-            {slide.description}
-            <span className={`font-bold ${slide.accentColor.replace('text-', 'text-').replace('400', '200')}`}> {slide.highlight}</span>
-          </p>
+          {slide.description && (
+            <p className="text-xl md:text-2xl mb-12 text-gray-100 font-light leading-relaxed max-w-2xl">
+              {slide.description}
+              {slide.highlight && (
+                <span className={`font-bold ${slide.accent_color.replace('text-', 'text-').replace('400', '200')}`}> {slide.highlight}</span>
+              )}
+            </p>
+          )}
 
           <div className="flex flex-col sm:flex-row gap-4">
             <Link
               href={slide.link}
               className="btn-primary inline-flex items-center justify-center gap-3 bg-white text-gray-900 hover:bg-gray-100 shadow-luxury"
             >
-              <span>{slide.linkText}</span>
+              <span>{slide.link_text}</span>
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
@@ -152,33 +198,35 @@ export default function Hero() {
           </div>
 
           {/* Navigation Dots */}
-          <div className="flex gap-3 mt-8">
-            {heroSlides.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => goToSlide(index)}
-                className={`transition-all duration-300 ${
-                  index === currentSlide
-                    ? `w-12 h-3 ${slide.accentColor.replace('text-', 'bg-')}`
-                    : 'w-3 h-3 bg-white/40 hover:bg-white/60'
-                } rounded-full`}
-                aria-label={`Go to slide ${index + 1}`}
-              />
-            ))}
-          </div>
+          {slides.length > 1 && (
+            <div className="flex gap-3 mt-8">
+              {slides.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => goToSlide(index)}
+                  className={`transition-all duration-300 ${
+                    index === currentSlide
+                      ? `w-12 h-3 ${slide.accent_color.replace('text-', 'bg-')}`
+                      : 'w-3 h-3 bg-white/40 hover:bg-white/60'
+                  } rounded-full`}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
+              ))}
+            </div>
+          )}
 
           {/* Stats - Refined */}
           <div className="flex flex-wrap gap-12 mt-8 pt-10 border-t border-white/10">
             <div className="group">
-              <div className={`text-4xl md:text-5xl font-black font-display mb-1 ${slide.accentColor}`}>1000+</div>
+              <div className={`text-4xl md:text-5xl font-black font-display mb-1 ${slide.accent_color}`}>1000+</div>
               <div className="text-sm uppercase tracking-wider text-gray-300 font-light">לקוחות מרוצים</div>
             </div>
             <div className="group">
-              <div className={`text-4xl md:text-5xl font-black font-display mb-1 ${slide.accentColor}`}>4.9/5</div>
+              <div className={`text-4xl md:text-5xl font-black font-display mb-1 ${slide.accent_color}`}>4.9/5</div>
               <div className="text-sm uppercase tracking-wider text-gray-300 font-light">דירוג ממוצע</div>
             </div>
             <div className="group">
-              <div className={`text-4xl md:text-5xl font-black font-display mb-1 ${slide.accentColor}`}>15+</div>
+              <div className={`text-4xl md:text-5xl font-black font-display mb-1 ${slide.accent_color}`}>15+</div>
               <div className="text-sm uppercase tracking-wider text-gray-300 font-light">שנות ניסיון</div>
             </div>
           </div>

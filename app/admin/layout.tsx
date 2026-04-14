@@ -185,11 +185,19 @@ export default function AdminLayout({
 
           <div className="mt-6 pt-6 border-t border-gray-800">
             <Link
+              href="/admin/hero-slides"
+              className="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+            >
+              <FaImages className="ml-3" />
+              באנר ראשי
+            </Link>
+
+            <Link
               href="/admin/banner"
               className="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
             >
               <FaBullhorn className="ml-3" />
-              באנר
+              באנר עליון
             </Link>
 
             <Link
