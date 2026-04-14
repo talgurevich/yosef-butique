@@ -39,15 +39,15 @@ export default function AttributesPreview({ categories, spaces, shapes = [], cat
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-20">
           <div className="inline-flex items-center justify-center gap-3 mb-4">
-            <div className="w-12 h-0.5 bg-gradient-to-r from-transparent to-yellow-600"></div>
+            <div className="w-12 h-0.5 bg-gradient-to-r from-transparent to-primary-600"></div>
             <Image
-              src="/logo-icon.png"
+              src="/logo-icon.svg"
               alt=""
               width={40}
               height={40}
               className="w-10 h-10"
             />
-            <div className="w-12 h-0.5 bg-gradient-to-l from-transparent to-yellow-600"></div>
+            <div className="w-12 h-0.5 bg-gradient-to-l from-transparent to-primary-600"></div>
           </div>
           <h2 className="text-4xl md:text-6xl font-black text-gray-900 mb-5 font-display tracking-tight">
             קטגוריות שטיחים

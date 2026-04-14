@@ -37,7 +37,7 @@ export default function CustomerGallery() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <div className="inline-flex items-center justify-center gap-3 mb-4">
-              <div className="w-12 h-0.5 bg-gradient-to-r from-transparent to-yellow-600"></div>
+              <div className="w-12 h-0.5 bg-gradient-to-r from-transparent to-primary-600"></div>
               <Image
                 src="/logo-new.svg"
                 alt=""
@@ -45,7 +45,7 @@ export default function CustomerGallery() {
                 height={100}
                 className="w-24 h-24"
               />
-              <div className="w-12 h-0.5 bg-gradient-to-l from-transparent to-yellow-600"></div>
+              <div className="w-12 h-0.5 bg-gradient-to-l from-transparent to-primary-600"></div>
             </div>
             <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4 font-display">
               הלקוחות שלנו
@@ -72,15 +72,15 @@ export default function CustomerGallery() {
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <div className="inline-flex items-center justify-center gap-3 mb-4">
-            <div className="w-12 h-0.5 bg-gradient-to-r from-transparent to-yellow-600"></div>
+            <div className="w-12 h-0.5 bg-gradient-to-r from-transparent to-primary-600"></div>
             <Image
-              src="/logo-icon.png"
+              src="/logo-icon.svg"
               alt=""
               width={40}
               height={40}
               className="w-10 h-10"
             />
-            <div className="w-12 h-0.5 bg-gradient-to-l from-transparent to-yellow-600"></div>
+            <div className="w-12 h-0.5 bg-gradient-to-l from-transparent to-primary-600"></div>
           </div>
           <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4 font-display">
             הלקוחות שלנו

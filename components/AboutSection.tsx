@@ -100,13 +100,13 @@ export default function AboutSection() {
             {/* Header with icon */}
             <div className="flex items-center gap-4 mb-6">
               <Image
-                src="/logo-icon.png"
+                src="/logo-icon.svg"
                 alt=""
                 width={50}
                 height={50}
                 className="w-12 h-12"
               />
-              <div className="w-16 h-0.5 bg-gradient-to-r from-yellow-600 to-transparent"></div>
+              <div className="w-16 h-0.5 bg-gradient-to-r from-primary-600 to-transparent"></div>
             </div>
 
             <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-8 leading-tight font-display">
