@@ -117,7 +117,7 @@ export default function AboutSection() {
               <p className="text-gray-600 text-lg leading-relaxed">
                 אנחנו מתמחים במכירת שטיחים איכותיים ומעוצבים לבית. עם ניסיון של שנים
                 רבות בתחום, אנו מציעים מבחר רחב של שטיחים מודרניים, קלאסיים ומעוצבים
-                <span className="font-serif italic text-gray-700"> המתאימים לכל סגנון ובית</span>.
+ המתאימים לכל סגנון ובית.
               </p>
               <p className="text-gray-600 text-lg leading-relaxed">
                 אנו מאמינים באיכות, בשירות מעולה ובמתן חוויית קנייה נעימה ללקוחותינו.
