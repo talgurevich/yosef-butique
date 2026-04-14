@@ -120,13 +120,10 @@ export default function Header() {
         <div className="flex items-center justify-between relative">
           {/* Logo - centered on mobile */}
           <Link href="/" className="flex items-center md:static absolute left-[55%] -translate-x-1/2 md:translate-x-0 md:relative md:left-auto">
-            <Image
-              src="/logo-cropped.png"
+            <img
+              src="/logo-header.svg"
               alt="Yossef Boutique"
-              width={839}
-              height={215}
               className="h-10 sm:h-11 md:h-10 lg:h-12 w-auto object-contain"
-              priority
             />
           </Link>
 
