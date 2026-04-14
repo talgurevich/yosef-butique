@@ -1,6 +1,7 @@
 type CartItem = {
   productName: string;
   variantSize: string;
+  variantColor?: string;
   price: number;
   quantity: number;
 };
@@ -57,7 +58,11 @@ type SlackEvent =
 
 function formatItems(items: CartItem[]): string {
   return items
-    .map((item) => `• ${item.productName} (${item.variantSize}) x${item.quantity} — ₪${(item.price * item.quantity).toLocaleString()}`)
+    .map((item) => {
+      const variantParts = [item.variantSize, item.variantColor].filter(Boolean).join(', ');
+      const variantLabel = variantParts ? ` (${variantParts})` : '';
+      return `• ${item.productName}${variantLabel} x${item.quantity} — ₪${(item.price * item.quantity).toLocaleString()}`;
+    })
     .join('\n');
 }
 

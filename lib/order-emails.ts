@@ -35,7 +35,8 @@ function buildItemsTable(items: OrderItem[]): string {
   return items.map(item => `
     <tr>
       <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right;">${item.product_name}</td>
-      <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: center;">${item.variant_size}</td>
+      <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: center;">${item.variant_size || '-'}</td>
+      <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: center;">${item.variant_color || '-'}</td>
       <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
       <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: left;">${formatCurrency(item.price * item.quantity)}</td>
     </tr>
@@ -65,7 +66,7 @@ export async function sendOrderConfirmationEmail(
           table { width: 100%; border-collapse: collapse; }
           th { background: #f8f9fa; padding: 12px; text-align: right; border-bottom: 2px solid #667eea; }
           th:last-child { text-align: left; }
-          th:nth-child(2), th:nth-child(3) { text-align: center; }
+          th:nth-child(2), th:nth-child(3), th:nth-child(4) { text-align: center; }
         </style>
       </head>
       <body>
@@ -84,6 +85,7 @@ export async function sendOrderConfirmationEmail(
                 <tr>
                   <th>מוצר</th>
                   <th>מידה</th>
+                  <th>צבע</th>
                   <th>כמות</th>
                   <th style="text-align: left;">מחיר</th>
                 </tr>
@@ -145,7 +147,7 @@ export async function sendOrderConfirmationEmail(
 תודה שבחרת לקנות בשטיחי בוטיק יוסף! ההזמנה שלך התקבלה בהצלחה.
 
 פרטי ההזמנה:
-${items.map(item => `- ${item.product_name} | מידה: ${item.variant_size} | כמות: ${item.quantity} | ${formatCurrency(item.price * item.quantity)}`).join('\n')}
+${items.map(item => `- ${item.product_name} | מידה: ${item.variant_size || '-'} | צבע: ${item.variant_color || '-'} | כמות: ${item.quantity} | ${formatCurrency(item.price * item.quantity)}`).join('\n')}
 
 סכום ביניים: ${formatCurrency(order.subtotal)}
 ${order.discount_amount > 0 ? `הנחה${order.coupon_code ? ` (${order.coupon_code})` : ''}: -${formatCurrency(order.discount_amount)}\n` : ''}משלוח: ${formatCurrency(order.delivery_cost)}
@@ -188,7 +190,7 @@ export async function sendAdminOrderNotificationEmail(
           table { width: 100%; border-collapse: collapse; }
           th { background: #f8f9fa; padding: 10px; text-align: right; border-bottom: 2px solid #4caf50; }
           th:last-child { text-align: left; }
-          th:nth-child(2), th:nth-child(3) { text-align: center; }
+          th:nth-child(2), th:nth-child(3), th:nth-child(4) { text-align: center; }
           td { padding: 10px; border-bottom: 1px solid #eee; }
         </style>
       </head>
@@ -231,6 +233,7 @@ export async function sendAdminOrderNotificationEmail(
                 <tr>
                   <th>מוצר</th>
                   <th>מידה</th>
+                  <th>צבע</th>
                   <th>כמות</th>
                   <th style="text-align: left;">מחיר</th>
                 </tr>
@@ -268,7 +271,7 @@ export async function sendAdminOrderNotificationEmail(
 ${order.notes ? `הערות: ${order.notes}` : ''}
 
 פריטים:
-${items.map(item => `- ${item.product_name} | מידה: ${item.variant_size} | כמות: ${item.quantity} | ${formatCurrency(item.price * item.quantity)}`).join('\n')}
+${items.map(item => `- ${item.product_name} | מידה: ${item.variant_size || '-'} | צבע: ${item.variant_color || '-'} | כמות: ${item.quantity} | ${formatCurrency(item.price * item.quantity)}`).join('\n')}
 
 סכום ביניים: ${formatCurrency(order.subtotal)}
 ${order.discount_amount > 0 ? `הנחה${order.coupon_code ? ` (${order.coupon_code})` : ''}: -${formatCurrency(order.discount_amount)}\n` : ''}משלוח: ${formatCurrency(order.delivery_cost)}

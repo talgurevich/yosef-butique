@@ -132,6 +132,8 @@ export async function POST(request: NextRequest) {
         product_id: item.productId,
         product_name: item.productName,
         product_sku: item.variantId,
+        variant_size: item.variantSize || null,
+        variant_color: item.variantColor || null,
         quantity: item.quantity,
         unit_price: item.price,
         total_price: item.price * item.quantity,
@@ -172,6 +174,7 @@ export async function POST(request: NextRequest) {
     const slackItems = (cartItems as CartItemPayload[] || []).map((item) => ({
       productName: item.productName,
       variantSize: item.variantSize,
+      variantColor: item.variantColor,
       price: item.price,
       quantity: item.quantity,
     }));

@@ -262,7 +262,8 @@ export async function POST(request: NextRequest) {
 
         const emailItems = (orderItems || []).map((item: any) => ({
           product_name: item.product_name,
-          variant_size: '',
+          variant_size: item.variant_size || '',
+          variant_color: item.variant_color || '',
           price: item.unit_price,
           quantity: item.quantity,
         }));
@@ -299,6 +300,7 @@ export async function POST(request: NextRequest) {
             items: emailItems.map((item: any) => ({
               productName: item.product_name,
               variantSize: item.variant_size || '',
+              variantColor: item.variant_color || '',
               price: item.price,
               quantity: item.quantity,
             })),
