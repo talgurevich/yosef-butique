@@ -221,8 +221,8 @@ export default function Hero() {
             </div>
           )}
 
-          {/* Stats - Refined */}
-          <div className="flex flex-wrap gap-12 mt-8 pt-10 border-t border-white/10">
+          {/* Stats - Refined (hidden on mobile when promo active) */}
+          <div className={`flex flex-wrap gap-12 mt-8 pt-10 border-t border-white/10 ${slide.promo_enabled ? 'hidden md:flex' : ''}`}>
             <div className="group">
               <div className={`text-4xl md:text-5xl font-black font-display mb-1 ${slide.accent_color}`}>1000+</div>
               <div className="text-sm uppercase tracking-wider text-gray-300 font-light">לקוחות מרוצים</div>
@@ -278,7 +278,7 @@ export default function Hero() {
 
           {/* Mobile promo strip */}
           <div
-            className={`md:hidden absolute left-4 right-4 bottom-[140px] z-20 transition-opacity duration-500 ${
+            className={`md:hidden absolute left-4 right-4 bottom-[40px] z-20 transition-opacity duration-500 ${
               isTransitioning ? 'opacity-0' : 'opacity-100'
             }`}
           >
