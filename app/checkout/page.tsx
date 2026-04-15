@@ -50,7 +50,8 @@ export default function CheckoutPage() {
       // Cancel the cart abandon timer since user is checking out
       cancelAbandonTimer();
 
-      const effectiveDeliveryCost = getDeliveryCost();
+      const FLAT_SHIPPING = 60;
+      const effectiveDeliveryCost = appliedCoupon?.discount_type === 'free_shipping' ? 0 : FLAT_SHIPPING;
 
       // Prepare items for PayPlus
       const items: { name: string; price: number; quantity: number; vat_type: number }[] = cartItems.map(item => ({
@@ -217,12 +218,16 @@ export default function CheckoutPage() {
                 <div className="flex justify-between text-gray-600">
                   <span>משלוח</span>
                   <span>
-                    {getDeliveryCost() === 0 ? 'לא חושב' : `₪${getDeliveryCost().toLocaleString()}`}
+                    {appliedCoupon?.discount_type === 'free_shipping' ? (
+                      <span className="text-green-600 font-semibold">חינם</span>
+                    ) : (
+                      '₪60'
+                    )}
                   </span>
                 </div>
                 <div className="flex justify-between items-center text-xl font-bold text-gray-800 pt-2 border-t border-gray-200">
                   <span>סה"כ לתשלום:</span>
-                  <span>₪{getFinalTotal().toLocaleString()}</span>
+                  <span>₪{(getCartTotal() - getDiscountAmount() + (appliedCoupon?.discount_type === 'free_shipping' ? 0 : 60)).toLocaleString()}</span>
                 </div>
               </div>
             </div>
