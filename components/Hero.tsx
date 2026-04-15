@@ -244,11 +244,11 @@ export default function Hero() {
         <>
           {/* Desktop promo box */}
           <div
-            className={`hidden md:flex absolute left-0 top-0 bottom-0 w-[280px] lg:w-[320px] z-20 transition-opacity duration-500 ${
+            className={`hidden md:flex absolute left-6 top-1/2 -translate-y-1/2 w-[260px] lg:w-[300px] z-20 transition-opacity duration-500 ${
               isTransitioning ? 'opacity-0' : 'opacity-100'
             }`}
           >
-            <div className="relative w-full h-full flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm px-8 text-center">
+            <div className="relative w-full flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm rounded-2xl px-8 py-10 text-center">
               <div className={`text-7xl lg:text-8xl font-black font-display mb-2 ${slide.accent_color}`}>
                 {slide.promo_text}
               </div>
