@@ -127,15 +127,19 @@ export async function POST(request: NextRequest) {
 
     // Create order items (using existing table schema)
     if (cartItems && Array.isArray(cartItems) && cartItems.length > 0) {
-      const orderItems = (cartItems as CartItemPayload[]).map((item) => ({
-        order_id: orderId,
-        product_id: item.productId,
-        product_name: item.productName,
-        product_sku: item.variantId,
-        quantity: item.quantity,
-        unit_price: item.price,
-        total_price: item.price * item.quantity,
-      }));
+      const orderItems = (cartItems as CartItemPayload[]).map((item) => {
+        const sizePart = item.variantSize ? ` - ${item.variantSize}` : '';
+        const colorPart = item.variantColor ? ` - ${item.variantColor}` : '';
+        return {
+          order_id: orderId,
+          product_id: item.productId,
+          product_name: `${item.productName}${sizePart}${colorPart}`,
+          product_sku: item.variantId,
+          quantity: item.quantity,
+          unit_price: item.price,
+          total_price: item.price * item.quantity,
+        };
+      });
 
       const { error: itemsError } = await supabaseAdmin
         .from('order_items')

@@ -35,7 +35,7 @@ function buildItemsTable(items: OrderItem[]): string {
   return items.map(item => `
     <tr>
       <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right;">${item.product_name}</td>
-      <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: center;">${item.variant_size}</td>
+      <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: center;">${item.variant_size}${item.variant_color ? ` / ${item.variant_color}` : ''}</td>
       <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
       <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: left;">${formatCurrency(item.price * item.quantity)}</td>
     </tr>
@@ -145,7 +145,7 @@ export async function sendOrderConfirmationEmail(
 תודה שבחרת לקנות בשטיחי בוטיק יוסף! ההזמנה שלך התקבלה בהצלחה.
 
 פרטי ההזמנה:
-${items.map(item => `- ${item.product_name} | מידה: ${item.variant_size} | כמות: ${item.quantity} | ${formatCurrency(item.price * item.quantity)}`).join('\n')}
+${items.map(item => `- ${item.product_name} | מידה: ${item.variant_size}${item.variant_color ? ` / צבע: ${item.variant_color}` : ''} | כמות: ${item.quantity} | ${formatCurrency(item.price * item.quantity)}`).join('\n')}
 
 סכום ביניים: ${formatCurrency(order.subtotal)}
 ${order.discount_amount > 0 ? `הנחה${order.coupon_code ? ` (${order.coupon_code})` : ''}: -${formatCurrency(order.discount_amount)}\n` : ''}משלוח: ${formatCurrency(order.delivery_cost)}
@@ -268,7 +268,7 @@ export async function sendAdminOrderNotificationEmail(
 ${order.notes ? `הערות: ${order.notes}` : ''}
 
 פריטים:
-${items.map(item => `- ${item.product_name} | מידה: ${item.variant_size} | כמות: ${item.quantity} | ${formatCurrency(item.price * item.quantity)}`).join('\n')}
+${items.map(item => `- ${item.product_name} | מידה: ${item.variant_size}${item.variant_color ? ` / צבע: ${item.variant_color}` : ''} | כמות: ${item.quantity} | ${formatCurrency(item.price * item.quantity)}`).join('\n')}
 
 סכום ביניים: ${formatCurrency(order.subtotal)}
 ${order.discount_amount > 0 ? `הנחה${order.coupon_code ? ` (${order.coupon_code})` : ''}: -${formatCurrency(order.discount_amount)}\n` : ''}משלוח: ${formatCurrency(order.delivery_cost)}

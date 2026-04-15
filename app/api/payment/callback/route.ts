@@ -260,12 +260,17 @@ export async function POST(request: NextRequest) {
         const discountAmount = billing.discount_amount || 0;
         const couponCode = billing.coupon_code || null;
 
-        const emailItems = (orderItems || []).map((item: any) => ({
-          product_name: item.product_name,
-          variant_size: '',
-          price: item.unit_price,
-          quantity: item.quantity,
-        }));
+        const emailItems = (orderItems || []).map((item: any) => {
+          // product_name is stored as "Product Name - Size - Color"
+          const parts = (item.product_name || '').split(' - ');
+          return {
+            product_name: parts[0] || item.product_name,
+            variant_size: parts[1] || '',
+            variant_color: parts[2] || '',
+            price: item.unit_price,
+            quantity: item.quantity,
+          };
+        });
 
         const orderData = {
           order_number: order.order_number,
