@@ -20,6 +20,12 @@ interface HeroSlide {
   accent_color: string;
   sort_order: number;
   is_active: boolean;
+  promo_enabled: boolean;
+  promo_text: string;
+  promo_subtitle: string;
+  promo_description: string;
+  promo_disclaimer: string;
+  promo_code: string;
 }
 
 const COLOR_PRESETS = [
@@ -45,6 +51,12 @@ const emptyForm = {
   accent_color: 'text-yellow-400',
   sort_order: 0,
   is_active: true,
+  promo_enabled: false,
+  promo_text: '',
+  promo_subtitle: '',
+  promo_description: '',
+  promo_disclaimer: '',
+  promo_code: '',
 };
 
 export default function HeroSlidesPage() {
@@ -118,6 +130,12 @@ export default function HeroSlidesPage() {
       accent_color: slide.accent_color || 'text-yellow-400',
       sort_order: slide.sort_order ?? 0,
       is_active: slide.is_active ?? true,
+      promo_enabled: slide.promo_enabled ?? false,
+      promo_text: slide.promo_text || '',
+      promo_subtitle: slide.promo_subtitle || '',
+      promo_description: slide.promo_description || '',
+      promo_disclaimer: slide.promo_disclaimer || '',
+      promo_code: slide.promo_code || '',
     });
     setPreviewUrl(slide.image_url || '');
     setShowForm(true);
@@ -175,6 +193,12 @@ export default function HeroSlidesPage() {
         accent_color: formData.accent_color,
         sort_order: formData.sort_order,
         is_active: formData.is_active,
+        promo_enabled: formData.promo_enabled,
+        promo_text: formData.promo_text || null,
+        promo_subtitle: formData.promo_subtitle || null,
+        promo_description: formData.promo_description || null,
+        promo_disclaimer: formData.promo_disclaimer || null,
+        promo_code: formData.promo_code || null,
       };
 
       if (editingSlide) {
@@ -467,6 +491,77 @@ export default function HeroSlidesPage() {
                   פעיל
                 </label>
               </div>
+            </div>
+
+            {/* Promo Section */}
+            <div className="border-t border-gray-200 pt-6 mt-6">
+              <div className="flex items-center gap-3 mb-4">
+                <input
+                  type="checkbox"
+                  id="promo_enabled"
+                  checked={formData.promo_enabled}
+                  onChange={(e) => setFormData({ ...formData, promo_enabled: e.target.checked })}
+                  className="w-5 h-5 text-primary-600 rounded focus:ring-primary-500"
+                />
+                <label htmlFor="promo_enabled" className="text-lg font-semibold text-gray-800">
+                  הצג מבצע על הבאנר
+                </label>
+              </div>
+
+              {formData.promo_enabled && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">טקסט גדול (למשל: 10%)</label>
+                    <input
+                      type="text"
+                      value={formData.promo_text}
+                      onChange={(e) => setFormData({ ...formData, promo_text: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                      placeholder="10%"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">כותרת משנה (למשל: הנחה)</label>
+                    <input
+                      type="text"
+                      value={formData.promo_subtitle}
+                      onChange={(e) => setFormData({ ...formData, promo_subtitle: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                      placeholder="הנחה"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">תיאור</label>
+                    <input
+                      type="text"
+                      value={formData.promo_description}
+                      onChange={(e) => setFormData({ ...formData, promo_description: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                      placeholder="על כל המוצרים באתר"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">קוד הנחה</label>
+                    <input
+                      type="text"
+                      value={formData.promo_code}
+                      onChange={(e) => setFormData({ ...formData, promo_code: e.target.value.toUpperCase() })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 font-mono"
+                      placeholder="SAVE10"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">כיתוב קטן / תנאים</label>
+                    <input
+                      type="text"
+                      value={formData.promo_disclaimer}
+                      onChange={(e) => setFormData({ ...formData, promo_disclaimer: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                      placeholder="ההנחה לזמן מוגבל וניתנה להפסיק בכל עת | ט.ל.ח"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Submit */}

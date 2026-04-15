@@ -19,6 +19,12 @@ type HeroSlide = {
   gradient_via: string;
   gradient_to: string;
   accent_color: string;
+  promo_enabled?: boolean;
+  promo_text?: string;
+  promo_subtitle?: string;
+  promo_description?: string;
+  promo_disclaimer?: string;
+  promo_code?: string;
 };
 
 const fallbackSlides: HeroSlide[] = [
@@ -232,6 +238,67 @@ export default function Hero() {
           </div>
         </div>
       </div>
+
+      {/* Promo Box - Desktop: left side, Mobile: bottom strip */}
+      {slide.promo_enabled && slide.promo_text && (
+        <>
+          {/* Desktop promo box */}
+          <div
+            className={`hidden md:flex absolute left-0 top-0 bottom-0 w-[280px] lg:w-[320px] z-20 transition-opacity duration-500 ${
+              isTransitioning ? 'opacity-0' : 'opacity-100'
+            }`}
+          >
+            <div className="relative w-full h-full flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm px-8 text-center">
+              <div className={`text-7xl lg:text-8xl font-black font-display mb-2 ${slide.accent_color}`}>
+                {slide.promo_text}
+              </div>
+              {slide.promo_subtitle && (
+                <div className={`text-3xl lg:text-4xl font-black mb-4 ${slide.accent_color}`}>
+                  {slide.promo_subtitle}
+                </div>
+              )}
+              {slide.promo_description && (
+                <div className="text-white/90 text-lg font-medium mb-4 leading-relaxed">
+                  {slide.promo_description}
+                </div>
+              )}
+              {slide.promo_code && (
+                <div className="bg-white/10 border border-white/30 rounded-lg px-4 py-2 mb-4">
+                  <div className="text-white/70 text-xs mb-1">קוד הנחה:</div>
+                  <div className="text-white font-black text-xl tracking-widest">{slide.promo_code}</div>
+                </div>
+              )}
+              {slide.promo_disclaimer && (
+                <div className="text-white/50 text-xs leading-relaxed mt-2">
+                  {slide.promo_disclaimer}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Mobile promo strip */}
+          <div
+            className={`md:hidden absolute left-4 right-4 bottom-[140px] z-20 transition-opacity duration-500 ${
+              isTransitioning ? 'opacity-0' : 'opacity-100'
+            }`}
+          >
+            <div className="bg-black/60 backdrop-blur-sm rounded-xl px-4 py-3 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <span className={`text-3xl font-black font-display ${slide.accent_color}`}>{slide.promo_text}</span>
+                {slide.promo_subtitle && (
+                  <span className={`text-lg font-bold ${slide.accent_color}`}>{slide.promo_subtitle}</span>
+                )}
+              </div>
+              {slide.promo_code && (
+                <div className="bg-white/10 border border-white/30 rounded-lg px-3 py-1 text-center">
+                  <div className="text-white/70 text-[10px]">קוד:</div>
+                  <div className="text-white font-black text-sm tracking-wider">{slide.promo_code}</div>
+                </div>
+              )}
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Decorative element */}
       <div className="absolute bottom-0 left-0 right-0">
