@@ -282,6 +282,20 @@ export default function Header() {
               />
             </div>
           </button>
+
+          {/* Mobile Cart Button - visible only on mobile, positioned on the visual left */}
+          <Link
+            href="/cart"
+            aria-label="עגלת קניות"
+            className="md:hidden relative p-2 text-gray-700 hover:text-primary-600 transition-colors w-10 h-10 flex items-center justify-center"
+          >
+            <FaShoppingCart className="text-2xl" />
+            {getCartItemsCount() > 0 && (
+              <span className="absolute top-0 left-0 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {getCartItemsCount()}
+              </span>
+            )}
+          </Link>
         </div>
 
         {/* Mobile Menu */}
