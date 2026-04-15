@@ -93,7 +93,11 @@ export default function AdminBannerPage() {
             text_color: banner.text_color,
           },
         });
-        if (data) setBanner(data);
+        if (data && Array.isArray(data) && data.length > 0) {
+          setBanner(data[0]);
+        } else if (data && !Array.isArray(data)) {
+          setBanner(data);
+        }
       }
 
       alert('✅ הבאנר נשמר בהצלחה!');
@@ -149,28 +153,22 @@ export default function AdminBannerPage() {
 
             {/* Active Toggle */}
             <div className="mb-6">
-              <label className="flex items-center justify-between cursor-pointer">
+              <div className="flex items-center justify-between">
                 <span className="text-gray-700 font-semibold">סטטוס באנר</span>
-                <div className="relative">
-                  <input
-                    type="checkbox"
-                    checked={banner.is_active}
-                    onChange={(e) => setBanner({ ...banner, is_active: e.target.checked })}
-                    className="sr-only"
-                  />
+                <button
+                  type="button"
+                  onClick={() => setBanner({ ...banner, is_active: !banner.is_active })}
+                  className={`relative w-14 h-8 rounded-full transition-colors ${
+                    banner.is_active ? 'bg-green-500' : 'bg-gray-300'
+                  }`}
+                >
                   <div
-                    className={`block w-14 h-8 rounded-full transition-colors ${
-                      banner.is_active ? 'bg-green-500' : 'bg-gray-300'
+                    className={`absolute top-1 bg-white w-6 h-6 rounded-full transition-all ${
+                      banner.is_active ? 'left-1' : 'right-1'
                     }`}
-                  >
-                    <div
-                      className={`absolute right-1 top-1 bg-white w-6 h-6 rounded-full transition-transform ${
-                        banner.is_active ? '-translate-x-6' : ''
-                      }`}
-                    ></div>
-                  </div>
-                </div>
-              </label>
+                  ></div>
+                </button>
+              </div>
               <p className="text-sm text-gray-500 mt-2">
                 {banner.is_active ? (
                   <span className="flex items-center gap-2 text-green-600">

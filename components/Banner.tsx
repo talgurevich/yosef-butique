@@ -11,6 +11,7 @@ interface BannerData {
   gradient_from: string;
   gradient_to: string;
   text_color: string;
+  updated_at?: string;
 }
 
 export default function Banner() {
@@ -43,9 +44,11 @@ export default function Banner() {
       }
 
       if (data) {
-        // Check if user has dismissed this banner
-        const dismissedBannerId = localStorage.getItem('dismissedBannerId');
-        if (dismissedBannerId !== data.id) {
+        // Check if user has dismissed this specific version of the banner
+        // Use id + updated_at so that admin edits reset the dismiss
+        const dismissKey = `${data.id}_${data.updated_at || ''}`;
+        const dismissedKey = localStorage.getItem('dismissedBannerKey');
+        if (dismissedKey !== dismissKey) {
           setBanner(data);
           setIsVisible(true);
         }
@@ -60,7 +63,8 @@ export default function Banner() {
 
   const handleDismiss = () => {
     if (banner) {
-      localStorage.setItem('dismissedBannerId', banner.id);
+      const dismissKey = `${banner.id}_${(banner as any).updated_at || ''}`;
+      localStorage.setItem('dismissedBannerKey', dismissKey);
       setIsVisible(false);
     }
   };
