@@ -282,6 +282,8 @@ export default function CartPage() {
                         <p className="text-xs text-green-600">
                           {appliedCoupon.discount_type === 'percentage'
                             ? `${appliedCoupon.discount_value}% הנחה`
+                            : appliedCoupon.discount_type === 'free_shipping'
+                            ? 'משלוח חינם'
                             : `₪${appliedCoupon.discount_value} הנחה`}
                         </p>
                       </div>

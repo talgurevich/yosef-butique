@@ -77,10 +77,14 @@ export async function POST(request: NextRequest) {
       discountAmount = (cartTotal * promoCode.discount_value) / 100;
     } else if (promoCode.discount_type === 'fixed') {
       discountAmount = promoCode.discount_value;
+    } else if (promoCode.discount_type === 'free_shipping') {
+      discountAmount = 0; // Delivery cost zeroed out in cart context
     }
 
     // Ensure discount doesn't exceed cart total
-    discountAmount = Math.min(discountAmount, cartTotal);
+    if (promoCode.discount_type !== 'free_shipping') {
+      discountAmount = Math.min(discountAmount, cartTotal);
+    }
 
     return NextResponse.json({
       success: true,

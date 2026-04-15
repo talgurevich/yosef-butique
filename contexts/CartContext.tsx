@@ -17,7 +17,7 @@ export type CartItem = {
 export type AppliedCoupon = {
   id: string;
   code: string;
-  discount_type: 'percentage' | 'fixed';
+  discount_type: 'percentage' | 'fixed' | 'free_shipping';
   discount_value: number;
   discountAmount: number;
 };
@@ -272,6 +272,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const getDeliveryCost = () => {
+    if (appliedCoupon?.discount_type === 'free_shipping') return 0;
     return deliveryCost;
   };
 

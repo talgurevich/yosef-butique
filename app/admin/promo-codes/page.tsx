@@ -8,7 +8,7 @@ import Link from 'next/link';
 type PromoCode = {
   id: string;
   code: string;
-  discount_type: 'percentage' | 'fixed';
+  discount_type: 'percentage' | 'fixed' | 'free_shipping';
   discount_value: number;
   min_purchase_amount: number;
   max_uses: number;
@@ -29,7 +29,7 @@ export default function PromoCodesPage() {
   // Form state
   const [formData, setFormData] = useState({
     code: '',
-    discount_type: 'percentage' as 'percentage' | 'fixed',
+    discount_type: 'percentage' as 'percentage' | 'fixed' | 'free_shipping',
     discount_value: 10,
     min_purchase_amount: 0,
     max_uses: 100,
@@ -199,11 +199,12 @@ export default function PromoCodesPage() {
                 </label>
                 <select
                   value={formData.discount_type}
-                  onChange={(e) => setFormData({ ...formData, discount_type: e.target.value as 'percentage' | 'fixed' })}
+                  onChange={(e) => setFormData({ ...formData, discount_type: e.target.value as 'percentage' | 'fixed' | 'free_shipping' })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                 >
                   <option value="percentage">אחוזים (%)</option>
                   <option value="fixed">סכום קבוע (₪)</option>
+                  <option value="free_shipping">משלוח חינם</option>
                 </select>
               </div>
 
@@ -222,7 +223,7 @@ export default function PromoCodesPage() {
                   required
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  {formData.discount_type === 'percentage' ? 'אחוזים (לדוגמה: 10 = 10%)' : 'שקלים (לדוגמה: 50 = ₪50)'}
+                  {formData.discount_type === 'percentage' ? 'אחוזים (לדוגמה: 10 = 10%)' : formData.discount_type === 'free_shipping' ? 'לא נדרש ערך' : 'שקלים (לדוגמה: 50 = ₪50)'}
                 </p>
               </div>
 
@@ -349,6 +350,8 @@ export default function PromoCodesPage() {
                       <div className="text-sm text-gray-900">
                         {code.discount_type === 'percentage'
                           ? `${code.discount_value}%`
+                          : code.discount_type === 'free_shipping'
+                          ? 'משלוח חינם'
                           : `₪${code.discount_value}`}
                       </div>
                     </td>
