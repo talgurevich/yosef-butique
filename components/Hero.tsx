@@ -27,49 +27,17 @@ type HeroSlide = {
   promo_code?: string;
 };
 
-const fallbackSlides: HeroSlide[] = [
-  {
-    id: 'carpets',
-    image_url: 'https://images.unsplash.com/photo-1554995207-c18c203602cb?w=1920&q=80',
-    badge: 'איכות פרימיום מאז 2010',
-    title: 'שטיחים איכותיים',
-    subtitle: 'לכל בית',
-    description: 'מבחר רחב של שטיחים מעוצבים, מודרניים וקלאסיים',
-    highlight: 'באיכות פרימיום',
-    link: '/products?type=carpets',
-    link_text: 'צפה בשטיחים',
-    gradient_from: 'from-yellow-400',
-    gradient_via: 'via-yellow-300',
-    gradient_to: 'to-yellow-500',
-    accent_color: 'text-yellow-400',
-  },
-  {
-    id: 'plants',
-    image_url: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=1920&q=80',
-    badge: 'ירוק בריא לבית',
-    title: 'עציצים מרהיבים',
-    subtitle: 'לכל חלל',
-    description: 'מגוון עציצים מדהים שיהפכו את הבית שלך',
-    highlight: 'לירוק',
-    link: '/products?type=plants',
-    link_text: 'צפה בעציצים',
-    gradient_from: 'from-green-400',
-    gradient_via: 'via-green-300',
-    gradient_to: 'to-green-500',
-    accent_color: 'text-green-400',
-  },
-];
-
 export default function Hero() {
   const [scrollY, setScrollY] = useState(0);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [slides, setSlides] = useState<HeroSlide[]>(fallbackSlides);
+  const [slides, setSlides] = useState<HeroSlide[]>([]);
+  const [loading, setLoading] = useState(true);
 
   // Fetch slides from DB
   useEffect(() => {
     async function fetchSlides() {
-      if (!supabase) return;
+      if (!supabase) { setLoading(false); return; }
       try {
         const { data } = await supabase
           .from('hero_slides')
@@ -80,7 +48,9 @@ export default function Hero() {
           setSlides(data);
         }
       } catch {
-        // Keep fallback slides
+        // No slides available
+      } finally {
+        setLoading(false);
       }
     }
     fetchSlides();
@@ -120,7 +90,12 @@ export default function Hero() {
   };
 
   const slide = slides[currentSlide];
-  if (!slide) return null;
+
+  if (loading || !slide) {
+    return (
+      <section className="relative h-[700px] md:h-[800px] bg-gray-900" />
+    );
+  }
 
   return (
     <section className="relative h-[700px] md:h-[800px] text-white overflow-hidden pattern-chevron-subtle">
