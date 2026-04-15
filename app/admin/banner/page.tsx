@@ -1,10 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { FaArrowRight, FaSave, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaSave, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { adminFetch } from '@/lib/admin-api';
 
 interface BannerData {
@@ -26,40 +23,36 @@ const GRADIENT_PRESETS = [
 ];
 
 export default function AdminBannerPage() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [banner, setBanner] = useState<BannerData>({
-    id: '',
-    message: '',
-    is_active: false,
-    gradient_from: '#3b82f6',
-    gradient_to: '#8b5cf6',
-    text_color: '#ffffff',
-  });
+  const [bannerId, setBannerId] = useState<string | null>(null);
+  const [message, setMessage] = useState('');
+  const [isActive, setIsActive] = useState(false);
+  const [gradientFrom, setGradientFrom] = useState('#3b82f6');
+  const [gradientTo, setGradientTo] = useState('#8b5cf6');
+  const [textColor, setTextColor] = useState('#ffffff');
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/admin/login');
-    } else if (status === 'authenticated') {
-      fetchBanner();
-    }
-  }, [status, router]);
+    fetchBanner();
+  }, []);
 
   const fetchBanner = async () => {
     try {
-      const { data } = await adminFetch('banner');
+      const { data } = await adminFetch('banner', { params: { order_by: 'created_at' } });
 
       if (data && data.length > 0) {
-        setBanner(data[0]);
-      } else {
-        console.log('No banner found, will create new one');
+        // Use the first banner record
+        const b = data[0];
+        setBannerId(b.id);
+        setMessage(b.message || '');
+        setIsActive(b.is_active);
+        setGradientFrom(b.gradient_from || '#3b82f6');
+        setGradientTo(b.gradient_to || '#8b5cf6');
+        setTextColor(b.text_color || '#ffffff');
       }
-
-      setLoading(false);
     } catch (error) {
       console.error('Error fetching banner:', error);
+    } finally {
       setLoading(false);
     }
   };
@@ -67,277 +60,185 @@ export default function AdminBannerPage() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      if (banner.id) {
-        // Update existing banner
+      const bannerData = {
+        message,
+        is_active: isActive,
+        gradient_from: gradientFrom,
+        gradient_to: gradientTo,
+        text_color: textColor,
+        updated_at: new Date().toISOString(),
+      };
+
+      if (bannerId) {
         await adminFetch('banner', {
           method: 'PUT',
-          data: {
-            id: banner.id,
-            message: banner.message,
-            is_active: banner.is_active,
-            gradient_from: banner.gradient_from,
-            gradient_to: banner.gradient_to,
-            text_color: banner.text_color,
-            updated_at: new Date().toISOString(),
-          },
+          data: { id: bannerId, ...bannerData },
         });
       } else {
-        // Create new banner
         const { data } = await adminFetch('banner', {
           method: 'POST',
-          data: {
-            message: banner.message,
-            is_active: banner.is_active,
-            gradient_from: banner.gradient_from,
-            gradient_to: banner.gradient_to,
-            text_color: banner.text_color,
-          },
+          data: bannerData,
         });
         if (data && Array.isArray(data) && data.length > 0) {
-          setBanner(data[0]);
-        } else if (data && !Array.isArray(data)) {
-          setBanner(data);
+          setBannerId(data[0].id);
         }
       }
 
-      alert('✅ הבאנר נשמר בהצלחה!');
-      setSaving(false);
+      alert('הבאנר נשמר בהצלחה!');
     } catch (error: any) {
       console.error('Error saving banner:', error);
-      alert('❌ שגיאה בשמירה: ' + error.message);
+      alert('שגיאה בשמירה: ' + error.message);
+    } finally {
       setSaving(false);
     }
   };
 
-  const applyGradientPreset = (preset: { from: string; to: string }) => {
-    setBanner({
-      ...banner,
-      gradient_from: preset.from,
-      gradient_to: preset.to,
-    });
-  };
-
-  if (status === 'loading' || loading) {
+  if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex justify-center items-center min-h-[50vh]">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
       </div>
     );
   }
 
-  if (status === 'unauthenticated') {
-    return null;
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <Link
-              href="/admin"
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
-            >
-              <FaArrowRight />
-              חזרה
-            </Link>
-            <h1 className="text-3xl font-bold text-gray-800">ניהול באנר</h1>
-          </div>
-        </div>
+    <div>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-800">ניהול באנר עליון</h1>
+        <p className="text-gray-600 mt-2">הבאנר מופיע בראש האתר מעל התפריט</p>
+      </div>
 
-        <div className="grid lg:grid-cols-2 gap-8">
-          {/* Configuration Panel */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-6">הגדרות באנר</h2>
-
-            {/* Active Toggle */}
-            <div className="mb-6">
-              <div className="flex items-center justify-between">
-                <span className="text-gray-700 font-semibold">סטטוס באנר</span>
-                <button
-                  type="button"
-                  onClick={() => setBanner({ ...banner, is_active: !banner.is_active })}
-                  className={`relative w-14 h-8 rounded-full transition-colors ${
-                    banner.is_active ? 'bg-green-500' : 'bg-gray-300'
-                  }`}
-                >
-                  <div
-                    className={`absolute top-1 bg-white w-6 h-6 rounded-full transition-all ${
-                      banner.is_active ? 'left-1' : 'right-1'
-                    }`}
-                  ></div>
-                </button>
-              </div>
-              <p className="text-sm text-gray-500 mt-2">
-                {banner.is_active ? (
-                  <span className="flex items-center gap-2 text-green-600">
-                    <FaEye /> הבאנר מוצג באתר
-                  </span>
+      <div className="grid lg:grid-cols-2 gap-8">
+        {/* Configuration */}
+        <div className="bg-white rounded-lg shadow-md p-6 space-y-6">
+          {/* Active Toggle */}
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="text-gray-700 font-semibold block">סטטוס</span>
+              <span className="text-sm text-gray-500">
+                {isActive ? (
+                  <span className="flex items-center gap-1 text-green-600"><FaEye /> מוצג באתר</span>
                 ) : (
-                  <span className="flex items-center gap-2 text-gray-600">
-                    <FaEyeSlash /> הבאנר מוסתר
-                  </span>
+                  <span className="flex items-center gap-1 text-gray-500"><FaEyeSlash /> מוסתר</span>
                 )}
-              </p>
+              </span>
             </div>
-
-            {/* Message */}
-            <div className="mb-6">
-              <label className="block text-gray-700 font-semibold mb-2">
-                הודעה
-              </label>
-              <textarea
-                value={banner.message}
-                onChange={(e) => setBanner({ ...banner, message: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                rows={3}
-                placeholder="הכניסו את הודעת הבאנר..."
-              />
-            </div>
-
-            {/* Gradient Presets */}
-            <div className="mb-6">
-              <label className="block text-gray-700 font-semibold mb-3">
-                צבעי גרדיאנט מוכנים
-              </label>
-              <div className="grid grid-cols-3 gap-3">
-                {GRADIENT_PRESETS.map((preset) => (
-                  <button
-                    key={preset.name}
-                    onClick={() => applyGradientPreset(preset)}
-                    className="h-12 rounded-lg border-2 border-gray-200 hover:border-primary-500 transition-colors"
-                    style={{
-                      background: `linear-gradient(to right, ${preset.from}, ${preset.to})`,
-                    }}
-                    title={preset.name}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Custom Gradient Colors */}
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <div>
-                <label className="block text-gray-700 font-semibold mb-2">
-                  צבע התחלה
-                </label>
-                <input
-                  type="color"
-                  value={banner.gradient_from}
-                  onChange={(e) => setBanner({ ...banner, gradient_from: e.target.value })}
-                  className="w-full h-12 rounded-lg border border-gray-300 cursor-pointer"
-                />
-                <input
-                  type="text"
-                  value={banner.gradient_from}
-                  onChange={(e) => setBanner({ ...banner, gradient_from: e.target.value })}
-                  className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono"
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700 font-semibold mb-2">
-                  צבע סיום
-                </label>
-                <input
-                  type="color"
-                  value={banner.gradient_to}
-                  onChange={(e) => setBanner({ ...banner, gradient_to: e.target.value })}
-                  className="w-full h-12 rounded-lg border border-gray-300 cursor-pointer"
-                />
-                <input
-                  type="text"
-                  value={banner.gradient_to}
-                  onChange={(e) => setBanner({ ...banner, gradient_to: e.target.value })}
-                  className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono"
-                />
-              </div>
-            </div>
-
-            {/* Text Color */}
-            <div className="mb-6">
-              <label className="block text-gray-700 font-semibold mb-2">
-                צבע טקסט
-              </label>
-              <input
-                type="color"
-                value={banner.text_color}
-                onChange={(e) => setBanner({ ...banner, text_color: e.target.value })}
-                className="w-full h-12 rounded-lg border border-gray-300 cursor-pointer"
-              />
-              <input
-                type="text"
-                value={banner.text_color}
-                onChange={(e) => setBanner({ ...banner, text_color: e.target.value })}
-                className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono"
-              />
-            </div>
-
-            {/* Save Button */}
             <button
-              onClick={handleSave}
-              disabled={saving || !banner.message}
-              className="w-full bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              type="button"
+              onClick={() => setIsActive(!isActive)}
+              className={`relative w-14 h-8 rounded-full transition-colors ${
+                isActive ? 'bg-green-500' : 'bg-gray-300'
+              }`}
             >
-              <FaSave />
-              {saving ? 'שומר...' : 'שמור שינויים'}
+              <div
+                className={`absolute top-1 w-6 h-6 bg-white rounded-full transition-all duration-200 ${
+                  isActive ? 'left-1' : 'left-7'
+                }`}
+              />
             </button>
           </div>
 
-          {/* Preview Panel */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-6">תצוגה מקדימה</h2>
+          {/* Message */}
+          <div>
+            <label className="block text-gray-700 font-semibold mb-2">הודעה</label>
+            <textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              rows={3}
+              placeholder="הכניסו את הודעת הבאנר..."
+            />
+          </div>
 
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
-              <p className="text-sm text-gray-500 mb-4 text-center">
-                כך הבאנר ייראה באתר:
-              </p>
-
-              {banner.message ? (
-                <div
-                  className="relative w-full py-3 px-4 rounded-lg"
-                  style={{
-                    background: `linear-gradient(to right, ${banner.gradient_from}, ${banner.gradient_to})`,
-                    color: banner.text_color,
-                  }}
-                >
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex-1 text-center">
-                      <p className="text-sm md:text-base font-medium">
-                        {banner.message}
-                      </p>
-                    </div>
-                    <button
-                      className="flex-shrink-0 p-1 hover:opacity-80 transition-opacity"
-                      aria-label="סגור באנר"
-                    >
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path
-                          fillRule="evenodd"
-                          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-12 text-gray-400">
-                  הכניסו הודעה כדי לראות תצוגה מקדימה
-                </div>
-              )}
+          {/* Gradient Presets */}
+          <div>
+            <label className="block text-gray-700 font-semibold mb-3">צבעי רקע</label>
+            <div className="grid grid-cols-3 gap-3">
+              {GRADIENT_PRESETS.map((preset) => (
+                <button
+                  key={preset.name}
+                  type="button"
+                  onClick={() => { setGradientFrom(preset.from); setGradientTo(preset.to); }}
+                  className="h-12 rounded-lg border-2 border-gray-200 hover:border-primary-500 transition-colors"
+                  style={{ background: `linear-gradient(to right, ${preset.from}, ${preset.to})` }}
+                  title={preset.name}
+                />
+              ))}
             </div>
+          </div>
 
-            {/* Tips */}
-            <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h3 className="font-semibold text-blue-900 mb-2">💡 טיפים</h3>
-              <ul className="text-sm text-blue-800 space-y-1">
-                <li>• הבאנר יופיע בראש האתר מעל ההדר</li>
-                <li>• משתמשים יכולים לסגור את הבאנר בלחיצה על X</li>
-                <li>• הבאנר יוסתר עד שתשנה את התוכן או המזהה</li>
-                <li>• השתמש באימוג׳י להודעות מושכות יותר 🎉</li>
-              </ul>
+          {/* Custom Colors */}
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <label className="block text-gray-700 text-sm font-medium mb-1">צבע התחלה</label>
+              <input
+                type="color"
+                value={gradientFrom}
+                onChange={(e) => setGradientFrom(e.target.value)}
+                className="w-full h-10 rounded-lg border border-gray-300 cursor-pointer"
+              />
             </div>
+            <div>
+              <label className="block text-gray-700 text-sm font-medium mb-1">צבע סיום</label>
+              <input
+                type="color"
+                value={gradientTo}
+                onChange={(e) => setGradientTo(e.target.value)}
+                className="w-full h-10 rounded-lg border border-gray-300 cursor-pointer"
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700 text-sm font-medium mb-1">צבע טקסט</label>
+              <input
+                type="color"
+                value={textColor}
+                onChange={(e) => setTextColor(e.target.value)}
+                className="w-full h-10 rounded-lg border border-gray-300 cursor-pointer"
+              />
+            </div>
+          </div>
+
+          {/* Save */}
+          <button
+            onClick={handleSave}
+            disabled={saving || !message.trim()}
+            className="w-full bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <FaSave />
+            {saving ? 'שומר...' : 'שמור שינויים'}
+          </button>
+        </div>
+
+        {/* Preview */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-xl font-bold text-gray-800 mb-6">תצוגה מקדימה</h2>
+          <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+            {message.trim() ? (
+              <div
+                className="relative w-full py-3 px-4 rounded-lg"
+                style={{
+                  background: `linear-gradient(to right, ${gradientFrom}, ${gradientTo})`,
+                  color: textColor,
+                }}
+              >
+                <div className="text-center">
+                  <p className="text-sm md:text-base font-medium">{message}</p>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-12 text-gray-400">
+                הכניסו הודעה כדי לראות תצוגה מקדימה
+              </div>
+            )}
+          </div>
+
+          <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h3 className="font-semibold text-blue-900 mb-2">טיפים</h3>
+            <ul className="text-sm text-blue-800 space-y-1">
+              <li>הבאנר מופיע בראש האתר מעל התפריט</li>
+              <li>משתמשים יכולים לסגור אותו בלחיצה על X</li>
+              <li>עדכון ההודעה יציג מחדש את הבאנר גם למי שסגר</li>
+            </ul>
           </div>
         </div>
       </div>
