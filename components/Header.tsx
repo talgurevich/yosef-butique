@@ -119,7 +119,7 @@ export default function Header() {
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between relative">
           {/* Logo - centered on mobile */}
-          <Link href="/" className="flex items-center md:static absolute left-[55%] -translate-x-1/2 md:translate-x-0 md:relative md:left-auto">
+          <Link href="/" className="flex items-center md:static absolute left-1/2 -translate-x-1/2 md:translate-x-0 md:relative md:left-auto">
             <img
               src="/logo-header.svg"
               alt="Yossef Boutique"
