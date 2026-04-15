@@ -219,7 +219,7 @@ export default function Hero() {
         <>
           {/* Desktop promo box */}
           <div
-            className={`hidden md:flex absolute left-6 top-1/2 -translate-y-1/2 w-[260px] lg:w-[300px] z-20 transition-opacity duration-500 ${
+            className={`hidden md:flex absolute left-16 lg:left-24 top-1/2 -translate-y-1/2 w-[260px] lg:w-[300px] z-20 transition-opacity duration-500 ${
               isTransitioning ? 'opacity-0' : 'opacity-100'
             }`}
           >
