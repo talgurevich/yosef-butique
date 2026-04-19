@@ -162,7 +162,7 @@ export default function Header() {
           </nav>
 
           {/* Search + Actions */}
-          <div className="hidden md:flex items-center space-x-4 space-x-reverse">
+          <div className="hidden md:flex items-center space-x-4 space-x-reverse md:ms-4 lg:ms-6">
             {/* Search Bar */}
             <SearchAutocomplete
               wrapperClassName="w-44 lg:w-56"
