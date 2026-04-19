@@ -133,14 +133,17 @@ export default function Hero() {
             isTransitioning ? 'opacity-0 translate-y-8' : 'opacity-100 translate-y-0'
           }`}
         >
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 leading-[1.1] font-display">
-            <span className="text-white drop-shadow-2xl block">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-black mb-6 leading-tight font-display whitespace-nowrap">
+            <span className="text-white drop-shadow-2xl">
               {slide.title}
             </span>
             {slide.subtitle && (
-              <span className={`text-transparent bg-clip-text bg-gradient-to-r ${slide.gradient_from} ${slide.gradient_via} ${slide.gradient_to} drop-shadow-2xl inline-block mt-2`}>
-                {slide.subtitle}
-              </span>
+              <>
+                {' '}
+                <span className={`text-transparent bg-clip-text bg-gradient-to-r ${slide.gradient_from} ${slide.gradient_via} ${slide.gradient_to} drop-shadow-2xl`}>
+                  {slide.subtitle}
+                </span>
+              </>
             )}
           </h1>
 
