@@ -18,7 +18,14 @@ const config: Config = {
       colors: {
         // Base colors for שטיחי בוטיק יוסף
         cream: '#F8F5F0', // צבע בסיס - שמנת/בז' בהיר
-        charcoal: '#2B2B2B', // שחור עדין/פחם כהה
+        charcoal: '#3A3A3A', // שחור פחם רך (unified site text)
+        olive: '#7A8B5C', // גוון זית - הצבע של העלה בלוגו
+        gray: {
+          // Unify strong text shades to charcoal across the site
+          700: '#3A3A3A',
+          800: '#3A3A3A',
+          900: '#3A3A3A',
+        },
         sage: {
           DEFAULT: '#A3B18A', // ירוק מרווה/אקליפטוס
           light: '#C5D1B5',

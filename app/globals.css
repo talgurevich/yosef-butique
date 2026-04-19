@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 43, 43, 43; /* charcoal */
+  --foreground-rgb: 58, 58, 58; /* charcoal softer */
   --background-start-rgb: 248, 245, 240; /* cream */
   --background-end-rgb: 248, 245, 240; /* cream */
 }
