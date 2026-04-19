@@ -42,7 +42,8 @@ async function getAllProducts(): Promise<any[]> {
         product_shapes (
           shapes (
             id,
-            name
+            name,
+            image_url
           )
         ),
         product_spaces (

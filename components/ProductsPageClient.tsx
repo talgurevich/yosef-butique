@@ -169,10 +169,11 @@ function ProductSections({ products }: { products: any[] }) {
 }
 
 function ProductCard({ product }: { product: any }) {
+  const primaryShape = product.product_shapes?.[0]?.shapes;
   const subtitle =
     product.product_categories?.[0]?.categories?.name
       || product.product_colors?.[0]?.colors?.name
-      || product.product_shapes?.[0]?.shapes?.name
+      || primaryShape?.name
       || product.product_spaces?.[0]?.spaces?.name
       || product.product_plant_types?.[0]?.plant_types?.name
       || '';
@@ -223,6 +224,17 @@ function ProductCard({ product }: { product: any }) {
         {!inStock && (
           <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
             <span className="bg-gray-900/80 text-white px-4 py-1 rounded-full text-sm font-bold">אזל</span>
+          </div>
+        )}
+
+        {primaryShape?.image_url && (
+          <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-white/90 backdrop-blur-sm rounded-full py-1 pl-1 pr-3 shadow-md">
+            <img
+              src={primaryShape.image_url}
+              alt={primaryShape.name}
+              className="w-6 h-6 rounded-full object-cover"
+            />
+            <span className="text-xs font-semibold text-charcoal">{primaryShape.name}</span>
           </div>
         )}
 

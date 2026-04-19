@@ -610,7 +610,7 @@ export default function NewProductPage() {
               {shapes.map((shape) => (
                 <label
                   key={shape.id}
-                  className={`flex items-center p-3 border-2 rounded-lg cursor-pointer transition-colors ${
+                  className={`flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-colors ${
                     selectedShapes.includes(shape.id)
                       ? 'border-primary-600 bg-primary-50'
                       : 'border-gray-200 hover:border-primary-300'
@@ -622,7 +622,16 @@ export default function NewProductPage() {
                     onChange={() => toggleShape(shape.id)}
                     className="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
                   />
-                  <span className="mr-3 text-gray-700 font-medium">
+                  {shape.image_url ? (
+                    <img
+                      src={shape.image_url}
+                      alt={shape.name}
+                      className="w-10 h-10 rounded-md object-cover border border-gray-200"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-md bg-gray-100 border border-dashed border-gray-300" />
+                  )}
+                  <span className="text-gray-700 font-medium">
                     {shape.name}
                   </span>
                 </label>

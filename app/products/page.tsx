@@ -71,7 +71,8 @@ async function getProducts(filters: FilterParams = {}) {
         shapes (
           id,
           name,
-          slug
+          slug,
+          image_url
         )
       ),
       product_spaces (
