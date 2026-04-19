@@ -22,7 +22,7 @@ export default function MostWanted({
   const defaultSubtitle = (
     <>
       הקולקציה הפופולרית ביותר שלנו - מוצרים נבחרים
-      <span className="font-serif italic"> באיכות פרימיום</span>
+      <span className="font-bold"> באיכות פרימיום</span>
     </>
   );
   return (

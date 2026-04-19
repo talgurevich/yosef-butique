@@ -113,7 +113,7 @@ export default function Reviews() {
           </h2>
           <p className="text-gray-600 text-lg md:text-xl max-w-2xl mx-auto font-light">
             אלפי לקוחות מרוצים בחרו
-            <span className="font-serif italic"> בשטיחי בוטיק יוסף</span>
+            <span className="font-bold"> בשטיחי בוטיק יוסף</span>
           </p>
         </div>
 

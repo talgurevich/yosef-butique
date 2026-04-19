@@ -52,7 +52,7 @@ export default function CustomerGallery() {
             </h2>
             <p className="text-gray-600 text-lg font-light">
               תמונות אמיתיות
-              <span className="font-serif italic"> מלקוחות מרוצים</span>
+              <span className="font-bold"> מלקוחות מרוצים</span>
             </p>
           </div>
           <div className="text-center py-12">
@@ -87,7 +87,7 @@ export default function CustomerGallery() {
           </h2>
           <p className="text-gray-600 text-lg font-light">
             תמונות אמיתיות
-            <span className="font-serif italic"> מלקוחות מרוצים</span>
+            <span className="font-bold"> מלקוחות מרוצים</span>
           </p>
         </div>
 
