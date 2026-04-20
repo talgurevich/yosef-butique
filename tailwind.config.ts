@@ -12,8 +12,8 @@ const config: Config = {
         'spin-slow': 'spin 2s linear infinite reverse',
       },
       fontFamily: {
-        heading: ['var(--font-alef)', 'serif'],
-        body: ['var(--font-rubik)', 'sans-serif'],
+        heading: ['var(--font-heebo)', 'sans-serif'],
+        body: ['var(--font-heebo)', 'sans-serif'],
       },
       colors: {
         // Base colors for שטיחי בוטיק יוסף

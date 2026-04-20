@@ -32,27 +32,26 @@ body {
 
 /* Typography System - Refined & Elegant */
 h1, h2, h3 {
-  font-family: var(--font-montserrat), var(--font-alef), sans-serif;
+  font-family: var(--font-heebo), sans-serif;
   font-weight: 700;
   letter-spacing: -0.02em;
 }
 
 h4, h5, h6 {
-  font-family: var(--font-playfair), var(--font-alef), serif;
+  font-family: var(--font-heebo), sans-serif;
   font-weight: 600;
 }
 
 .font-display {
-  font-family: var(--font-montserrat), sans-serif;
+  font-family: var(--font-heebo), sans-serif;
 }
 
 .font-serif {
-  font-family: var(--font-playfair), serif;
+  font-family: var(--font-heebo), sans-serif;
 }
 
 .font-elegant {
-  font-family: var(--font-playfair), serif;
-  font-style: italic;
+  font-family: var(--font-heebo), sans-serif;
 }
 
 @layer utilities {

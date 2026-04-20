@@ -6,33 +6,14 @@ import { CartProvider } from "@/contexts/CartContext";
 import StructuredData from "@/components/StructuredData";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import AccessibilityWidget from "@/components/AccessibilityWidget";
-import { Alef, Rubik, Montserrat, Playfair_Display } from 'next/font/google';
+import { Heebo } from 'next/font/google';
 
 const GA_MEASUREMENT_ID = 'G-9Z69J4TVPT';
 
-const alef = Alef({
-  subsets: ['hebrew'],
-  weight: ['400', '700'],
-  variable: '--font-alef',
-});
-
-const rubik = Rubik({
-  subsets: ['hebrew'],
-  weight: ['300', '400', '500', '600', '700'],
-  variable: '--font-rubik',
-});
-
-const montserrat = Montserrat({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800'],
-  variable: '--font-montserrat',
-  display: 'swap',
-});
-
-const playfair = Playfair_Display({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-playfair',
+const heebo = Heebo({
+  subsets: ['hebrew', 'latin'],
+  weight: ['300', '400', '500', '600', '700', '800', '900'],
+  variable: '--font-heebo',
   display: 'swap',
 });
 
@@ -91,7 +72,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="he" dir="rtl" className={`${alef.variable} ${rubik.variable} ${montserrat.variable} ${playfair.variable}`}>
+    <html lang="he" dir="rtl" className={heebo.variable}>
       <head>
         <StructuredData />
         {/* Google Analytics */}
