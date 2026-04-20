@@ -16,8 +16,16 @@ type PromoCode = {
   uses_per_customer: number;
   is_active: boolean;
   expires_at?: string;
+  applies_to_all: boolean;
   created_at: string;
   updated_at: string;
+};
+
+type ProductOption = {
+  id: string;
+  name: string;
+  price: number;
+  product_images?: { image_url: string; sort_order: number }[];
 };
 
 export default function PromoCodesPage() {
@@ -36,11 +44,41 @@ export default function PromoCodesPage() {
     uses_per_customer: 1,
     is_active: true,
     expires_at: '',
+    applies_to_all: true,
   });
+
+  // Per-product targeting
+  const [products, setProducts] = useState<ProductOption[]>([]);
+  const [selectedProductIds, setSelectedProductIds] = useState<Set<string>>(new Set());
+  const [productSearch, setProductSearch] = useState('');
 
   useEffect(() => {
     fetchPromoCodes();
+    fetchProductsForPicker();
   }, []);
+
+  const fetchProductsForPicker = async () => {
+    try {
+      const { data } = await adminFetch<{ data: ProductOption[] }>('products', {
+        params: { filter_column: 'is_active', filter_value: 'true', select: 'id,name,price,product_images(image_url,sort_order)', order_by: 'name' },
+      });
+      setProducts(data || []);
+    } catch (error) {
+      console.error('Error fetching products for picker:', error);
+    }
+  };
+
+  const fetchProductIdsForCode = async (codeId: string) => {
+    try {
+      const { data } = await adminFetch<{ data: { product_id: string }[] }>('promo_code_products', {
+        params: { filter_column: 'promo_code_id', filter_value: codeId, select: 'product_id' },
+      });
+      return new Set((data || []).map((r) => r.product_id));
+    } catch (error) {
+      console.error('Error fetching product targeting:', error);
+      return new Set<string>();
+    }
+  };
 
   const fetchPromoCodes = async () => {
     try {
@@ -56,22 +94,48 @@ export default function PromoCodesPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Free shipping is always sitewide
+    const isFreeShipping = formData.discount_type === 'free_shipping';
+    const appliesToAll = isFreeShipping ? true : formData.applies_to_all;
+
+    if (!appliesToAll && selectedProductIds.size === 0) {
+      alert('יש לבחור לפחות מוצר אחד או לשנות את הקוד לחל על כל המוצרים');
+      return;
+    }
+
     try {
       const dataToSubmit = {
         ...formData,
+        applies_to_all: appliesToAll,
         code: formData.code.toUpperCase(),
         expires_at: formData.expires_at || null,
       };
 
+      let codeId: string;
       if (editingCode) {
-        // Update existing code
         await adminFetch('promo_codes', { method: 'PUT', data: { id: editingCode.id, ...dataToSubmit } });
-        alert('קוד ההנחה עודכן בהצלחה!');
+        codeId = editingCode.id;
       } else {
-        // Create new code (current_uses will default to 0 in the database)
-        await adminFetch('promo_codes', { method: 'POST', data: dataToSubmit });
-        alert('קוד ההנחה נוסף בהצלחה!');
+        const result = await adminFetch<{ data: { id: string }[] }>('promo_codes', { method: 'POST', data: dataToSubmit });
+        codeId = result.data?.[0]?.id;
+        if (!codeId) throw new Error('לא ניתן לקבל את מזהה הקוד החדש');
       }
+
+      // Sync product targeting: clear existing then re-insert if scoped
+      await adminFetch('promo_code_products', {
+        method: 'DELETE',
+        params: { filter_column: 'promo_code_id', filter_value: codeId },
+      });
+
+      if (!appliesToAll && selectedProductIds.size > 0) {
+        const rows = Array.from(selectedProductIds).map((product_id) => ({
+          promo_code_id: codeId,
+          product_id,
+        }));
+        await adminFetch('promo_code_products', { method: 'POST', data: rows });
+      }
+
+      alert(editingCode ? 'קוד ההנחה עודכן בהצלחה!' : 'קוד ההנחה נוסף בהצלחה!');
 
       setShowForm(false);
       setEditingCode(null);
@@ -83,7 +147,7 @@ export default function PromoCodesPage() {
     }
   };
 
-  const handleEdit = (code: PromoCode) => {
+  const handleEdit = async (code: PromoCode) => {
     setEditingCode(code);
     setFormData({
       code: code.code,
@@ -94,7 +158,10 @@ export default function PromoCodesPage() {
       uses_per_customer: code.uses_per_customer,
       is_active: code.is_active,
       expires_at: code.expires_at ? code.expires_at.split('T')[0] : '',
+      applies_to_all: code.applies_to_all !== false,
     });
+    setProductSearch('');
+    setSelectedProductIds(code.applies_to_all === false ? await fetchProductIdsForCode(code.id) : new Set());
     setShowForm(true);
   };
 
@@ -131,6 +198,18 @@ export default function PromoCodesPage() {
       uses_per_customer: 1,
       is_active: true,
       expires_at: '',
+      applies_to_all: true,
+    });
+    setSelectedProductIds(new Set());
+    setProductSearch('');
+  };
+
+  const toggleProduct = (id: string) => {
+    setSelectedProductIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
     });
   };
 
@@ -297,6 +376,83 @@ export default function PromoCodesPage() {
                 </label>
               </div>
             </div>
+
+            {/* Scope: all products vs selected products */}
+            {formData.discount_type !== 'free_shipping' && (
+              <div className="border-t border-gray-200 pt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-3">חלות הקוד</label>
+                <div className="flex flex-col gap-2">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="scope"
+                      checked={formData.applies_to_all}
+                      onChange={() => setFormData({ ...formData, applies_to_all: true })}
+                      className="w-4 h-4 text-primary-600"
+                    />
+                    <span className="text-gray-700">חל על כל המוצרים</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="scope"
+                      checked={!formData.applies_to_all}
+                      onChange={() => setFormData({ ...formData, applies_to_all: false })}
+                      className="w-4 h-4 text-primary-600"
+                    />
+                    <span className="text-gray-700">חל על מוצרים נבחרים בלבד</span>
+                  </label>
+                </div>
+
+                {!formData.applies_to_all && (
+                  <div className="mt-4 border border-gray-200 rounded-lg p-4 bg-gray-50">
+                    <div className="flex items-center justify-between mb-3 gap-4">
+                      <input
+                        type="text"
+                        value={productSearch}
+                        onChange={(e) => setProductSearch(e.target.value)}
+                        placeholder="חיפוש מוצרים..."
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                      />
+                      <span className="text-sm text-gray-600 whitespace-nowrap">
+                        נבחרו {selectedProductIds.size}
+                      </span>
+                    </div>
+                    <div className="max-h-80 overflow-y-auto bg-white rounded-lg border border-gray-200 divide-y divide-gray-100">
+                      {products
+                        .filter((p) => p.name.toLowerCase().includes(productSearch.trim().toLowerCase()))
+                        .map((p) => {
+                          const checked = selectedProductIds.has(p.id);
+                          const img = p.product_images?.sort((a, b) => a.sort_order - b.sort_order)?.[0]?.image_url;
+                          return (
+                            <label
+                              key={p.id}
+                              className={`flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50 ${checked ? 'bg-primary-50' : ''}`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={checked}
+                                onChange={() => toggleProduct(p.id)}
+                                className="w-4 h-4 text-primary-600 border-gray-300 rounded"
+                              />
+                              {img ? (
+                                <img src={img} alt={p.name} className="w-10 h-10 rounded object-cover border border-gray-100" />
+                              ) : (
+                                <div className="w-10 h-10 rounded bg-gray-100" />
+                              )}
+                              <span className="flex-1 text-sm text-gray-800 font-medium">{p.name}</span>
+                              <span className="text-xs text-gray-500 whitespace-nowrap">₪{(p.price || 0).toLocaleString()}</span>
+                            </label>
+                          );
+                        })}
+                      {products.length === 0 && (
+                        <div className="p-4 text-center text-gray-400 text-sm">אין מוצרים זמינים</div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="flex gap-2">
               <button

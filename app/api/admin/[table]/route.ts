@@ -15,6 +15,7 @@ const ALLOWED_TABLES = new Set([
   'plant_light_requirements',
   'plant_pet_safety',
   'promo_codes',
+  'promo_code_products',
   'banner',
   'customer_gallery',
   'email_campaigns',

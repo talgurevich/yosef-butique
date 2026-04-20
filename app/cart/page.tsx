@@ -25,7 +25,8 @@ export default function CartPage() {
     getCartItemsCount,
     applyCoupon,
     removeCoupon,
-    setDelivery
+    setDelivery,
+    isProductDiscounted,
   } = useCart();
 
   const [couponCode, setCouponCode] = useState('');
@@ -58,6 +59,11 @@ export default function CartPage() {
         body: JSON.stringify({
           code: couponCode,
           cartTotal: getCartTotal(),
+          cart: cartItems.map((i) => ({
+            product_id: i.productId,
+            price: i.price,
+            quantity: i.quantity,
+          })),
         }),
       });
 
@@ -162,6 +168,11 @@ export default function CartPage() {
                       >
                         {item.productName}
                       </Link>
+                      {isProductDiscounted(item.productId) && (
+                        <span className="inline-flex items-center gap-1 bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded-full mb-2">
+                          הנחה חלה ({appliedCoupon?.code})
+                        </span>
+                      )}
                       <p className="text-gray-600 mb-4">
                         מידה: <span className="font-medium">{item.variantSize}</span>
                         {item.variantColor && (

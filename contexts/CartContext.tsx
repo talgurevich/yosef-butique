@@ -20,6 +20,8 @@ export type AppliedCoupon = {
   discount_type: 'percentage' | 'fixed' | 'free_shipping';
   discount_value: number;
   discountAmount: number;
+  applies_to_all?: boolean;
+  appliedToProductIds?: string[];
 };
 
 type CartContextType = {
@@ -37,6 +39,7 @@ type CartContextType = {
   setDelivery: (cost: number, distance: number | null, address: string) => void;
   getCartTotal: () => number;
   getDiscountAmount: () => number;
+  isProductDiscounted: (productId: string) => boolean;
   getDeliveryCost: () => number;
   getFinalTotal: () => number;
   getCartItemsCount: () => number;
@@ -271,6 +274,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return appliedCoupon.discountAmount;
   };
 
+  const isProductDiscounted = (productId: string) => {
+    if (!appliedCoupon) return false;
+    if (appliedCoupon.discount_type === 'free_shipping') return false;
+    if (appliedCoupon.applies_to_all !== false) return false; // sitewide → no per-line tag
+    return (appliedCoupon.appliedToProductIds || []).includes(productId);
+  };
+
   const getDeliveryCost = () => {
     if (appliedCoupon?.discount_type === 'free_shipping') return 0;
     return deliveryCost;
@@ -304,6 +314,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setDelivery,
         getCartTotal,
         getDiscountAmount,
+        isProductDiscounted,
         getDeliveryCost,
         getFinalTotal,
         getCartItemsCount,
