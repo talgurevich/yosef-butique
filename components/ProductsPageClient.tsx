@@ -221,7 +221,7 @@ function ProductCard({ product }: { product: any }) {
           </div>
         )}
 
-        <div className="absolute top-3 right-3 flex flex-col items-end gap-2">
+        <div className="absolute top-3 right-3 flex flex-col items-start gap-2">
           {maxDiscountPctRounded > 0 && (
             <div className="bg-black text-white px-3 py-1 rounded-full text-xs font-bold shadow-md">
               עד {maxDiscountPctRounded}% הנחה
