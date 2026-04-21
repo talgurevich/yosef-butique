@@ -138,12 +138,12 @@ function ProductCard({ product, index }: { product: any; index: number }) {
         )}
 
         {product.is_featured && (
-          <div className="absolute top-3 right-3 bg-gradient-to-r from-terracotta to-red-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-md">
+          <div className="absolute top-3 left-3 bg-gradient-to-r from-terracotta to-red-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-md">
             מומלץ
           </div>
         )}
         {maxDiscountPctRounded > 0 && (
-          <div className="absolute top-3 left-3 bg-black text-white px-3 py-1 rounded-full text-xs font-bold shadow-md">
+          <div className="absolute top-3 right-3 bg-black text-white px-3 py-1 rounded-full text-xs font-bold shadow-md">
             עד {maxDiscountPctRounded}% הנחה
           </div>
         )}
