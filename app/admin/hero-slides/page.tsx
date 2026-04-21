@@ -26,6 +26,7 @@ interface HeroSlide {
   promo_description: string;
   promo_disclaimer: string;
   promo_code: string;
+  promo_prefix_enabled: boolean;
 }
 
 const COLOR_PRESETS = [
@@ -57,6 +58,7 @@ const emptyForm = {
   promo_description: '',
   promo_disclaimer: '',
   promo_code: '',
+  promo_prefix_enabled: true,
 };
 
 export default function HeroSlidesPage() {
@@ -136,6 +138,7 @@ export default function HeroSlidesPage() {
       promo_description: slide.promo_description || '',
       promo_disclaimer: slide.promo_disclaimer || '',
       promo_code: slide.promo_code || '',
+      promo_prefix_enabled: slide.promo_prefix_enabled ?? true,
     });
     setPreviewUrl(slide.image_url || '');
     setShowForm(true);
@@ -199,6 +202,7 @@ export default function HeroSlidesPage() {
         promo_description: formData.promo_description || null,
         promo_disclaimer: formData.promo_disclaimer || null,
         promo_code: formData.promo_code || null,
+        promo_prefix_enabled: formData.promo_prefix_enabled,
       };
 
       if (editingSlide) {
@@ -510,6 +514,18 @@ export default function HeroSlidesPage() {
 
               {formData.promo_enabled && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
+                  <div className="md:col-span-2 flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      id="promo_prefix_enabled"
+                      checked={formData.promo_prefix_enabled}
+                      onChange={(e) => setFormData({ ...formData, promo_prefix_enabled: e.target.checked })}
+                      className="w-5 h-5 text-primary-600 rounded focus:ring-primary-500"
+                    />
+                    <label htmlFor="promo_prefix_enabled" className="text-sm font-medium text-gray-700">
+                      הצג את המילה ״עד״ מעל האחוזים
+                    </label>
+                  </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">טקסט גדול (למשל: 10%)</label>
                     <input

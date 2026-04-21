@@ -25,6 +25,7 @@ type HeroSlide = {
   promo_description?: string;
   promo_disclaimer?: string;
   promo_code?: string;
+  promo_prefix_enabled?: boolean;
 };
 
 export default function Hero() {
@@ -227,9 +228,11 @@ export default function Hero() {
             }`}
           >
             <div className="relative w-full flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm rounded-2xl px-8 py-10 text-center">
-              <div className={`text-2xl lg:text-3xl font-bold leading-none ${slide.accent_color}`}>
-                עד
-              </div>
+              {slide.promo_prefix_enabled !== false && (
+                <div className={`text-2xl lg:text-3xl font-bold leading-none ${slide.accent_color}`}>
+                  עד
+                </div>
+              )}
               <div className={`text-7xl lg:text-8xl font-black font-display mb-2 ${slide.accent_color}`}>
                 {slide.promo_text}
               </div>
@@ -265,7 +268,9 @@ export default function Hero() {
           >
             <div className="bg-black/60 backdrop-blur-sm rounded-xl px-4 py-3 flex items-center justify-between gap-3">
               <div className="flex items-baseline gap-2">
-                <span className={`text-base font-bold ${slide.accent_color}`}>עד</span>
+                {slide.promo_prefix_enabled !== false && (
+                  <span className={`text-base font-bold ${slide.accent_color}`}>עד</span>
+                )}
                 <span className={`text-3xl font-black font-display ${slide.accent_color}`}>{slide.promo_text}</span>
                 {slide.promo_subtitle && (
                   <span className={`text-lg font-bold ${slide.accent_color}`}>{slide.promo_subtitle}</span>
