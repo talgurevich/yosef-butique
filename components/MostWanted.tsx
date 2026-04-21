@@ -102,6 +102,17 @@ function ProductCard({ product, index }: { product: any; index: number }) {
   const hasMultiplePrices = activeVariants.length > 1 &&
     new Set(activeVariants.map((v: any) => v.price)).size > 1;
 
+  let maxDiscountPct = 0;
+  if (product.compare_at_price && product.price && product.compare_at_price > product.price) {
+    maxDiscountPct = Math.max(maxDiscountPct, ((product.compare_at_price - product.price) / product.compare_at_price) * 100);
+  }
+  for (const v of activeVariants) {
+    if (v.compare_at_price && v.price && v.compare_at_price > v.price) {
+      maxDiscountPct = Math.max(maxDiscountPct, ((v.compare_at_price - v.price) / v.compare_at_price) * 100);
+    }
+  }
+  const maxDiscountPctRounded = Math.round(maxDiscountPct);
+
   return (
     <Link
       href={`/product/${product.slug}`}
@@ -131,9 +142,9 @@ function ProductCard({ product, index }: { product: any; index: number }) {
             מומלץ
           </div>
         )}
-        {product.compare_at_price && product.compare_at_price > displayPrice && (
-          <div className="absolute top-3 left-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-md">
-            מבצע!
+        {maxDiscountPctRounded > 0 && (
+          <div className="absolute top-3 left-3 bg-black text-white px-3 py-1 rounded-full text-xs font-bold shadow-md">
+            עד {maxDiscountPctRounded}% הנחה
           </div>
         )}
         {!inStock && (
