@@ -221,16 +221,18 @@ function ProductCard({ product }: { product: any }) {
           </div>
         )}
 
-        {product.is_featured && (
-          <div className="absolute top-3 left-3 bg-black text-white px-3 py-1 rounded-full text-xs font-bold shadow-md">
-            מומלץ
-          </div>
-        )}
-        {maxDiscountPctRounded > 0 && (
-          <div className="absolute top-3 right-3 bg-black text-white px-3 py-1 rounded-full text-xs font-bold shadow-md">
-            עד {maxDiscountPctRounded}% הנחה
-          </div>
-        )}
+        <div className="absolute top-3 right-3 flex flex-col items-end gap-2">
+          {maxDiscountPctRounded > 0 && (
+            <div className="bg-black text-white px-3 py-1 rounded-full text-xs font-bold shadow-md">
+              עד {maxDiscountPctRounded}% הנחה
+            </div>
+          )}
+          {product.is_featured && (
+            <div className="bg-black text-white px-3 py-1 rounded-full text-xs font-bold shadow-md">
+              מומלץ
+            </div>
+          )}
+        </div>
         {!inStock && (
           <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
             <span className="bg-gray-900/80 text-white px-4 py-1 rounded-full text-sm font-bold">אזל</span>
