@@ -121,6 +121,13 @@ export default function Header() {
               כל המוצרים
             </Link>
 
+            <Link
+              href="/sale"
+              className="text-red-600 font-bold hover:text-red-700 transition-colors"
+            >
+              מבצעים
+            </Link>
+
             {/* Carpets Dropdown */}
             <button
               onMouseEnter={handleCarpetsMouseEnter}
@@ -295,6 +302,13 @@ export default function Header() {
                 className="text-gray-700 hover:text-primary-600 transition-colors py-2 px-4 hover:bg-gray-50 rounded-lg"
               >
                 כל המוצרים
+              </Link>
+              <Link
+                href="/sale"
+                onClick={closeMobileMenu}
+                className="text-red-600 font-bold hover:text-red-700 transition-colors py-2 px-4 hover:bg-gray-50 rounded-lg"
+              >
+                מבצעים
               </Link>
               <Link
                 href="/products?type=carpets"

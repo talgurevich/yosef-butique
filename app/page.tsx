@@ -266,6 +266,13 @@ export default async function Home() {
   const allPlants = allProducts.filter(
     (p) => p.product_types?.slug === 'plants'
   );
+  const saleProducts = allProducts.filter((p: any) => {
+    if (p.compare_at_price && p.price && p.compare_at_price > p.price) return true;
+    const variants = p.product_variants || [];
+    return variants.some(
+      (v: any) => v.is_active && v.compare_at_price && v.price && v.compare_at_price > v.price
+    );
+  });
 
   return (
     <main className="min-h-screen">
@@ -273,6 +280,15 @@ export default async function Home() {
       <Header />
       <Hero />
       <TrustBar />
+      {saleProducts.length > 0 && (
+        <MostWanted
+          products={saleProducts}
+          title="מבצעים"
+          subtitle="מוצרים נבחרים במחירי מבצע - במלאי מוגבל"
+          ctaLabel="צפה בכל המבצעים"
+          ctaHref="/sale"
+        />
+      )}
       <MostWanted
         products={allCarpets}
         title="השטיחים שלנו"
