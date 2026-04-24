@@ -1,74 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import sharp from 'sharp';
-import { readFileSync } from 'fs';
-import { join } from 'path';
-
-// Cache for logo buffer
-let cachedLogoBuffer: Buffer | null = null;
-
-function getLogoBuffer(): Buffer {
-  if (cachedLogoBuffer) {
-    return cachedLogoBuffer;
-  }
-
-  // Read logo directly from filesystem (works on both local and Vercel)
-  const logoPath = join(process.cwd(), 'public', 'logo-new.png');
-  cachedLogoBuffer = readFileSync(logoPath);
-  return cachedLogoBuffer;
-}
-
-async function addWatermark(imageBuffer: Buffer): Promise<Buffer> {
-  try {
-    // Get the original image metadata
-    const image = sharp(imageBuffer);
-    const metadata = await image.metadata();
-    const imageWidth = metadata.width || 800;
-    const imageHeight = metadata.height || 600;
-
-    // Calculate logo size (30% of image width)
-    const logoWidth = Math.round(imageWidth * 0.3);
-
-    // Load, resize, and set 20% opacity on the logo
-    const logoBuffer = getLogoBuffer();
-    const resizedLogo = await sharp(logoBuffer)
-      .resize(logoWidth)
-      .ensureAlpha()
-      .composite([{
-        input: Buffer.from([255, 255, 255, Math.round(255 * 0.4)]),
-        raw: { width: 1, height: 1, channels: 4 },
-        tile: true,
-        blend: 'dest-in',
-      }])
-      .toBuffer();
-
-    // Get resized logo dimensions
-    const logoMetadata = await sharp(resizedLogo).metadata();
-    const logoHeight = logoMetadata.height || 50;
-
-    // Position: centered horizontally, bottom with padding
-    const left = Math.round((imageWidth - logoWidth) / 2);
-    const bottomPadding = Math.round(imageHeight * 0.03);
-    const top = imageHeight - logoHeight - bottomPadding;
-
-    // Composite the logo onto the image
-    const watermarkedImage = await sharp(imageBuffer)
-      .composite([
-        {
-          input: resizedLogo,
-          top: Math.max(0, top),
-          left: Math.max(0, left),
-        },
-      ])
-      .toBuffer();
-
-    return watermarkedImage;
-  } catch (error) {
-    console.error('Error adding watermark:', error);
-    // Return original if watermarking fails
-    return imageBuffer;
-  }
-}
 
 export async function POST(request: NextRequest) {
   // Server-side admin client with service role key
@@ -101,12 +32,7 @@ export async function POST(request: NextRequest) {
 
     // Convert file to ArrayBuffer
     const arrayBuffer = await file.arrayBuffer();
-    let buffer: Buffer = Buffer.from(arrayBuffer);
-
-    // Add watermark to the image (only for supported formats)
-    if (['jpg', 'jpeg', 'png', 'webp'].includes(fileExt || '')) {
-      buffer = await addWatermark(buffer) as Buffer;
-    }
+    const buffer: Buffer = Buffer.from(arrayBuffer);
 
     // Upload to Supabase Storage
     const { error: uploadError } = await supabaseAdmin.storage
